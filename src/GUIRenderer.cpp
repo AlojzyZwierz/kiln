@@ -1,0 +1,244 @@
+#include "GUIRenderer.h"
+#include "FakeFurnace.h"
+extern FakeFurnace furnace;
+GUIRenderer::GUIRenderer(
+    TFT_eSPI& display, 
+    TemperatureSensor& sensor, 
+    CurveSelector& cs, 
+    CurveManager& cm, 
+    FakeFurnace& f
+)    : tft(display), 
+    sprite(&display),
+    tempSensor(sensor), 
+    curveSelector(cs),
+      curveManager(cm),
+      leftArrow(sprite, 10, 110, 30,  ArrowDirection::Left, TFT_BROWN),
+      rightArrow(sprite, 280, 110, 30,  ArrowDirection::Right, TFT_BROWN), 
+      
+        startButton(sprite, "Start", 150, 200, 60, 25, sprite.color565(255, 245, 250), TFT_BLACK),
+        editButton(sprite, "Edit", 220, 200, 60, 25, sprite.color565(255, 245, 250), TFT_BLACK),
+        stopButton(sprite, "Stop", 170, 200, 90, 25,sprite.color565(255, 245, 250), TFT_BLACK),
+        graphRenderer(sprite, cm, f),
+        temperatureLabel("Temperature", 25, 40, TFT_BLACK, 2),
+        curveIndexLabel("Curve Index", 25, 60, TFT_BLACK, 1),
+        expectedTempLabel("Expected Temp", 25, 75, TFT_BLACK, 1),
+        timeLabel("Time", 25, 70, TFT_BLACK, 2),
+        segmentIndexLabel("Segment Index", 5, 40, TFT_BLACK, 1), // Dodajemy etykietę dla segmentu
+        editCircle(sprite, 110, 90, 70, cm) ,// Dodajemy okrąg edycyjny
+        closeButton(sprite, "X", 290, 13, 17, 20, sprite.color565(255, 245, 250), TFT_BLACK),
+        saveButton(sprite, "Save", 200, 200, 90, 25, sprite.color565(255, 245, 250), TFT_BLACK),
+        endHereButton(sprite, "Cut", 140, 200, 40, 25, sprite.color565(255, 245, 250), TFT_BLACK),
+        furnace(f)
+         // Inicjalizujemy sprite
+        
+      {
+        sprite.setColorDepth(8);
+        sprite.createSprite(TFT_HEIGHT, TFT_WIDTH); // Tworzymy sprite o wymiarach ekranu
+        //sprite.createSprite(TFT_WIDTH, TFT_HEIGHT); /
+        if (!sprite.created()) {
+            Serial.println("Sprite creation failed!");
+        }else {
+            Serial.println("Sprite created successfully!");
+        }
+    startButton.setCallback([&]() {
+        ProcessController::get().startFiring();
+        setMode(GUIMode::Firing);
+    });
+    editButton.setCallback([&]() {
+        //curveSelector.selectNext();
+        setMode(GUIMode::Edit);
+    });
+    closeButton.setCallback([&]() {
+        setMode(GUIMode::Idle);
+        StorageManager::loadCurve(curveManager, curveSelector.getSelectedIndex());
+        
+    });
+    clickables.push_back(&startButton);
+    clickables.push_back(&leftArrow);
+    clickables.push_back(&rightArrow);
+    clickables.push_back(&editButton);
+    clickables.push_back(&stopButton);    
+    clickables.push_back(&closeButton);
+    clickables.push_back(&saveButton);
+    clickables.push_back(&endHereButton);
+    clickables.push_back(&editCircle);
+    uiElements.push_back(&temperatureLabel);
+    uiElements.push_back(&curveIndexLabel);
+    uiElements.push_back(&expectedTempLabel);
+    uiElements.push_back(&leftArrow);
+    uiElements.push_back(&rightArrow);  
+    uiElements.push_back(&startButton);
+    uiElements.push_back(&editButton);
+    uiElements.push_back(&stopButton);
+    uiElements.push_back(&timeLabel);
+    uiElements.push_back(&segmentIndexLabel);
+    uiElements.push_back(&closeButton);
+    uiElements.push_back(&saveButton);
+    uiElements.push_back(&endHereButton);
+    uiElements.push_back(&editCircle);
+
+    setMode(GUIMode::Idle);
+    Serial.println("Clickables in list in constructor: " + String(clickables.size()));
+    sprite.setFreeFont(FONT_SMALL);
+      }
+
+void GUIRenderer::render() {
+    sprite.deleteSprite(); // Usuwamy poprzedni sprite
+    sprite.createSprite(TFT_HEIGHT, TFT_WIDTH); // Tworzymy nowy sprite o wymiarach ekranu
+    if (!sprite.created()) {
+        Serial.println("Sprite creation failed!");
+    }else {
+        Serial.println("Sprite created successfully!");
+    }
+    sprite.fillSprite(TFT_WHITE);
+    graphRenderer.render( CurrentMode); // Rysuje wykres
+    drawHeader();
+    for (auto& uIElement : uiElements) {  // Używamy referencji (auto&), aby uniknąć kopiowania
+        if (uIElement->isVisible()) {    // Opcjonalne sprawdzenie widoczności
+            uIElement->render(sprite);      // Wywołanie wirtualnej metody render()
+        }
+    }   
+    //sprite.drawCircle(110, 90, 70, TFT_YELLOW); // Rysujemy okrąg
+    sprite.pushSprite(0, 0); // Wyświetlamy sprite na ekranie
+}
+
+void GUIRenderer::drawHeader() {
+    //float temperature = tempSensor.getTemperature();
+    
+    float temperature = CurrentMode!=GUIMode::Edit?furnace.getTemperature():curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex()].endTemp; // potrzebujesz takiej metody
+    int curveIndex = curveSelector.getSelectedIndex(); // potrzebujesz takiej metody
+
+
+    temperatureLabel.setText(String(temperature,1) + "'C");
+    String segInd = (curveManager.getSegmentIndex()<0)?" ":( "/" +String(curveManager.getSegmentIndex()));
+    curveIndexLabel.setText("prog #" + String(curveIndex) + segInd );
+    expectedTempLabel.setText("e:" + String(ProcessController::get().getExpectedTemp(), 1) + "°C"); // potrzebujesz takiej metody
+    //timeLabel.setText("Time: " + String(curveManager.getTotalTime()) + "s"); // potrzebujesz takiej metody
+    segmentIndexLabel.setText( String(curveManager.getSegmentIndex()+1)); // potrzebujesz takiej metody,
+    timeLabel.setText(((curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex()].hTime)==60000)?"skip": Utils::millisToHM( curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex()].hTime)); // potrzebujesz takiej metody
+  /*  sprite.setFreeFont(FONT_LARGE);
+    sprite.setTextSize(1.8);
+    
+    sprite.setCursor(25, 40);
+    sprite.printf("%.1f°C", temperature);
+
+    // Numer krzywej - mniejsza czcionka
+    sprite.setFreeFont(FONT_MEDIUM);
+    sprite.setTextSize(1);
+    sprite.setCursor(25, 60);
+    sprite.print("e: " +  String( ProcessController::get().getExpectedTemp())); // potrzebujesz takiej metody
+
+    sprite.setCursor(25, 75);
+    sprite.printf("Prog #%d", curveIndex);
+    for(auto& uiElement : uiElements) {
+        if (uiElement->isVisible()) {
+            uiElement->render(sprite); // Rysujemy elementy UI
+        }
+    }
+        */
+}
+
+void GUIRenderer::handleTouch(int x, int y) {
+    //Serial.println("Clickables on list: " + String(clickables.size()));
+    for (const auto& clickable : clickables) {
+        //Serial.println("visible-"+ String(clickable->isVisible())+" active-" + String(clickable->isActive()));
+        if(clickable->isVisible()) {                        // dodać sprawdzenie aktywności
+            if(clickable->handleClick(x, y)) break;
+        }        
+    }
+}
+
+
+void GUIRenderer::setupUIFormodes(GUIMode mode) {
+    for (auto* c : uiElements) {
+        c->setVisible(false);
+        // c->setVisible(false); // jeśli masz widoczność
+    }
+    switch (mode) {
+        case GUIMode::Idle:
+            startButton.setVisible(true);
+            editButton.setVisible(true);
+            leftArrow.setVisible(true);
+            rightArrow.setVisible(true);
+            leftArrow.setCallback([&]() {
+                curveSelector.selectPrevious(); 
+            });
+            rightArrow.setCallback([&]() {
+                curveSelector.selectNext(); // musisz mieć taką metodę!
+            });
+            temperatureLabel.setVisible(true);
+            curveIndexLabel.setVisible(true);
+            curveManager.setSegmentIndex(-1); // Resetowanie indeksu segmentu
+   
+        
+            break;
+        case GUIMode::Edit:
+        curveManager.setSegmentIndex(0); 
+
+            leftArrow.setVisible(true);
+            rightArrow.setVisible(true);
+            timeLabel.setVisible(true);
+            segmentIndexLabel.setVisible(true);
+            editCircle.setVisible(true);
+            segmentIndexLabel.setVisible(true);
+            temperatureLabel.setVisible(true);
+            closeButton.setVisible(true);
+            saveButton.setVisible(true);
+            endHereButton.setVisible(true);
+
+            saveButton.setCallback([&]() {
+                if(curveManager.getSegmentIndex() < curveElemsNo-1) {
+                 //   curveManager.getOriginalCurve().elems[0].hTime = 0;
+                }
+                StorageManager::saveCurve(curveManager, curveSelector.getSelectedIndex());
+                setMode(GUIMode::Idle);
+            });
+            /*            saveButton.setCallback([&]() {
+                StorageManager::saveCurve(curveManager, curveSelector.getSelectedIndex());
+                setMode(GUIMode::Idle);
+            });*/
+            leftArrow.setCallback([&]() {
+              if (curveManager.getSegmentIndex()>0 )curveManager.setSegmentIndex(curveManager.getSegmentIndex() - 1);
+            });
+            rightArrow.setCallback([&]() {
+                int segIndex = curveManager.getSegmentIndex();
+                if( segIndex < curveElemsNo-2){
+                    curveManager.setSegmentIndex(segIndex + 1);
+                    if(curveManager.getOriginalCurve().elems[segIndex + 1].hTime == 0) {
+                        //Curve  curve = curveManager.getOriginalCurve();
+                        curveManager.updateTime(segIndex + 1, 3600000);
+                        curveManager.updateTemperature(segIndex + 1, curveManager.getOriginalCurve().elems[segIndex].endTemp);
+                        curveManager.updateTime(segIndex + 2, 0);
+                        /*curve.elems[segIndex +2].hTime = 0;
+                            curve.elems[segIndex +1].hTime = 3600000;
+                            curve.elems[segIndex +1].endTemp = curve.elems[segIndex].endTemp;
+                            curveManager.loadOriginalCurve(curve);*/
+                           // Serial.println("+++ " + String(curve.elems[segIndex +1].hTime) + " " + String(curve.elems[segIndex +1].endTemp) );
+                           // Serial.println("+++++ " + String(curve.elems[segIndex +2].hTime) + " " + String(curve.elems[segIndex +2].endTemp) );
+                        //Serial.println(String(curve.toString()));
+                       // Serial.println("_____"+String(curveManager.getOriginalCurve().toString()));
+                       // Serial.println("___**__"+String(curveManager.getAdjustedCurve().toString()));
+                }    
+            }
+        });
+            endHereButton.setCallback([&]() {
+                if(curveManager.getSegmentIndex() +1 < curveElemsNo) curveManager.updateTime(curveManager.getSegmentIndex() + 1, 0);
+                Serial.println("End here pressed " + curveManager.getOriginalCurve().toString());
+
+            });
+
+            break;
+        case GUIMode::Firing:
+        stopButton.setVisible(true);
+        temperatureLabel.setVisible(true);
+        curveIndexLabel.setVisible(true);
+        expectedTempLabel.setVisible(true);
+        stopButton.setCallback([&]() {
+            ProcessController::get().abort("Aborted by user");
+            setMode(GUIMode::Idle);
+        });
+    
+            break;
+    }
+}
+

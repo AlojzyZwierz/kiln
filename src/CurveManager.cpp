@@ -1,0 +1,127 @@
+#include "CurveManager.h"
+
+CurveManager::CurveManager() {}
+
+void CurveManager::loadOriginalCurve(const Curve& inputCurve) {
+    originalCurve = inputCurve;
+    bool zeroReached = false;
+    for (size_t i = 0; i < curveElemsNo; i++)
+    {
+        if (originalCurve.elems[i].hTime == 0) {
+            zeroReached = true;            
+        }
+        if(zeroReached) {
+            originalCurve.elems[i].hTime = 0;
+            originalCurve.elems[i].endTemp = 100.0f;
+        }
+    }
+
+    adjustedCurve = genCurveWithFakeSkips( originalCurve); 
+}
+
+void CurveManager::resetAdjustedCurve() {
+    adjustedCurve = originalCurve;
+}
+
+
+bool CurveManager::isValidIndex(char index) const {
+    return index <curveElemsNo && index >= 0;
+}
+
+const Curve& CurveManager::getOriginalCurve() const {
+    return originalCurve;
+}
+
+const Curve& CurveManager::getAdjustedCurve() const {
+    return adjustedCurve;
+}
+
+const  int CurveManager::getcurrentCurveIndex() const {
+    return currentCurveIndex;
+}
+const  void CurveManager::setcurrentCurveIndex(unsigned int index) {
+    currentCurveIndex = index;
+}
+    
+Curve CurveManager::getDefaultCurve() {
+    Curve defaultCurve;
+    
+        //Curve defaultCurve;
+        defaultCurve.elems[0].endTemp =  94;  
+        defaultCurve.elems[1].endTemp =  94;
+        defaultCurve.elems[2].endTemp = 149;
+        defaultCurve.elems[3].endTemp =  149;
+        defaultCurve.elems[4].endTemp = 571;
+        defaultCurve.elems[5].endTemp =  571;
+        defaultCurve.elems[6].endTemp =  1000;
+        defaultCurve.elems[7].endTemp =  1000;
+        
+        defaultCurve.elems[0].hTime =  4500000 ;
+        defaultCurve.elems[1].hTime =  7200000 ;
+        defaultCurve.elems[2].hTime =   1800000;
+        defaultCurve.elems[3].hTime =  1800000 ;
+        defaultCurve.elems[4].hTime = 14400000 ;
+        defaultCurve.elems[5].hTime =  1800000 ;
+        defaultCurve.elems[6].hTime =  14400000 ;
+        defaultCurve.elems[7].hTime =  0 ;
+        
+        
+    
+    return defaultCurve;
+}
+
+Curve CurveManager::genCurveWithFakeSkips(Curve& curve) {
+    Curve modified;
+    bool zeroReached = false;
+    for (int i = 0; i < curveElemsNo; ++i) {
+      if (curve.elems[i].hTime == 0) zeroReached = true;  
+      if(!zeroReached){
+      modified.elems[i].hTime = (curve.elems[i].hTime == 60000)
+          ?  4000 * curve.elems[i].endTemp 
+          : curve.elems[i].hTime;  
+      modified.elems[i].endTemp = curve.elems[i].endTemp;
+      } else {
+        modified.elems[i].hTime = 0;
+        modified.elems[i].endTemp = 350.0f; // Set to a high value to indicate no temperature
+      }
+    }
+    return modified;
+}
+
+ float CurveManager::getMaxTemp(Curve& c) {
+    float maxT = 0;
+    for (int i = 0; i < curveElemsNo; i++) {
+      if (c.elems[i].hTime == 0) break;
+      if (c.elems[i].endTemp > maxT) {
+        maxT = c.elems[i].endTemp;
+      }
+    }
+    return maxT;
+}
+CurveManager CurveManager::clone() const {
+    CurveManager copy;
+    copy.originalCurve = this->originalCurve;
+    copy.adjustedCurve = this->adjustedCurve;
+    copy.currentCurveIndex = this->currentCurveIndex;
+    return copy;
+}
+void CurveManager::updateTemperature(char index, float newTemperature) {
+    if (isValidIndex(index)) {
+        originalCurve.elems[index].endTemp = newTemperature;
+        adjustedCurve = genCurveWithFakeSkips(originalCurve); 
+    }
+}
+void CurveManager::updateTime(char index, unsigned long newDurationMs) {
+    if (isValidIndex(index)) {
+        originalCurve.elems[index].hTime = newDurationMs;
+        adjustedCurve = genCurveWithFakeSkips(originalCurve); // Update adjusted curve after changing time
+        Serial.println("Adjusted curve: " + adjustedCurve.toString());
+        Serial.println("Original curve: " + originalCurve.toString());
+    }
+}
+void CurveManager::updateAdjustedCurve(char index, unsigned long newDurationMs) {
+    if (isValidIndex(index)) {
+        adjustedCurve.elems[index].hTime = newDurationMs;
+        // Update adjusted curve after changing time
+    }
+}

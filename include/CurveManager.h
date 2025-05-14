@@ -1,0 +1,64 @@
+#pragma once
+#ifndef CURVEMANAGER_H
+#define CURVEMANAGER_H
+#include <Arduino.h>
+#include <Line.h>
+//#include <string>
+struct Seg {
+    unsigned long hTime;
+    float endTemp;
+    String toString() const {
+        return ("<" + String(hTime) + "::" + String(endTemp) + ">");
+    }
+};
+
+constexpr int curveElemsNo = 25;
+
+struct Curve {
+    Seg elems[curveElemsNo];
+    String toString() const {
+        String toReturn = "";
+        for (int i = 0; i < curveElemsNo; i++) {
+            //if (elems[i].hTime == 0) break;
+            toReturn += " [" + String(i) + "] " + elems[i].toString() + "\n";
+        }
+        return toReturn;
+    }
+};
+
+class CurveManager {
+    public:
+    //constexpr static int curveElemsNo = curveElemsN;
+        CurveManager();
+        //int getCurveCount() const { return curveElemsNo; }
+        void loadOriginalCurve(const Curve& inputCurve);
+        void resetAdjustedCurve();
+    
+        void updateTime(char index, unsigned long newDurationMs);
+        void updateTemperature(char index, float newTemperature);
+        void updateAdjustedCurve(char index, unsigned long newDurationMs);
+        
+        const Curve& getOriginalCurve() const;
+        const Curve& getAdjustedCurve() const;
+
+        static float getMaxTemp(Curve& c);
+    
+        bool isValidIndex(char index) const;
+        const  int getcurrentCurveIndex() const;
+        const  void setcurrentCurveIndex(unsigned int index) ;
+
+        static Curve getDefaultCurve() ;
+        CurveManager clone() const;
+        void setSegmentIndex(unsigned int index) { currentSegmentIndex = index; }
+        int getSegmentIndex() const { return currentSegmentIndex; }
+
+        unsigned long getSegmentTime() const { return originalCurve.elems[currentSegmentIndex].hTime; }
+        float getSegmentTemp() const { return originalCurve.elems[currentSegmentIndex].endTemp; }
+    private:
+        int currentSegmentIndex = 0;
+        Curve originalCurve;
+        Curve adjustedCurve;
+        unsigned int currentCurveIndex = 0; 
+        static Curve genCurveWithFakeSkips(Curve& curve);
+    };
+#endif // CURVEDEF_H
