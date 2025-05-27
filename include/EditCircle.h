@@ -7,7 +7,7 @@
 
 class EditCircle : public Clickable {
 public:
-    EditCircle(TFT_eSprite& display, int x, int y, int radius, CurveManager& cm) ;
+    EditCircle( int x, int y, int radius, CurveManager& cm) ;
 
     void render(TFT_eSprite& tft) override;
     bool wasClicked(int x, int y) override;
@@ -20,7 +20,7 @@ public:
     //Curve curve;
     CurveManager& curveManager;
     //int segmentIndex = 0;
-    TFT_eSprite& tft;
+    //TFT_eSprite& tft;
     int posX, posY;
     int radius;
     uint16_t circleColor;

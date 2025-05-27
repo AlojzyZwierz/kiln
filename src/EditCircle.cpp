@@ -1,8 +1,8 @@
 #include    <EditCircle.h>
 #include    <arduino.h>
 
-EditCircle::EditCircle(TFT_eSprite& display, int x, int y, int radius, CurveManager& cm) 
-    : tft(display), posX(x), posY(y), radius(radius), curveManager(cm) {
+EditCircle::EditCircle( int x, int y, int radius, CurveManager& cm) 
+    :  posX(x), posY(y), radius(radius), curveManager(cm) {
     active = true;
     highlighted = false;
     visible = false;

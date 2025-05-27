@@ -20,6 +20,7 @@
 #include "CurveManager.h"
 #include "StorageManager.h"
 #include "FakeFurnace.h"
+#include "Modal.h"
 
 class Clickable;
 
@@ -50,6 +51,7 @@ private:
     TextButton closeButton;
     TextButton saveButton;
     TextButton endHereButton;
+    TextButton settingsButton;
     UILabel temperatureLabel;
     UILabel curveIndexLabel;
     UILabel expectedTempLabel;
@@ -63,6 +65,8 @@ private:
     GUIMode CurrentMode = GUIMode::Idle;
     void setupUIFormodes(GUIMode mode);
     FakeFurnace& furnace; 
+    Modal modal;
+    bool isModalVisible = false;
 };
 
 #endif

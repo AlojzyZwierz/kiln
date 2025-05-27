@@ -1,12 +1,11 @@
 #include "TextButton.h"
 
 TextButton::TextButton(
-    TFT_eSprite& display,
     const String& label,
     int x, int y, int w, int h,
     uint16_t bgColor,
     uint16_t textColor
-) : tft(display), text(label), posX(x), posY(y), width(w), height(h),
+) : text(label), posX(x), posY(y), width(w), height(h),
     backgroundColor(bgColor), fontColor(textColor), highlighted(false), Clickable(active) {}
 
 void TextButton::render(TFT_eSprite& tft) {

@@ -30,7 +30,7 @@ static ProcessController& get(){
     static float getMaxTemp(Curve c);
     float getExpectedTemp() const {
         float exp = segmentLine.y(millis());
-        Serial.println("Expected temp: " + String(exp) );
+        //Serial.println("Expected temp: " + String(exp) );
         return exp;
         
     }

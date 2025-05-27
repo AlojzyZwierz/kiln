@@ -7,8 +7,7 @@
 
 class TextButton : public Clickable {
 public:
-    TextButton(
-        TFT_eSprite& display,
+    TextButton(        
         const String& label,
         int x, int y, int w, int h,
         uint16_t bgColor = TFT_DARKGREY,
@@ -26,7 +25,7 @@ public:
     
 
 private:
-TFT_eSprite& tft;
+//TFT_eSprite& tft;
     String text;
     int posX, posY, width, height;
     uint16_t backgroundColor;

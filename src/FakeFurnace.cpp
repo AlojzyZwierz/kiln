@@ -15,7 +15,7 @@ void FakeFurnace::setHeatingPower(float power) {
 
 float FakeFurnace::getTemperature() const {
     
-    Serial.println("temp sent: " + String(temperature));
+    //Serial.println("temp sent: " + String(temperature));
     return temperature;
 }
 

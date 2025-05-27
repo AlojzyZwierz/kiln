@@ -11,7 +11,7 @@ enum class ArrowDirection {
 
 class ArrowButton : public Clickable {
 public:
-    ArrowButton(TFT_eSprite& display, int x, int y, int size, ArrowDirection dir, uint16_t color);
+    ArrowButton(int x, int y, int size, ArrowDirection dir, uint16_t color);
 
     void render(TFT_eSprite& tft) override;
     bool  wasClicked(int x, int y) override;
@@ -20,7 +20,6 @@ public:
     //void setCallback(std::function<void()> cb);
 
 private:
-TFT_eSprite& tft;
     int posX, posY;
     int size;
     ArrowDirection direction;
