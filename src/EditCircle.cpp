@@ -15,7 +15,7 @@ void EditCircle::render(TFT_eSprite& tft) {
     tft.drawCircle(posX, posY, radius , color);
     tft.drawLine(posX - radius*0.7071f, posY - radius*0.7071f, posX + radius*0.7071f, posY + radius*0.7071f, color);
     tft.drawLine(posX + radius*0.7071f, posY - radius*0.7071f, posX - radius*0.7071f, posY + radius*0.7071f, color);
-    tft.drawCircle(posX, posY, radius *0.3f , color);
+    tft.drawCircle(posX, posY, 20 , color);
 
 }
 
@@ -39,23 +39,27 @@ bool EditCircle::handleClick(int x, int y)  {
     int absDx = std::abs(dx);
     int absDy = std::abs(dy);
     float distance = std::sqrt(dx * dx + dy * dy);
-    float factor = distance<30?1: 0.1847619 * distance * distance -12.63333 * distance + 215.7143;  // y = 0.0528571 * x^2 - 0.0285714 * x + 0.0285714; // y = 0.0528571 * x^2 - 0.0285714 * x + 0.0285714; // y = 0.0528571 * x^2 - 0.0285714 * x + 0.0285714; // y = 0.0528571 * x^2 - 0.0285714 * x + 0.0285714; // y = 0.0528571 * x^2 - 0.0285714 * x + 0.0285714; // y = 0.0528571 * x^2 - 0.0285714 * x + 0.0285714; // y = 0.0528571 * x^2 - 0.0285714 * x + 0.0285714; // y = 0.0528571 * x^2 - 0.0285714 * x + 0.0285714; // y = 0.0528571 * x^2 - 0.0285714 * x + 0.0285714; // y = 0.0528571 * x^2 - 0.0285714 * x + 0.0285714; // y = −
-    //y = 183.5714 - 10.90714*x + 0.1607143*x^2
-    //y =y = 215.7143 - 12.63333*x + 0.1847619*x^2
+    float factor = distance<20?1: 0.204 * distance * distance -8.4* distance + 88.4;  // y = 0.0528571 * x^2 - 0.0285714 * x + 0.0285714; // y = 0.0528571 * x^2 - 0.0285714 * x + 0.0285714; // y = 0.0528571 * x^2 - 0.0285714 * x + 0.0285714; // y = 0.0528571 * x^2 - 0.0285714 * x + 0.0285714; // y = 0.0528571 * x^2 - 0.0285714 * x + 0.0285714; // y = 0.0528571 * x^2 - 0.0285714 * x + 0.0285714; // y = 0.0528571 * x^2 - 0.0285714 * x + 0.0285714; // y = 0.0528571 * x^2 - 0.0285714 * x + 0.0285714; // y = 0.0528571 * x^2 - 0.0285714 * x + 0.0285714; // y = 0.0528571 * x^2 - 0.0285714 * x + 0.0285714; // y = −
+    //y = 88.4 - 8.4*x + 0.204*x^2
     if (absDx > absDy) {
-        factor = 60000 * factor;
-        
         int sign = dx > 0 ? 1 : -1;
-        unsigned long newTime;
-        if (sign <0 && curveManager.getSegmentTime()  < factor - 60000) {
-        newTime = 60000;}
-        else{
+        long newTime;
+        if(factor != 1){
+        factor = 6000 * factor;        
+        
          newTime = ((curveManager.getSegmentTime() + sign * (int)factor));
-         newTime = (newTime /1000)*1000;
-        }
+         //newTime = (newTime /100)*1000;
+        
         Serial.println("newTime1: " + String(newTime) + " factor: " + String((int)factor) + " oldtime: " + String(curveManager.getSegmentTime()) );
         
-Serial.println("newTime2: " + String(newTime)  );
+        Serial.println("newTime2: " + String(newTime)  );
+        
+        newTime = std::max(newTime-(newTime%60000), (long)60000); // Ensure minimum time is 60 seconds
+        }
+        else {
+            newTime = curveManager.getSegmentTime() + sign * 60000;
+            if (newTime < 60000) newTime = 60000; // Ensure minimum time is 60 seconds
+        }
         curveManager.updateTime(curveManager.getSegmentIndex(), newTime);
 
        //  {curve.elems[curveManager.getSegmentIndex()].hTime = std::max<long>(60000, curve.elems[curveManager.getSegmentIndex()].hTime + (int)factor ) ;}

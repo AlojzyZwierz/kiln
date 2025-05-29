@@ -72,26 +72,27 @@ void setup() {
 }
 TS_Point lastP;
 void loop() {
-  if(ProcessController::get().isRunning() && millis() > nextMeasurementTime) {
+  
+  if(ProcessController::get().isRunning()) {  
+    if(millis() > nextMeasurementTime) {
+   // Serial.println("Adding measurement at: " + String(millis()) + " furnace temp: " + String(furnace.getTemperature()));
     nextMeasurementTime = millis() + measurementInterval;
     MeasurementManager::get().addMeasurement(millis() - ProcessController::get().getCurveStartTime(),furnace.getTemperature());
+   // Serial.println("Measurements no: " + String(MeasurementManager::get().getMeasurements().size()));
   }
-  if(ProcessController::get().isRunning()) {  
-  if(lastUpdateTime + 1000 < millis()) {
-    lastUpdateTime = millis();
-    
-    
-    guiRenderer.render();
-    //ProcessController::get().checkSegmentAdvance();
-  }
+    if(lastUpdateTime + 1000 < millis()) {
+      //Serial.println("Rendering GUI at: " + String(millis()));
+      lastUpdateTime = millis();
+      guiRenderer.render();
+     // Serial.println("GUI rendered at: " + String(millis()));
+     Serial.println("seg htime: " + String(curveManager.getOriginalCurve().elems[0].hTime) + " current segment index: " + String(curveManager.getSegmentIndex()) + " current temp: " + String(furnace.getTemperature()));
+      ProcessController::get().checkSegmentAdvance();
+  }  
+  ProcessController::get().applyPID();  
   
-  ProcessController::get().applyPID();
-  
-  furnace.update();
-  
+  furnace.update();    
   }
   bool isTouched = touchscreen.tirqTouched() && touchscreen.touched();
-
  if (isTouched) {
   wasTouched = true;
   delay(200);

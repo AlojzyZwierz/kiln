@@ -21,7 +21,7 @@ static ProcessController& get(){
 }
     void begin(CurveManager& cm, TemperatureSensor& sensor, MeasurementManager& mm);
     void checkSegmentAdvance();
-    void updateHeating();
+    //void updateHeating();
     void startFiring();
     bool isRunning() const;
     void abort(const char* reason = nullptr);

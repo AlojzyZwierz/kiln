@@ -41,14 +41,15 @@ GUIRenderer::GUIRenderer(
         }
     startButton.setCallback([&]() {
         ProcessController::get().startFiring();
-        setMode(GUIMode::Firing);
+        setMode(SystemMode::Firing);
     });
     editButton.setCallback([&]() {
         //curveSelector.selectNext();
-        setMode(GUIMode::Edit);
+        setMode(SystemMode::Edit);
     });
     closeButton.setCallback([&]() {
-        setMode(GUIMode::Idle);
+
+        setMode(SystemMode::Idle);
         StorageManager::loadCurve(curveManager, curveSelector.getSelectedIndex());
         
     });
@@ -79,7 +80,7 @@ GUIRenderer::GUIRenderer(
     uiElements.push_back(&editCircle);
     uiElements.push_back(&settingsButton);
 
-    setMode(GUIMode::Idle);
+    setMode(SystemMode::Idle);
     Serial.println("Clickables in list in constructor: " + String(clickables.size()));
     sprite.setFreeFont(FONT_SMALL);
 
@@ -97,7 +98,7 @@ void GUIRenderer::render() {
       //  Serial.println("Sprite created successfully!");
     }
     sprite.fillSprite(TFT_WHITE);
-    graphRenderer.render( CurrentMode); // Rysuje wykres
+    graphRenderer.render( ); // Rysuje wykres
     drawHeader();
     for (auto& uIElement : uiElements) {  // Używamy referencji (auto&), aby uniknąć kopiowania
         if (uIElement->isVisible()) {    // Opcjonalne sprawdzenie widoczności
@@ -105,9 +106,9 @@ void GUIRenderer::render() {
         }
     }   
     //sprite.drawCircle(110, 90, 70, TFT_YELLOW); // Rysujemy okrąg
-    Serial.println("modal visible: " + String(modal.isVisible()));
+    //Serial.println("modal visible: " + String(modal.isVisible()));
     if(modal.isVisible()) {
-        Serial.println("Rendering modal");
+      //  Serial.println("Rendering modal");
         modal.render(sprite); // Rysujemy modal, jeśli jest widoczny
     }
     sprite.pushSprite(0, 0); // Wyświetlamy sprite na ekranie
@@ -115,13 +116,14 @@ void GUIRenderer::render() {
 
 void GUIRenderer::drawHeader() {
     //float temperature = tempSensor.getTemperature();
-    
-    float temperature = CurrentMode!=GUIMode::Edit?furnace.getTemperature():curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex()].endTemp; // potrzebujesz takiej metody
+
+    float temperature = SystemState::get().getMode()!=SystemMode::Edit?furnace.getTemperature():curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex()].endTemp; // potrzebujesz takiej metody
     int curveIndex = curveSelector.getSelectedIndex(); // potrzebujesz takiej metody
 
 
     temperatureLabel.setText(String(temperature,1) + "'C");
-    String segInd = (curveManager.getSegmentIndex()<0)?" ":( "/" +String(curveManager.getSegmentIndex()));
+    String segInd = (SystemState::get().getMode()==SystemMode::Idle)?" ":( "." +String(curveManager.getSegmentIndex()+1));
+    //Serial.println(curveManager.getSegmentIndex());
     curveIndexLabel.setText("prog #" + String(curveIndex) + segInd );
     expectedTempLabel.setText("e:" + String(ProcessController::get().getExpectedTemp(), 1) + "°C"); // potrzebujesz takiej metody
     //timeLabel.setText("Time: " + String(curveManager.getTotalTime()) + "s"); // potrzebujesz takiej metody
@@ -166,13 +168,13 @@ void GUIRenderer::handleTouch(int x, int y) {
 }
 
 
-void GUIRenderer::setupUIFormodes(GUIMode mode) {
+void GUIRenderer::setupUIFormodes(SystemMode mode) {
     for (auto* c : uiElements) {
         c->setVisible(false);
         // c->setVisible(false); // jeśli masz widoczność
     }
     switch (mode) {
-        case GUIMode::Idle:
+        case SystemMode::Idle:
             startButton.setVisible(true);
             editButton.setVisible(true);
             leftArrow.setVisible(true);
@@ -185,7 +187,7 @@ void GUIRenderer::setupUIFormodes(GUIMode mode) {
             });
             temperatureLabel.setVisible(true);
             curveIndexLabel.setVisible(true);
-            curveManager.setSegmentIndex(-1); // Resetowanie indeksu segmentu
+            //curveManager.setSegmentIndex(-1); // Resetowanie indeksu segmentu
             settingsButton.setVisible(true);
             settingsButton.setCallback([&]() {
                 modal.show(ModalMode::Settings);
@@ -194,7 +196,7 @@ void GUIRenderer::setupUIFormodes(GUIMode mode) {
    
         
             break;
-        case GUIMode::Edit:
+        case SystemMode::Edit:
         curveManager.setSegmentIndex(0); 
 
             leftArrow.setVisible(true);
@@ -213,11 +215,11 @@ void GUIRenderer::setupUIFormodes(GUIMode mode) {
                  //   curveManager.getOriginalCurve().elems[0].hTime = 0;
                 }
                 StorageManager::saveCurve(curveManager, curveSelector.getSelectedIndex());
-                setMode(GUIMode::Idle);
+                setMode(SystemMode::Idle);
             });
             /*            saveButton.setCallback([&]() {
                 StorageManager::saveCurve(curveManager, curveSelector.getSelectedIndex());
-                setMode(GUIMode::Idle);
+                setMode(SystemMode::Idle);
             });*/
             leftArrow.setCallback([&]() {
               if (curveManager.getSegmentIndex()>0 )curveManager.setSegmentIndex(curveManager.getSegmentIndex() - 1);
@@ -250,14 +252,14 @@ void GUIRenderer::setupUIFormodes(GUIMode mode) {
             });
 
             break;
-        case GUIMode::Firing:
+        case SystemMode::Firing:
         stopButton.setVisible(true);
         temperatureLabel.setVisible(true);
         curveIndexLabel.setVisible(true);
         expectedTempLabel.setVisible(true);
         stopButton.setCallback([&]() {
             ProcessController::get().abort("Aborted by user");
-            setMode(GUIMode::Idle);
+            setMode(SystemMode::Idle);
         });
     
             break;

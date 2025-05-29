@@ -9,7 +9,7 @@ void ProcessController::begin(CurveManager& cm, TemperatureSensor& sensor, Measu
 }
 
 void ProcessController::startFiring() {  
-    
+    Serial.println("Starting firing process...");
     if (running) return; // Jeśli już działa, nie rób nic   
     curveManager = sourceCurveManager->clone();
     const Curve& curve = curveManager.getOriginalCurve(); 
@@ -20,6 +20,7 @@ void ProcessController::startFiring() {
     }   
     //currentSegmentIndex =  determineStartSegment(curve, getCurrentTemp());    
     curveManager.setSegmentIndex(determineStartSegment(curve, getCurrentTemp()));
+    Serial.println("__segIndex: " + String(curveManager.getSegmentIndex()));
     ratio = 0.07;
     integral = 0;
     running = true;
@@ -31,6 +32,7 @@ void ProcessController::startFiring() {
     Serial.println("Starting process with curve index: " + String(curveManager.getcurrentCurveIndex()));
     useSegment();
     measurementManager->clear();
+    Serial.println("Process started with segment index: " + String(curveManager.getSegmentIndex()));
 }
 
 bool ProcessController::isRunning() const {
@@ -40,23 +42,23 @@ bool ProcessController::isRunning() const {
 void ProcessController::checkSegmentAdvance() {
     
     const auto& segment = curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex()];
-    
+    //Serial.println("Checking segment advance: " + String(curveManager.getSegmentIndex()) + " " + String(segment.hTime) + " " + String(segment.endTemp));
     float currentTemp = getCurrentTemp();
-   
     float targetTemp = segment.endTemp;
-    
     bool skip = segment.hTime == 60000;
-    
-    if (((segmentLine.a > epsilon)||skip  && currentTemp >= targetTemp) ||
-        ((segmentLine.a < -epsilon)||skip && currentTemp <= targetTemp) ||
-        (std::abs(segmentLine.a) <= epsilon && millis() >= segmentEndTime)) {
-            
+
+    bool reachedTempIncreasing = (segmentLine.a > epsilon || skip) && currentTemp >= targetTemp;
+    bool reachedTempDecreasing = (segmentLine.a < -epsilon || skip) && currentTemp <= targetTemp;
+    bool flatSegmentTimeOver = (std::abs(segmentLine.a) <= epsilon) && (millis() >= segmentEndTime);
+  //  Serial.println("epsilon: " + String(epsilon) + " segmentLine.a: " + String(segmentLine.a) + " currentTemp: " + String(currentTemp) + " targetTemp: " + String(targetTemp) + " skip: " + String(skip));
+//Serial.println("Checking segment advance: " + String(curveManager.getSegmentIndex()) + " " + String(currentTemp) + " " + String(targetTemp) + " rTi " + String(reachedTempIncreasing) + " rTd " + String(reachedTempDecreasing) + " skipReached " + String(flatSegmentTimeOver));
+    if (reachedTempIncreasing || reachedTempDecreasing || flatSegmentTimeOver) {
         nextSegment();
     }
-    
 }
 
 void ProcessController::useSegment() {
+    Serial.println("Using segment: " + String(curveManager.getSegmentIndex()));
     const auto& curve = curveManager.getOriginalCurve();
     const auto& segment = curve.elems[curveManager.getSegmentIndex()];
 
@@ -80,9 +82,9 @@ void ProcessController::useSegment() {
 void ProcessController::nextSegment() {
     
     float lastA = segmentLine.a;
-    
-    curveManager.updateAdjustedCurve(curveManager.getSegmentIndex(), millis() - segmentStartTime);
-
+    Serial.println("current segment end time: " + String(curveManager.getAdjustedCurve().elems[curveManager.getSegmentIndex()].hTime) + " current time: " + String(millis()) + " segment index: " + String(curveManager.getSegmentIndex()) + " lastA: " + String(lastA) );
+    sourceCurveManager->updateAdjustedCurve(curveManager.getSegmentIndex(), millis() - segmentStartTime);
+  Serial.println("current segment end time: " + String(curveManager.getAdjustedCurve().elems[curveManager.getSegmentIndex()].hTime) + " current time: " + String(millis()) + " segment index: " + String(curveManager.getSegmentIndex()) + " lastA: " + String(lastA) );
     const Curve& orig = curveManager.getOriginalCurve();
 
     if (curveManager.getSegmentIndex() + 1 >= curveElemsNo || orig.elems[curveManager.getSegmentIndex() + 1].hTime == 0) {
@@ -145,7 +147,7 @@ void ProcessController::applyPID() {
     float integ = constrain((SettingsManager::get().getSettings().pid_ki / 10000.0f) * integral, -1, 1);
     float deriv = SettingsManager::get().getSettings().pid_kd * (error - lastError) / (SettingsManager::get().getSettings().pidIntervalMs / 100.0f);
     float prop = SettingsManager::get().getSettings().pid_kp * error / 1000.0f;
-Serial.println("PID: " + String(prop) + " " + String(deriv) + " " + String(integ) + " " + String(error) + " " + String(currentTemp) + " " + String(setpoint) + " " + String(ratio) + " " + String(integral) + " " + String(lastError) + " " + String(segmentLine.a)  );
+Serial.println("PID: " + String(prop) + " " + String(deriv) + " " + String(integ) + "; " + String(error) + " " + String(currentTemp) + " " + String(setpoint) + " " + String(ratio) + " " + String(integral) + " " + String(lastError) + " " + String(segmentLine.a, 6)  );
     Serial.println(String(SettingsManager::get().getSettings().pid_kp) + " " + String(SettingsManager::get().getSettings().pid_ki) + " " + String(SettingsManager::get().getSettings().pid_kd) + " " + String(SettingsManager::get().getSettings().pidIntervalMs));
     float correction = prop + deriv + integ;
     ratio = constrain(ratio , 0, 1)+ correction;

@@ -10,7 +10,7 @@ void FakeFurnace::begin() {
 
 void FakeFurnace::setHeatingPower(float power) {
     heatingPower = constrain(power, 0.0f, 1.0f);
-    Serial.println("power set: " + String(power));
+    //Serial.println("power set: " + String(power));
 }
 
 float FakeFurnace::getTemperature() const {
@@ -25,24 +25,26 @@ void FakeFurnace::update() {
     if (now < lastUpdate + 1000) {
         return;
     }
+   // Serial.println("FakeFurnace::update() called at: " + String(now) + " lastUpdate: " + String(lastUpdate));
     float dt = (now - lastUpdate) / 1000.0f; // w sekundach
     lastUpdate = now;
 
     if (dt <= 0.0f) return;
 
     // Moc grzania dodaje ciepło
-    storedHeat += heatingPower * 15.0f * dt;
+    storedHeat += heatingPower * 10.0f * dt;
 
     // Utrata ciepła (więcej przy wyższych temp)
     float cooling = 0.1f*computeCoolingLoss(temperature) * dt;
     storedHeat -= cooling;
-    Serial.println("Stored heat: " + String(storedHeat) + " Cooling: " + String(cooling) + " dt: " + String(dt) + " Power: " + String(heatingPower)+ " Temp: " + String(temperature) );
+    //Serial.println("Stored heat: " + String(storedHeat) + " Cooling: " + String(cooling) + " dt: " + String(dt) + " Power: " + String(heatingPower)+ " Temp: " + String(temperature) );
     if (storedHeat < 0.0f) storedHeat = 0.0f;
 
     // Nowa temperatura (proporcjonalna, asymptota w okolicach 1300°C)
     temperature += (storedHeat) * 0.2f; // 0.1f to współczynnik konwersji ciepła na temperaturę
     storedHeat -= storedHeat * dt * 1.0f; // Utrata ciepła w czasie
     if (temperature > 1350.0f) temperature = 1350.0f;
+    //Serial.println("FakeFurnace::update() - Temperature: " + String(temperature) + " Stored Heat: " + String(storedHeat) + " dt: " + String(dt) + " Power: " + String(heatingPower));
     
 }
 

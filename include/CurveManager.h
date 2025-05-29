@@ -1,6 +1,4 @@
 #pragma once
-#ifndef CURVEMANAGER_H
-#define CURVEMANAGER_H
 #include <Arduino.h>
 #include <Line.h>
 //#include <string>
@@ -61,4 +59,3 @@ class CurveManager {
         unsigned int currentCurveIndex = 0; 
         static Curve genCurveWithFakeSkips(Curve& curve);
     };
-#endif // CURVEDEF_H

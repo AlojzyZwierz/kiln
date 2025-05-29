@@ -43,8 +43,8 @@ void Modal::hide() {
 void Modal::render(TFT_eSprite& sprite) {
     if (!visible) return;
 
-    sprite.fillRect(20, 20, 280, 200, TFT_LIGHTGREY);
-    sprite.drawRect(20, 20, 280, 200, TFT_WHITE);
+    sprite.fillRect(20, 20, 280, 200, sprite.color565(190, 164, 180)); 
+    sprite.drawRect(20, 20, 280, 200, TFT_BLACK); // outline
     sprite.setTextDatum(MC_DATUM);
     sprite.drawString(title, 160, 40);
 
@@ -65,10 +65,10 @@ void Modal::render(TFT_eSprite& sprite) {
 
 bool Modal::handleClick(int x, int y) {
     if (!visible) return false;
-Serial.println("Modal::handleClick() called at: " + String(clickables.size()) + " " + String(x) + " " + String(y));
+//Serial.println("Modal::handleClick() called at: " + String(clickables.size()) + " " + String(x) + " " + String(y));
     for (auto* el : clickables) {
         if (el->handleClick(x, y)) {
-            Serial.println("Clickable element clicked: " + String(el->isVisible()) + " " +  String(x) + " " + String(y));
+            //Serial.println("Clickable element clicked: " + String(el->isVisible()) + " " +  String(x) + " " + String(y));
             return true; // kliknięcie obsłużone
         }
     }
@@ -86,6 +86,7 @@ void Modal::buildSettings() {
     okButton.setCallback([this]() { 
         // np. zapisz zmiany
         //Serial.println("OK button clicked in modal");
+        StorageManager::saveSettings(); // Zapisz ustawienia
         hide(); 
         if(onClose) {
             onClose();

@@ -5,6 +5,8 @@
 #include <functional>
 #include "UILabel.h"
 #include "SettingsManager.h"
+#include "StorageManager.h"
+#include <TFT_eSPI.h> // Include the TFT_eSPI library
 
 enum class ModalMode {
     None,

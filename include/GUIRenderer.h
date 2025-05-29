@@ -10,7 +10,7 @@
 #include "CurveSelector.h"
 #include <Fonts/GFXFF/FreeSans12pt7b.h>
 #include "fonts.h"
-#include "GUIMode.h"
+#include "SystemState.h"
 #include <vector>
 #include <memory>
 #include <ProcessController.h>
@@ -31,10 +31,10 @@ public:
 
     void render();               // Rysuje cały GUI
     void handleTouch(int x, int y); // Obsługa kliknięć
-    void setMode(GUIMode newMode) { 
-        CurrentMode = newMode; 
-        setupUIFormodes(CurrentMode); // Ustawia widoczność przycisków
-        Serial.println("mode Set: " + String(static_cast<int>(CurrentMode)));
+    void setMode(SystemMode newMode) { 
+        SystemState::get().setMode(newMode); 
+        setupUIFormodes(SystemState::get().getMode()); // Ustawia widoczność przycisków
+        Serial.println("mode Set: " + String(static_cast<int>(SystemState::get().getMode())));
     }// Ustawia tryb GUI
 
 private:
@@ -62,8 +62,8 @@ private:
     void drawHeader(); // Rysuje temperaturę i nr krzywej
     std::vector<Clickable*> clickables;
     std::vector<UIElement*> uiElements; // Wektor elementów UI
-    GUIMode CurrentMode = GUIMode::Idle;
-    void setupUIFormodes(GUIMode mode);
+    //SystemMode CurrentMode = SystemMode::Idle;
+    void setupUIFormodes(SystemMode mode);
     FakeFurnace& furnace; 
     Modal modal;
     bool isModalVisible = false;

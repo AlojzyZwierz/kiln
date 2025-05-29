@@ -1,5 +1,6 @@
 #pragma once
 #include <stddef.h> // for size_t
+#include <Arduino.h>
 
 class StorageManager;
 

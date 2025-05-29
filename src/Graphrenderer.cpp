@@ -4,7 +4,7 @@ GraphRenderer::GraphRenderer(TFT_eSprite& tftSprite, CurveManager& cm, FakeFurna
 
 
 
-void GraphRenderer::render(GUIMode mode) {
+void GraphRenderer::render() {
   
   unsigned long totalTime = calculateTotalTime(curveManager.getAdjustedCurve());
   timeRatio = TFT_HEIGHT * activeGraphArea / totalTime;
@@ -14,23 +14,23 @@ void GraphRenderer::render(GUIMode mode) {
   sprite.setTextSize(1);
 
   drawGrid(totalTime);
-
+  SystemMode mode = SystemState::get().getMode() ;
   switch (mode)
   {
-  case GUIMode::Idle:
+  case SystemMode::Idle:
   drawCurve(curveManager.getAdjustedCurve());
     break;
   
-    case GUIMode::Firing:
+    case SystemMode::Firing:
     drawCurve(curveManager.getAdjustedCurve(), curveManager.getSegmentIndex());
     //drawMeasurements(curveManager.getMeasurementManager());
     drawTempLabels();
     drawTimeLabels(totalTime);
-    drawMeasurements(totalTime);
     drawCurrentTempDot(furnace.getTemperature(), totalTime);
+    drawMeasurements(totalTime);
     break;
   
-    case GUIMode::Edit:
+    case SystemMode::Edit:
     drawCurve(curveManager.getAdjustedCurve());
 
     break;
@@ -143,7 +143,8 @@ void GraphRenderer::drawCurve(const Curve& curve, int selectedSegment) {
     float y = (curve.elems[i].endTemp ) * tempRatio;
     uint16_t color =  sprite.color565(255, 70 , 120);
     int tempLabelOffset = 0;
-    if(curveManager.getSegmentIndex() == i) {
+    SystemMode mode = SystemState::get().getMode() ;
+    if(mode == SystemMode::Edit && curveManager.getSegmentIndex() == i) {
       //sprite.drawLine((int)lastX, 240 - (int)lastY, (int)x, 240 - (int)y, TFT_MAGENTA);
       drawThickLine(sprite, (int)lastX, 240 - (int)lastY, (int)x, 240 - (int)y, color, 3);
       sprite.fillCircle((int)x, 240 - (int)y, 3, color);
@@ -176,25 +177,30 @@ void GraphRenderer::drawMeasurements(unsigned long totalTime) {
   float xScale = TFT_HEIGHT * activeGraphArea * 1000.0f / (totalTime ); 
   float yScale = TFT_WIDTH/1300.0f; 
 
+  //sprite.setFreeFont(FONT_SMALL);
+  int x2=0;
+  int y2=0;
   for (size_t i = 1; i < MeasurementManager::get().getMeasurements().size(); ++i) {
     int x1 = MeasurementManager::get().getMeasurements()[i - 1].time * xScale;
     int y1 = TFT_WIDTH - MeasurementManager::get().getMeasurements()[i - 1].temp * yScale;
-    int x2 = MeasurementManager::get().getMeasurements()[i].time * xScale;
-    int y2 = TFT_WIDTH - MeasurementManager::get().getMeasurements()[i].temp * yScale ;
+    x2 = MeasurementManager::get().getMeasurements()[i].time * xScale;
+    y2 = TFT_WIDTH - MeasurementManager::get().getMeasurements()[i].temp * yScale ;
 
     sprite.drawLine(x1, y1, x2, y2, TFT_RED);
-Serial.println("x1: " + String(x1) + " y1: " + String(y1) + " x2: " + String(x2) + " y2: " + String(y2) );
+//Serial.println("x1: " + String(x1) + " y1: " + String(y1) + " x2: " + String(x2) + " y2: " + String(y2) );
     //sprite.fillCircle(x1, y1, 3, TFT_RED);
     //sprite.fillCircle(x2, y2, 3, TFT_RED);
   }
+  if (x2!=0)sprite.drawLine(currentTempPosX, currentTempPosY, x2, y2, TFT_RED);
+
   //Serial.println("_Measurements drawn: " + String(MeasurementManager::get().getMeasurements().size()));
 }
 
  void GraphRenderer::drawCurrentTempDot(float temp, unsigned long totalTime) {
   float xScale = TFT_HEIGHT *activeGraphArea/ (totalTime ); 
   float yScale = TFT_WIDTH/1300.0f; 
-  int x1 = (int)((millis() - ProcessController::get().getCurveStartTime()) * xScale);
-  int y1 = TFT_WIDTH - (int)(temp * yScale);
-  sprite.fillCircle(x1, y1, 3, TFT_RED);
+  currentTempPosX = (int)((millis() - ProcessController::get().getCurveStartTime()) * xScale);
+  currentTempPosY = TFT_WIDTH - (int)(temp * yScale);
+  sprite.fillCircle(currentTempPosX, currentTempPosY, 3, TFT_RED);
 
  }

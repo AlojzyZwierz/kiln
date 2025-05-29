@@ -3,9 +3,9 @@
 
 // ⚙️ Definicja tablicy entries[]
 SettingEntry SettingsManager::entries[] = {
-    { "PID Kp", &get().settings.pid_kp, SettingEntry::FLOAT, 0.0f, 10.0f, 0.1f, PERCENT, 0.2f },
-    { "PID Ki", &get().settings.pid_ki, SettingEntry::FLOAT, 0.0f, 10.0f, 0.1f, PERCENT, 0.2f },
-    { "PID Kd", &get().settings.pid_kd, SettingEntry::FLOAT, 0.0f, 10.0f, 0.1f, PERCENT, 0.2f },
+    { "PID Kp", &get().settings.pid_kp, SettingEntry::FLOAT, 0.0f, 10.0f, 0.1f, PERCENT, 10.0f },
+    { "PID Ki", &get().settings.pid_ki, SettingEntry::FLOAT, 0.0f, 10.0f, 0.1f, PERCENT, 10.0f },
+    { "PID Kd", &get().settings.pid_kd, SettingEntry::FLOAT, 0.0f, 10.0f, 0.1f, PERCENT, 10.0f },
     { "PID Interval", &get().settings.pidIntervalMs, SettingEntry::ULONG, 100, 30000, 1000, FIXED, 0.0f },
     { "Cycle Time", &get().settings.heatingCycleMs, SettingEntry::ULONG, 100, 30000, 1000, FIXED, 0.0f },
     { "Power [kW]", &get().settings.kilnPower, SettingEntry::FLOAT, 0.1f, 10.0f, 0.1f, FIXED, 10.0f },
@@ -59,7 +59,9 @@ void SettingsManager::increase() {
         case SettingEntry::ULONG: {
             auto* ptr = static_cast<unsigned long*>(entry.valuePtr);
             float stepValue = entry.stepMode == FIXED ? entry.step : (*ptr) * (entry.percentStep / 100.0f);
-            *ptr = std::min(*ptr + static_cast<unsigned long>(stepValue), static_cast<unsigned long>(entry.maxValue));
+            long newValue =  std::min((long)*ptr + static_cast<long>(stepValue), static_cast<long>(entry.maxValue));
+            *ptr = std::max(newValue, 0L); // Ensure it doesn't go below minValue
+            Serial.println("New value: " + String(*ptr) + " Max: " + String(entry.maxValue) + " newvalue: " + String(newValue));
             break;
         }
     }
@@ -77,8 +79,10 @@ void SettingsManager::decrease() {
         }
         case SettingEntry::ULONG: {
             auto* ptr = static_cast<unsigned long*>(entry.valuePtr);
-            float stepValue = entry.stepMode == FIXED ? entry.step : (*ptr) * (entry.percentStep / 100.0f);
-            *ptr = std::max(*ptr - static_cast<unsigned long>(stepValue), static_cast<unsigned long>(entry.minValue));
+            float stepValue = entry.stepMode == FIXED ? entry.step : (*ptr) * (entry.percentStep / 100.0f);            
+            long newValue =  std::min((long)*ptr - static_cast<long>(stepValue), static_cast<long>(entry.maxValue));
+            *ptr = std::max(newValue, 0L); // Ensure it doesn't go below minValue
+            Serial.println("New value: " + String(*ptr) + " Max: " + String(entry.maxValue) + " newvalue: " + String(newValue));
             break;
         }
     }
