@@ -1,8 +1,10 @@
 #pragma once
 #include <Arduino.h>
+#include "EnergyUsageMeter.h"
 
 class HeatingController {
 public:
+HeatingController(EnergyUsageMeter& meter) : energyMeter(meter) {}
     void update();
     void setRatio(float r);            // wartość PID: 0.0 - 1.0
     float getRatio();  
@@ -12,6 +14,7 @@ public:
     bool isHeating() const;            // czy SSR jest aktualnie załączony
 
 private:
+    EnergyUsageMeter& energyMeter; // obiekt do pomiaru zużycia energii
     float ratio = 0.0f;
     unsigned long cycleTime = 10000;   // domyślnie np. 10s
     unsigned long hCycleStartTime = 0;

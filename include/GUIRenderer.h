@@ -22,13 +22,14 @@
 #include "FakeFurnace.h"
 #include "Modal.h"
 #include "ColorPalette.h"
+#include "EnergyUsageMeter.h"
 
 class Clickable;
 
 class GUIRenderer {
 public:
    //           GUIRenderer(TFT_eSPI& display, TemperatureSensor& sensor, CurveSelector& cs, CurveManager& cm);
-   GUIRenderer(TFT_eSPI& display, TemperatureSensor& sensor, CurveSelector& cs, CurveManager& cm, FakeFurnace& f);
+   GUIRenderer(TFT_eSPI& display, TemperatureSensor& sensor, CurveSelector& cs, CurveManager& cm, FakeFurnace& f, EnergyUsageMeter& em);
 
     void render();               // Rysuje cały GUI
     void handleTouch(int x, int y); // Obsługa kliknięć
@@ -39,6 +40,7 @@ public:
     }// Ustawia tryb GUI
 
 private:
+    EnergyUsageMeter& energyMeter;
     TFT_eSPI& tft;
     TFT_eSprite sprite;
     TemperatureSensor& tempSensor;
@@ -58,6 +60,7 @@ private:
     UILabel expectedTempLabel;
     UILabel timeLabel;
     UILabel segmentIndexLabel;
+    UILabel costLabel;
     EditCircle editCircle;
     GraphRenderer graphRenderer; 
     void drawHeader(); // Rysuje temperaturę i nr krzywej

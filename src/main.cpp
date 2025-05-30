@@ -14,6 +14,7 @@
 #include "GUIRenderer.h"
 #include "FakeFurnace.h"
 #include <ColorPalette.h>
+#include <EnergyUsageMeter.h>
 
 TFT_eSPI tft = TFT_eSPI();
 
@@ -33,7 +34,9 @@ CurveManager curveManager;
 TemperatureSensor temperatureSensor;
 CurveSelector curveSelector(curveManager);
 FakeFurnace furnace;
-GUIRenderer guiRenderer(tft, temperatureSensor,curveSelector , curveManager, furnace);
+EnergyUsageMeter energyMeter;
+GUIRenderer guiRenderer(tft, temperatureSensor,curveSelector , curveManager, furnace, energyMeter);
+
 //ProcessController& controller = ProcessController::get();
 //MeasurementManager measurementManager = MeasurementManager::get();
   

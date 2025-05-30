@@ -6,7 +6,8 @@ GUIRenderer::GUIRenderer(
     TemperatureSensor& sensor, 
     CurveSelector& cs, 
     CurveManager& cm, 
-    FakeFurnace& f
+    FakeFurnace& f,
+    EnergyUsageMeter& em
 )    : tft(display), 
     sprite(&display),
     tempSensor(sensor), 
@@ -29,7 +30,9 @@ GUIRenderer::GUIRenderer(
         saveButton( "Save", 200, 200, 90, 25, COLOR_BUTTON, COLOR_BLACK),
         endHereButton( "Cut", 140, 200, 40, 25, COLOR_BUTTON, COLOR_BLACK),
         furnace(f),
-        settingsButton("S",  290, 13, 17, 20, COLOR_BUTTON, COLOR_BLACK)
+        settingsButton("S",  290, 13, 17, 20, COLOR_BUTTON, COLOR_BLACK),
+        energyMeter(em),
+        costLabel("", 25, 90, COLOR_BLACK, 1)
       {
         
         startButton.setCallback([&]() {
@@ -72,6 +75,7 @@ GUIRenderer::GUIRenderer(
     uiElements.push_back(&endHereButton);
     uiElements.push_back(&editCircle);
     uiElements.push_back(&settingsButton);
+    uiElements.push_back(&costLabel);
 
     setMode(SystemMode::Idle);
     Serial.println("Clickables in list in constructor: " + String(clickables.size()));
@@ -192,6 +196,7 @@ void GUIRenderer::setupUIFormodes(SystemMode mode) {
             curveIndexLabel.setVisible(true);
             //curveManager.setSegmentIndex(-1); // Resetowanie indeksu segmentu
             settingsButton.setVisible(true);
+            costLabel.setVisible(true);
             settingsButton.setCallback([&]() {
                 modal.show(ModalMode::Settings);
                
@@ -255,6 +260,7 @@ void GUIRenderer::setupUIFormodes(SystemMode mode) {
 
             break;
         case SystemMode::Firing:
+        costLabel.setVisible(true);
         stopButton.setVisible(true);
         temperatureLabel.setVisible(true);
         curveIndexLabel.setVisible(true);

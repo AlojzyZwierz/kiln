@@ -6,6 +6,7 @@ void ProcessController::begin(CurveManager& cm, TemperatureSensor& sensor, Measu
     curveManager = &cm;
     temperatureSensor = &sensor;
     measurementManager = &mm;
+    
 }
 
 void ProcessController::startFiring() {  

@@ -10,9 +10,11 @@ void HeatingController::update() {
          if ( hOnInCycle > timeFromCycleStart) {
             digitalWrite(SSR, HIGH);
             hON = true;
+            energyMeter.startMeasurement(); // Start measuring energy usage
         } else {
             digitalWrite(SSR, LOW);
             hON = false;
+            energyMeter.stopMeasurement(); // Stop measuring energy usage
         }
 
         if (timeFromCycleStart >= cycleTime) {
