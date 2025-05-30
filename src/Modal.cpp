@@ -1,14 +1,15 @@
 #include "Modal.h"
 Modal::Modal()
-    : okButton("OK", 30, 180, 80, 40),
+    : okButton("OK", 30, 180, 50, 30),
       closeButton("X", 270, 30, 25, 25),
       nextButton(">", 230, 110, 40, 40),
-      prevButton("<", 60, 110, 40, 40),
-      plusButton("+", 150, 50, 40, 40),
-      minusButton("-", 150, 170, 40, 40),
-      valueLabel("0", 130, 120,     TFT_BLACK, 2),
-      entryNameLabel("XXX", 130, 160, TFT_BLACK, 1)
-{    
+      prevButton("<", 50, 110, 40, 40),
+      plusButton("+", 140, 50, 40, 40),
+      minusButton("-", 140, 170, 40, 40),
+      valueLabel("0", 160, 120,     COLOR_BLACK, 2),
+      entryNameLabel("XXX", 160, 150, COLOR_BLACK, 1)
+{
+    
 }
 void Modal::show(ModalMode mode, const String& extra) {
     Serial.println("Modal::show() called with mode: " + String(static_cast<int>(mode)) + " extra: " + extra);
@@ -43,8 +44,8 @@ void Modal::hide() {
 void Modal::render(TFT_eSprite& sprite) {
     if (!visible) return;
 
-    sprite.fillRect(20, 20, 280, 200, sprite.color565(190, 164, 180)); 
-    sprite.drawRect(20, 20, 280, 200, TFT_BLACK); // outline
+    sprite.fillRect(20, 20, 280, 200, COLOR_MODAL_BG); 
+    sprite.drawRect(20, 20, 280, 200, COLOR_BLACK); // outline
     sprite.setTextDatum(MC_DATUM);
     sprite.drawString(title, 160, 40);
 

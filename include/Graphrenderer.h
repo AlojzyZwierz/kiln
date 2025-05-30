@@ -9,6 +9,8 @@
 #include "SystemState.h"
 #include "ProcessController.h"
 #include "FakeFurnace.h"
+#include  <CurveManager.h>
+#include "ColorPalette.h"
 
 class GraphRenderer {
 public:

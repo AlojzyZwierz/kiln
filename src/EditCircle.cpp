@@ -1,5 +1,6 @@
 #include    <EditCircle.h>
 #include    <arduino.h>
+#include <ColorPalette.h>
 
 EditCircle::EditCircle( int x, int y, int radius, CurveManager& cm) 
     :  posX(x), posY(y), radius(radius), curveManager(cm) {
@@ -11,7 +12,7 @@ EditCircle::EditCircle( int x, int y, int radius, CurveManager& cm)
 }
 
 void EditCircle::render(TFT_eSprite& tft) {
-    uint16_t color =  TFT_RED;
+    uint16_t color =  COLOR_EDIT_CIRCLE;
     tft.drawCircle(posX, posY, radius , color);
     tft.drawLine(posX - radius*0.7071f, posY - radius*0.7071f, posX + radius*0.7071f, posY + radius*0.7071f, color);
     tft.drawLine(posX + radius*0.7071f, posY - radius*0.7071f, posX - radius*0.7071f, posY + radius*0.7071f, color);

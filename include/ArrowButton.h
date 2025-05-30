@@ -3,6 +3,7 @@
 
 #include <TFT_eSPI.h>
 #include "Clickable.h"
+#include "ColorPalette.h"
 
 enum class ArrowDirection {
     Left,

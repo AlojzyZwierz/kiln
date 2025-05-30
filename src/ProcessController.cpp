@@ -3,7 +3,7 @@
 extern FakeFurnace furnace;
 
 void ProcessController::begin(CurveManager& cm, TemperatureSensor& sensor, MeasurementManager& mm) {
-    sourceCurveManager = &cm;
+    curveManager = &cm;
     temperatureSensor = &sensor;
     measurementManager = &mm;
 }
@@ -11,16 +11,17 @@ void ProcessController::begin(CurveManager& cm, TemperatureSensor& sensor, Measu
 void ProcessController::startFiring() {  
     Serial.println("Starting firing process...");
     if (running) return; // Jeśli już działa, nie rób nic   
-    curveManager = sourceCurveManager->clone();
-    const Curve& curve = curveManager.getOriginalCurve(); 
+    SystemState::get().setMode(SystemMode::Firing);
+    //curveManager = sourceCurveManager->clone();
+    const Curve& curve = curveManager->getOriginalCurve();
 
     if (curve.elems[0].hTime == 0) {
         abort("No segments in curve");
         return;
-    }   
-    //currentSegmentIndex =  determineStartSegment(curve, getCurrentTemp());    
-    curveManager.setSegmentIndex(determineStartSegment(curve, getCurrentTemp()));
-    Serial.println("__segIndex: " + String(curveManager.getSegmentIndex()));
+    }
+    //currentSegmentIndex =  determineStartSegment(curve, getCurrentTemp());
+    curveManager->setSegmentIndex(determineStartSegment(curve, getCurrentTemp()));
+    Serial.println("__segIndex: " + String(curveManager->getSegmentIndex()));
     ratio = 0.07;
     integral = 0;
     running = true;
@@ -28,11 +29,11 @@ void ProcessController::startFiring() {
     heating.setCycleTime(SettingsManager::get().getSettings().heatingCycleMs);
     heating.setEnabled(true);
     heating.setRatio(ratio);
-    ResumeManager::saveCurveIndex(curveManager.getcurrentCurveIndex());
-    Serial.println("Starting process with curve index: " + String(curveManager.getcurrentCurveIndex()));
+    ResumeManager::saveCurveIndex(curveManager->getcurrentCurveIndex());
+    Serial.println("Starting process with curve index: " + String(curveManager->getcurrentCurveIndex()));
     useSegment();
     measurementManager->clear();
-    Serial.println("Process started with segment index: " + String(curveManager.getSegmentIndex()));
+    Serial.println("Process started with segment index: " + String(curveManager->getSegmentIndex()));
 }
 
 bool ProcessController::isRunning() const {
@@ -40,8 +41,8 @@ bool ProcessController::isRunning() const {
 }
 
 void ProcessController::checkSegmentAdvance() {
-    
-    const auto& segment = curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex()];
+
+    const auto& segment = curveManager->getOriginalCurve().elems[curveManager->getSegmentIndex()];
     //Serial.println("Checking segment advance: " + String(curveManager.getSegmentIndex()) + " " + String(segment.hTime) + " " + String(segment.endTemp));
     float currentTemp = getCurrentTemp();
     float targetTemp = segment.endTemp;
@@ -58,17 +59,17 @@ void ProcessController::checkSegmentAdvance() {
 }
 
 void ProcessController::useSegment() {
-    Serial.println("Using segment: " + String(curveManager.getSegmentIndex()));
-    const auto& curve = curveManager.getOriginalCurve();
-    const auto& segment = curve.elems[curveManager.getSegmentIndex()];
+    Serial.println("Using segment: " + String(curveManager->getSegmentIndex()));
+    const auto& curve = curveManager->getOriginalCurve();
+    const auto& segment = curve.elems[curveManager->getSegmentIndex()];
 
     segmentStartTime = millis();
     segmentEndTime = segmentStartTime + segment.hTime;
 
-    if (curveManager.getSegmentIndex() == 0) {
+    if (curveManager->getSegmentIndex() == 0) {
         startTemp = getCurrentTemp();
     } else {
-        startTemp = curve.elems[curveManager.getSegmentIndex() - 1].endTemp;
+        startTemp = curve.elems[curveManager->getSegmentIndex() - 1].endTemp;
     }
 
     segmentLine = Line(segmentStartTime, startTemp, segmentEndTime, segment.endTemp);
@@ -82,24 +83,24 @@ void ProcessController::useSegment() {
 void ProcessController::nextSegment() {
     
     float lastA = segmentLine.a;
-    Serial.println("current segment end time: " + String(curveManager.getAdjustedCurve().elems[curveManager.getSegmentIndex()].hTime) + " current time: " + String(millis()) + " segment index: " + String(curveManager.getSegmentIndex()) + " lastA: " + String(lastA) );
-    sourceCurveManager->updateAdjustedCurve(curveManager.getSegmentIndex(), millis() - segmentStartTime);
-  Serial.println("current segment end time: " + String(curveManager.getAdjustedCurve().elems[curveManager.getSegmentIndex()].hTime) + " current time: " + String(millis()) + " segment index: " + String(curveManager.getSegmentIndex()) + " lastA: " + String(lastA) );
-    const Curve& orig = curveManager.getOriginalCurve();
+    //Serial.println("current segment end time: " + String(curveManager->getAdjustedCurve().elems[curveManager->getSegmentIndex()].hTime) + " current time: " + String(millis()) + " segment index: " + String(curveManager->getSegmentIndex()) + " lastA: " + String(lastA) );
+    curveManager->updateAdjustedCurve(curveManager->getSegmentIndex(), millis() - segmentStartTime);
+    //Serial.println("current segment end time: " + String(curveManager->getAdjustedCurve().elems[curveManager->getSegmentIndex()].hTime) + " current time: " + String(millis()) + " segment index: " + String(curveManager->getSegmentIndex()) + " lastA: " + String(lastA) );
+    //const Curve& orig = curveManager->getOriginalCurve();
 
-    if (curveManager.getSegmentIndex() + 1 >= curveElemsNo || orig.elems[curveManager.getSegmentIndex() + 1].hTime == 0) {
+    if (!curveManager->hasNextSegment()) {
         finishFiring();
         return;
     }
-    
-    if (getMaxTemp(curveManager.getOriginalCurve()) == curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex()].endTemp) {
+
+    if (getMaxTemp(curveManager->getOriginalCurve()) == curveManager->getOriginalCurve().elems[curveManager->getSegmentIndex()].endTemp) {
         ResumeManager::clear();
       }
       
     //currentSegmentIndex++;
-    curveManager.setSegmentIndex( curveManager.getSegmentIndex() + 1);
+    curveManager->nextSegment();
     useSegment();
-    if(lastA > segmentLine.a) ratio=0;
+    if (lastA > segmentLine.a) ratio = 0;
     SoundManager::beep(1000, 100);
 
 }
@@ -116,6 +117,7 @@ void ProcessController::finishFiring() {
     running = false;
     heating.setEnabled(false);
     setHeaterPower(0);
+    SystemState::get().setMode(SystemMode::Idle);
     SoundManager::playFanfare();
 }
 
@@ -176,6 +178,7 @@ void ProcessController::abort(const char* reason) {
     StorageManager::appendErrorLog(errorMessage);
     // Ewentualnie sygnał dźwiękowy
     //tone(BUZZERPIN, 1000, 500);
+    SystemState::get().setMode(SystemMode::Idle);
     SoundManager::beep(1000, 500);
 }
  float ProcessController::getMaxTemp(Curve c){

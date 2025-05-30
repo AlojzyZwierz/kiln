@@ -9,9 +9,9 @@ TextButton::TextButton(
     backgroundColor(bgColor), fontColor(textColor), highlighted(false), Clickable(active) {}
 
 void TextButton::render(TFT_eSprite& tft) {
-    uint16_t drawColor = highlighted ? TFT_LIGHTGREY : backgroundColor;
+    uint16_t drawColor = highlighted ? COLOR_GRID : backgroundColor;
     tft.fillRect(posX, posY, width, height, drawColor);
-    tft.drawRect(posX, posY, width, height, TFT_BLACK); // outline
+    tft.drawRect(posX, posY, width, height, COLOR_BLACK); // outline
     tft.setTextColor(fontColor);
     tft.setTextDatum(MC_DATUM);
     tft.drawString(text, posX + width / 2, posY + height / 2);

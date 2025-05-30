@@ -13,6 +13,7 @@
 #include <ResumeManager.h>
 #include "GUIRenderer.h"
 #include "FakeFurnace.h"
+#include <ColorPalette.h>
 
 TFT_eSPI tft = TFT_eSPI();
 
@@ -55,10 +56,13 @@ void setup() {
   StorageManager::loadSettings();
   //Serial.println("Settings loaded: " + String(SettingsManager::get().getSettings().pid_kp) + ", " + String(SettingsManager::get().getSettings().pid_ki) + ", " + String(SettingsManager::get().getSettings().pid_kd));
   //Serial.println("Settings loaded: " + String(SettingsManager::get().getSettings().heatingCycleMs) + ", " + String(SettingsManager::get().getSettings().kilnPower) + ", " + String(SettingsManager::get().getSettings().unitCost));
+ 
   tft.init();
+  buildCustomPalette();
+  
   tft.setRotation(1);
-  tft.fillScreen(TFT_WHITE);
-  tft.setTextColor(TFT_BLACK);
+  tft.fillScreen(COLOR_BG);
+  tft.setTextColor(COLOR_BLACK);
   
   curveSelector.selectByIndex(10);
   guiRenderer.render();
@@ -69,6 +73,7 @@ void setup() {
   // Note: in some displays, the touchscreen might be upside down, so you might need to set the rotation to 3: touchscreen.setRotation(3);
   touchscreen.setRotation(3);
   furnace.begin();
+  
 }
 TS_Point lastP;
 void loop() {

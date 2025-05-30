@@ -42,8 +42,8 @@ private:
     ProcessController(){}
     float epsilon = 0.00001f; //  - granica przy której uważamy prostą za poziomą
 
-    CurveManager curveManager;
-    CurveManager* sourceCurveManager ;
+    CurveManager* curveManager;
+    //CurveManager* sourceCurveManager ;
     TemperatureSensor* temperatureSensor = nullptr;
     HeatingController heating;
     MeasurementManager* measurementManager;

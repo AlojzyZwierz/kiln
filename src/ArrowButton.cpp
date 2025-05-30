@@ -30,7 +30,7 @@ void ArrowButton::render(TFT_eSprite& tft) {
     }
 
     if (highlighted) {
-        tft.drawRect(posX - 2, posY - 2, size + 4, size + 4, TFT_YELLOW);
+        tft.drawRect(posX - 2, posY - 2, size + 4, size + 4, COLOR_RED_DOT);
     }
 }
 

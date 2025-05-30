@@ -3,6 +3,10 @@
 CurveManager::CurveManager() {}
 
 void CurveManager::loadOriginalCurve(const Curve& inputCurve) {
+    if(SystemState::get().isLocked()) {
+        Serial.println("Cannot load curve while firing");
+        return;
+    }
     originalCurve = inputCurve;
     bool zeroReached = false;
     for (size_t i = 0; i < curveElemsNo; i++)
@@ -106,12 +110,20 @@ CurveManager CurveManager::clone() const {
     return copy;
 }
 void CurveManager::updateTemperature(char index, float newTemperature) {
+     if(SystemState::get().isLocked()) {
+        Serial.println("Cannot update temperature while firing");
+        return;
+    }
     if (isValidIndex(index)) {
         originalCurve.elems[index].endTemp = newTemperature;
         adjustedCurve = genCurveWithFakeSkips(originalCurve); 
     }
 }
 void CurveManager::updateTime(char index, unsigned long newDurationMs) {
+    if(SystemState::get().isLocked()) {
+        Serial.println("Cannot update time while firing");
+        return;
+    }
     if (isValidIndex(index)) {
         originalCurve.elems[index].hTime = newDurationMs;
         adjustedCurve = genCurveWithFakeSkips(originalCurve); // Update adjusted curve after changing time

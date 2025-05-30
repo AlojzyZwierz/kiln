@@ -21,6 +21,7 @@
 #include "StorageManager.h"
 #include "FakeFurnace.h"
 #include "Modal.h"
+#include "ColorPalette.h"
 
 class Clickable;
 

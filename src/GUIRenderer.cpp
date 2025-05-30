@@ -12,42 +12,35 @@ GUIRenderer::GUIRenderer(
     tempSensor(sensor), 
     curveSelector(cs),
       curveManager(cm),
-      leftArrow( 10, 110, 30,  ArrowDirection::Left, TFT_BROWN),
-      rightArrow( 280, 110, 30,  ArrowDirection::Right, TFT_BROWN), 
-      
-        startButton( "Start", 150, 200, 60, 25, sprite.color565(255, 245, 250), TFT_BLACK),
-        editButton( "Edit", 220, 200, 60, 25, sprite.color565(255, 245, 250), TFT_BLACK),
-        stopButton( "Stop", 170, 200, 90, 25,sprite.color565(255, 245, 250), TFT_BLACK),
+      leftArrow( 10, 110, 30,  ArrowDirection::Left, COLOR_MODAL_BG),
+      rightArrow( 280, 110, 30,  ArrowDirection::Right, COLOR_MODAL_BG),
+
+        startButton( "Start", 150, 200, 60, 25, COLOR_BUTTON, COLOR_BLACK),
+        editButton( "Edit", 220, 200, 60, 25, COLOR_BUTTON, COLOR_BLACK),
+        stopButton( "Stop", 170, 200, 90, 25, COLOR_BUTTON, COLOR_BLACK),
         graphRenderer(sprite, cm, f),
-        temperatureLabel("Temperature", 25, 40, TFT_BLACK, 2),
-        curveIndexLabel("Curve Index", 25, 60, TFT_BLACK, 1),
-        expectedTempLabel("Expected Temp", 25, 75, TFT_BLACK, 1),
-        timeLabel("Time", 25, 70, TFT_BLACK, 2),
-        segmentIndexLabel("Segment Index", 5, 40, TFT_BLACK, 1), // Dodajemy etykietę dla segmentu
+        temperatureLabel("Temperature", 25, 40, COLOR_BLACK, 2),
+        curveIndexLabel("Curve Index", 25, 60, COLOR_BLACK, 1),
+        expectedTempLabel("Expected Temp", 25, 75, COLOR_BLACK, 1),
+        timeLabel("Time", 25, 70, COLOR_BLACK, 2),
+        segmentIndexLabel("Segment Index", 5, 40, COLOR_BLACK, 1), // Dodajemy etykietę dla segmentu
         editCircle( 110, 90, 70, cm) ,// Dodajemy okrąg edycyjny
-        closeButton( "X", 290, 13, 17, 20, sprite.color565(255, 245, 250), TFT_BLACK),
-        saveButton( "Save", 200, 200, 90, 25, sprite.color565(255, 245, 250), TFT_BLACK),
-        endHereButton( "Cut", 140, 200, 40, 25, sprite.color565(255, 245, 250), TFT_BLACK),
+        closeButton( "X", 290, 13, 17, 20, COLOR_BUTTON, COLOR_BLACK),
+        saveButton( "Save", 200, 200, 90, 25, COLOR_BUTTON, COLOR_BLACK),
+        endHereButton( "Cut", 140, 200, 40, 25, COLOR_BUTTON, COLOR_BLACK),
         furnace(f),
-        settingsButton("S",  290, 13, 17, 20, sprite.color565(255, 245, 250), TFT_BLACK)
+        settingsButton("S",  290, 13, 17, 20, COLOR_BUTTON, COLOR_BLACK)
       {
-        sprite.setColorDepth(8);
-        sprite.createSprite(TFT_HEIGHT, TFT_WIDTH); // Tworzymy sprite o wymiarach ekranu
-        //sprite.createSprite(TFT_WIDTH, TFT_HEIGHT); /
-        if (!sprite.created()) {
-            Serial.println("Sprite creation failed!");
-        }else {
-           // Serial.println("Sprite created successfully!");
-        }
-    startButton.setCallback([&]() {
-        ProcessController::get().startFiring();
-        setMode(SystemMode::Firing);
-    });
-    editButton.setCallback([&]() {
-        //curveSelector.selectNext();
-        setMode(SystemMode::Edit);
-    });
-    closeButton.setCallback([&]() {
+        
+        startButton.setCallback([&]() {
+            ProcessController::get().startFiring();
+            setMode(SystemMode::Firing);
+        });
+        editButton.setCallback([&]() {
+            //curveSelector.selectNext();
+            setMode(SystemMode::Edit);
+        });
+        closeButton.setCallback([&]() {
 
         setMode(SystemMode::Idle);
         StorageManager::loadCurve(curveManager, curveSelector.getSelectedIndex());
@@ -90,14 +83,21 @@ GUIRenderer::GUIRenderer(
       }
 
 void GUIRenderer::render() {
+    Serial.println("TFT_YELLOW: " + String(TFT_YELLOW)+ " uiPalette[COLOR_BUTTON]: " + String(uiPalette[COLOR_BUTTON]) + " uiPalette[COLOR_MODAL_BG]: " + String(uiPalette[COLOR_MODAL_BG]) + " uiPalette[COLOR_COOLING_LINE]: " + String(uiPalette[COLOR_COOLING_LINE]));
+
     sprite.deleteSprite(); // Usuwamy poprzedni sprite
-    sprite.createSprite(TFT_HEIGHT, TFT_WIDTH); // Tworzymy nowy sprite o wymiarach ekranu
+    sprite.setColorDepth(8);
+    sprite.createSprite(TFT_HEIGHT, TFT_WIDTH); 
+    //sprite.createPalette(255);
+    //Serial.printf("Głębia kolorów sprite'a: %d\n", sprite.getColorDepth());
+
+    //Serial.println("kolor" + String(COLOR_BG) + " " + String( uiPalette[COLOR_BUTTON]) + " " + String( uiPalette[COLOR_MODAL_BG]) + " " + String( uiPalette[COLOR_COOLING_LINE]));
     if (!sprite.created()) {
         Serial.println("Sprite creation failed!");
     }else {
-      //  Serial.println("Sprite created successfully!");
+        Serial.println("Sprite created successfully!");
     }
-    sprite.fillSprite(TFT_WHITE);
+    sprite.fillSprite(COLOR_BG);
     graphRenderer.render( ); // Rysuje wykres
     drawHeader();
     for (auto& uIElement : uiElements) {  // Używamy referencji (auto&), aby uniknąć kopiowania
@@ -111,6 +111,9 @@ void GUIRenderer::render() {
       //  Serial.println("Rendering modal");
         modal.render(sprite); // Rysujemy modal, jeśli jest widoczny
     }
+    uint16_t test_color = sprite.getPaletteColor(1); // Powinien zwrócić uiPalette[1]
+Serial.printf("Kolor indeksu 1: 0x%04X\n", test_color);
+    
     sprite.pushSprite(0, 0); // Wyświetlamy sprite na ekranie
 }
 
@@ -198,7 +201,6 @@ void GUIRenderer::setupUIFormodes(SystemMode mode) {
             break;
         case SystemMode::Edit:
         curveManager.setSegmentIndex(0); 
-
             leftArrow.setVisible(true);
             rightArrow.setVisible(true);
             timeLabel.setVisible(true);
@@ -261,6 +263,11 @@ void GUIRenderer::setupUIFormodes(SystemMode mode) {
             ProcessController::get().abort("Aborted by user");
             setMode(SystemMode::Idle);
         });
+        settingsButton.setVisible(true);
+        settingsButton.setCallback([&]() {
+                modal.show(ModalMode::Settings);
+               
+            });
     
             break;
     }

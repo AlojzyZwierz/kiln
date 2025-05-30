@@ -7,6 +7,7 @@
 #include "SettingsManager.h"
 #include "StorageManager.h"
 #include <TFT_eSPI.h> // Include the TFT_eSPI library
+#include "ColorPalette.h"
 
 enum class ModalMode {
     None,

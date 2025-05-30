@@ -1,5 +1,5 @@
 #include "GraphRenderer.h"
-#include  <CurveManager.h>
+
 GraphRenderer::GraphRenderer(TFT_eSprite& tftSprite, CurveManager& cm, FakeFurnace& f) : sprite(tftSprite), curveManager(cm), furnace(f)  {}
 
 
@@ -10,8 +10,9 @@ void GraphRenderer::render() {
   timeRatio = TFT_HEIGHT * activeGraphArea / totalTime;
   tempRatio = TFT_WIDTH / 1300.0f;
 
-  sprite.fillScreen(TFT_WHITE);
+  sprite.fillScreen(COLOR_BG);
   sprite.setTextSize(1);
+  sprite.setTextColor(COLOR_BLACK);
 
   drawGrid(totalTime);
   SystemMode mode = SystemState::get().getMode() ;
@@ -103,12 +104,12 @@ unsigned long GraphRenderer::calculateTotalTime(const Curve& curve) {
 void GraphRenderer::drawGrid(unsigned long totalTime) {
   for (int i = 1; i < 13; i++) {
     int y = 240 - (int)(i * 100 * tempRatio);
-    sprite.drawFastHLine(0, y,TFT_HEIGHT,  TFT_LIGHTGREY);
+    sprite.drawFastHLine(0, y,TFT_HEIGHT,  COLOR_GRID);
   }
   for (int i = 0; i < (totalTime / 3600000) + 4; i++) {
     int x = i * 3600000 * timeRatio;
     if (x > 320) break;
-    sprite.drawFastVLine(x, 0, TFT_WIDTH, TFT_LIGHTGREY);
+    sprite.drawFastVLine(x, 0, TFT_WIDTH, COLOR_GRID);
   }
 }
 
@@ -141,7 +142,7 @@ void GraphRenderer::drawCurve(const Curve& curve, int selectedSegment) {
     totalTime += curve.elems[i].hTime;
     float x = totalTime * timeRatio;
     float y = (curve.elems[i].endTemp ) * tempRatio;
-    uint16_t color =  sprite.color565(255, 70 , 120);
+    uint16_t color =  COLOR_RED_DOT;
     int tempLabelOffset = 0;
     SystemMode mode = SystemState::get().getMode() ;
     if(mode == SystemMode::Edit && curveManager.getSegmentIndex() == i) {
@@ -150,20 +151,22 @@ void GraphRenderer::drawCurve(const Curve& curve, int selectedSegment) {
       sprite.fillCircle((int)x, 240 - (int)y, 3, color);
     }else{
     //sprite.drawLine((int)lastX, 240 - (int)lastY, (int)x, 240 - (int)y, TFT_BLACK);}
-      drawThickLine(sprite, (int)lastX, 240 - (int)lastY, (int)x, 240 - (int)y, TFT_BLACK, 2);
-      sprite.fillCircle((int)x, 240 - (int)y, 3, TFT_BLACK);
+      drawThickLine(sprite, (int)lastX, 240 - (int)lastY, (int)x, 240 - (int)y, COLOR_BLACK, 2);
+      sprite.fillCircle((int)x, 240 - (int)y, 3, COLOR_BLACK);
     }
     if (lastY != y){
-      if(curveManager.getSegmentIndex() == i)sprite.setTextColor(color);
+      if(mode == SystemMode::Edit && curveManager.getSegmentIndex() == i)sprite.setTextColor(color);
     sprite.setFreeFont(FONT_SMALL);
     sprite.setTextSize(0.4);
-      sprite.drawString(String(curve.elems[i].endTemp, 0 ), x + 7, 240 - y + 9);
+    sprite.setTextDatum(TL_DATUM);
+      sprite.drawString(String(curve.elems[i].endTemp, 0 ), x + 3, 240 - y + 2);
     }
-    sprite.setTextColor(TFT_BLACK);
+    sprite.setTextColor(COLOR_BLACK);
     lastX = x;
     lastY = y;
   }
-  sprite.drawLine((int)lastX, 240 - (int)lastY, (int)320, 240 - (int)(20*tempRatio), TFT_BLUE);
+  sprite.drawLine((int)lastX, 240 - (int)lastY, (int)320, 240 - (int)(20*tempRatio), COLOR_COOLING_LINE);
+  sprite.setTextDatum(BL_DATUM);
 }
 
 void GraphRenderer::drawMeasurements(unsigned long totalTime) {
@@ -186,12 +189,12 @@ void GraphRenderer::drawMeasurements(unsigned long totalTime) {
     x2 = MeasurementManager::get().getMeasurements()[i].time * xScale;
     y2 = TFT_WIDTH - MeasurementManager::get().getMeasurements()[i].temp * yScale ;
 
-    sprite.drawLine(x1, y1, x2, y2, TFT_RED);
+    sprite.drawLine(x1, y1, x2, y2, COLOR_RED_DOT);
 //Serial.println("x1: " + String(x1) + " y1: " + String(y1) + " x2: " + String(x2) + " y2: " + String(y2) );
     //sprite.fillCircle(x1, y1, 3, TFT_RED);
     //sprite.fillCircle(x2, y2, 3, TFT_RED);
   }
-  if (x2!=0)sprite.drawLine(currentTempPosX, currentTempPosY, x2, y2, TFT_RED);
+  if (x2!=0)sprite.drawLine(currentTempPosX, currentTempPosY, x2, y2, COLOR_RED_DOT);
 
   //Serial.println("_Measurements drawn: " + String(MeasurementManager::get().getMeasurements().size()));
 }
@@ -201,6 +204,6 @@ void GraphRenderer::drawMeasurements(unsigned long totalTime) {
   float yScale = TFT_WIDTH/1300.0f; 
   currentTempPosX = (int)((millis() - ProcessController::get().getCurveStartTime()) * xScale);
   currentTempPosY = TFT_WIDTH - (int)(temp * yScale);
-  sprite.fillCircle(currentTempPosX, currentTempPosY, 3, TFT_RED);
+  sprite.fillCircle(currentTempPosX, currentTempPosY, 3, COLOR_RED_DOT);
 
  }

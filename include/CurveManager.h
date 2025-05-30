@@ -1,6 +1,7 @@
 #pragma once
 #include <Arduino.h>
 #include <Line.h>
+#include <SystemState.h>
 //#include <string>
 struct Seg {
     unsigned long hTime;
@@ -52,6 +53,17 @@ class CurveManager {
 
         unsigned long getSegmentTime() const { return originalCurve.elems[currentSegmentIndex].hTime; }
         float getSegmentTemp() const { return originalCurve.elems[currentSegmentIndex].endTemp; }
+        bool hasNextSegment() const {
+            return currentSegmentIndex + 1 < curveElemsNo && originalCurve.elems[currentSegmentIndex + 1].hTime != 0;
+        }
+        void nextSegment() {
+            if (hasNextSegment()) {
+                currentSegmentIndex++;
+            } else {
+                Serial.println("No more segments available.");
+            }
+        }
+       
     private:
         int currentSegmentIndex = 0;
         Curve originalCurve;

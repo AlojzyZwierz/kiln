@@ -4,14 +4,15 @@
 #include <TFT_eSPI.h>
 #include <functional>
 #include "Clickable.h"
+#include "ColorPalette.h"
 
 class TextButton : public Clickable {
 public:
     TextButton(        
         const String& label,
         int x, int y, int w, int h,
-        uint16_t bgColor = TFT_DARKGREY,
-        uint16_t textColor = TFT_WHITE
+        uint16_t bgColor = COLOR_BG,
+        uint16_t textColor = COLOR_BLACK
     );
 
     void render(TFT_eSprite& tft) ;

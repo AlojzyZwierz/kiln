@@ -1,10 +1,10 @@
 #pragma once
-
+#include <ColorPalette.h> // Include the color palette header
 #include <TFT_eSPI.h> // Include the TFT_eSPI library
 #include <UIElement.h> // Include the base class header
 class UILabel : public UIElement {
     public:
-        UILabel(const String& txt, int x, int y, uint16_t color = TFT_BLACK, int size = 2)
+        UILabel(const String& txt, int x, int y, uint16_t color = COLOR_BLACK, int size = 2)
             : text(txt), posX(x), posY(y), textColor(color), textSize(size) {}
     
         void setText(const String& newText) { text = newText; }
@@ -13,7 +13,7 @@ class UILabel : public UIElement {
         void setPosition(int x, int y) { posX = x; posY = y; }
     
         void render(TFT_eSprite& tft) override {
-            tft.setTextColor(textColor, TFT_WHITE); // z tłem
+            tft.setTextColor(textColor, COLOR_BG); // z tłem
             tft.setTextSize(textSize);
             tft.setCursor(posX, posY);
             tft.print(text);
