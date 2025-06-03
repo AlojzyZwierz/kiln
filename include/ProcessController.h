@@ -19,7 +19,7 @@ static ProcessController& get(){
     static ProcessController instance;
     return instance;
 }
-    void begin(CurveManager& cm, TemperatureSensor& sensor, MeasurementManager& mm, HeatingController& h);
+    void begin(CurveManager& cm, TemperatureSensor& sensor,  HeatingController& h);
     void checkSegmentAdvance();
     //void updateHeating();
     void startFiring();
@@ -46,7 +46,7 @@ private:
     //CurveManager* sourceCurveManager ;
     TemperatureSensor* temperatureSensor = nullptr;
     HeatingController* heating;
-    MeasurementManager* measurementManager;
+    //MeasurementManager* measurementManager;
 
     //uint8_t currentSegmentIndex = 0;
     uint8_t editSegmentIndex = 0;

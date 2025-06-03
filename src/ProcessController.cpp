@@ -2,11 +2,12 @@
 
 extern FakeFurnace furnace;
 
-void ProcessController::begin(CurveManager& cm, TemperatureSensor& sensor, MeasurementManager& mm) {
+void ProcessController::begin(CurveManager& cm, TemperatureSensor& sensor,  HeatingController& h) {
     curveManager = &cm;
     temperatureSensor = &sensor;
-    measurementManager = &mm;
-    
+    //measurementManager = &mm;
+    heating = &h;
+
 }
 
 void ProcessController::startFiring() {  
@@ -27,14 +28,14 @@ void ProcessController::startFiring() {
     integral = 0;
     running = true;
     curveStartTime = millis();
-    heating.setCycleTime(SettingsManager::get().getSettings().heatingCycleMs);
-    heating.setEnabled(true);
-    heating.setRatio(ratio);
+    heating->setCycleTime(SettingsManager::get().getSettings().heatingCycleMs);
+    heating->setEnabled(true);
+    heating->setRatio(ratio);
     ResumeManager::saveCurveIndex(curveManager->getcurrentCurveIndex());
-    Serial.println("Starting process with curve index: " + String(curveManager->getcurrentCurveIndex()));
+    //Serial.println("Starting process with curve index: " + String(curveManager->getcurrentCurveIndex()));
     useSegment();
-    measurementManager->clear();
-    Serial.println("Process started with segment index: " + String(curveManager->getSegmentIndex()));
+    MeasurementManager::get().clear();
+   // Serial.println("Process started with segment index: " + String(curveManager->getSegmentIndex()));
 }
 
 bool ProcessController::isRunning() const {
@@ -116,7 +117,7 @@ uint8_t ProcessController::determineStartSegment(const Curve& curve, float curre
 
 void ProcessController::finishFiring() {
     running = false;
-    heating.setEnabled(false);
+    heating->setEnabled(false);
     setHeaterPower(0);
     SystemState::get().setMode(SystemMode::Idle);
     SoundManager::playFanfare();
@@ -168,7 +169,7 @@ void ProcessController::setHeaterPower(float ratio) {
 void ProcessController::abort(const char* reason) {
     running = false;
     //digitalWrite(SSR, LOW);
-    heating.setEnabled(false);
+    heating->setEnabled(false);
 
 
     // Można wyczyścić inne rzeczy, np. pomiary, PID, itp.

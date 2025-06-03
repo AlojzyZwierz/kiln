@@ -63,18 +63,8 @@ GUIRenderer::GUIRenderer(
     uiElements.push_back(&temperatureLabel);
     uiElements.push_back(&curveIndexLabel);
     uiElements.push_back(&expectedTempLabel);
-    uiElements.push_back(&leftArrow);
-    uiElements.push_back(&rightArrow);  
-    uiElements.push_back(&startButton);
-    uiElements.push_back(&editButton);
-    uiElements.push_back(&stopButton);
     uiElements.push_back(&timeLabel);
     uiElements.push_back(&segmentIndexLabel);
-    uiElements.push_back(&closeButton);
-    uiElements.push_back(&saveButton);
-    uiElements.push_back(&endHereButton);
-    uiElements.push_back(&editCircle);
-    uiElements.push_back(&settingsButton);
     uiElements.push_back(&costLabel);
 
     setMode(SystemMode::Idle);
@@ -87,7 +77,7 @@ GUIRenderer::GUIRenderer(
       }
 
 void GUIRenderer::render() {
-    Serial.println("TFT_YELLOW: " + String(TFT_YELLOW)+ " uiPalette[COLOR_BUTTON]: " + String(uiPalette[COLOR_BUTTON]) + " uiPalette[COLOR_MODAL_BG]: " + String(uiPalette[COLOR_MODAL_BG]) + " uiPalette[COLOR_COOLING_LINE]: " + String(uiPalette[COLOR_COOLING_LINE]));
+    //Serial.println("TFT_YELLOW: " + String(TFT_YELLOW)+ " uiPalette[COLOR_BUTTON]: " + String(uiPalette[COLOR_BUTTON]) + " uiPalette[COLOR_MODAL_BG]: " + String(uiPalette[COLOR_MODAL_BG]) + " uiPalette[COLOR_COOLING_LINE]: " + String(uiPalette[COLOR_COOLING_LINE]));
 
     sprite.deleteSprite(); // Usuwamy poprzedni sprite
     sprite.setColorDepth(8);
@@ -105,6 +95,11 @@ void GUIRenderer::render() {
     graphRenderer.render( ); // Rysuje wykres
     drawHeader();
     for (auto& uIElement : uiElements) {  // Używamy referencji (auto&), aby uniknąć kopiowania
+        if (uIElement->isVisible()) {    // Opcjonalne sprawdzenie widoczności
+            uIElement->render(sprite);      // Wywołanie wirtualnej metody render()
+        }
+    }   
+    for (auto& uIElement : clickables) {  // Używamy referencji (auto&), aby uniknąć kopiowania
         if (uIElement->isVisible()) {    // Opcjonalne sprawdzenie widoczności
             uIElement->render(sprite);      // Wywołanie wirtualnej metody render()
         }
@@ -136,6 +131,8 @@ void GUIRenderer::drawHeader() {
     //timeLabel.setText("Time: " + String(curveManager.getTotalTime()) + "s"); // potrzebujesz takiej metody
     segmentIndexLabel.setText( String(curveManager.getSegmentIndex()+1)); // potrzebujesz takiej metody,
     timeLabel.setText(((curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex()].hTime)==60000)?"skip": Utils::millisToHM( curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex()].hTime)); // potrzebujesz takiej metody
+    float cost = energyMeter.getCost(); // potrzebujesz takiej metody
+    if (cost > 0) costLabel.setText( String(cost, 2) + " zł"); // potrzebujesz takiej metody
   /*  sprite.setFreeFont(FONT_LARGE);
     sprite.setTextSize(1.8);
     
@@ -177,6 +174,10 @@ void GUIRenderer::handleTouch(int x, int y) {
 
 void GUIRenderer::setupUIFormodes(SystemMode mode) {
     for (auto* c : uiElements) {
+        c->setVisible(false);
+        // c->setVisible(false); // jeśli masz widoczność
+    }
+        for (auto* c : clickables) {
         c->setVisible(false);
         // c->setVisible(false); // jeśli masz widoczność
     }

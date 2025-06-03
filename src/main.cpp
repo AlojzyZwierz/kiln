@@ -2,15 +2,15 @@
 #include <SPI.h>
 #include <TFT_eSPI.h>
 #include <XPT2046_Touchscreen.h>
-
 #include <Arduino.h>
 
-#include <GraphRenderer.h>
-#include <CurveManager.h>
-#include <StorageManager.h>
-#include <TemperatureSensor.h>
-#include <ProcessController.h>
-#include <ResumeManager.h>
+#include "GraphRenderer.h"
+#include "CurveManager.h"
+#include "StorageManager.h"
+#include "TemperatureSensor.h"
+#include "ProcessController.h"
+#include "ResumeManager.h"
+#include "HeatingController.h"
 #include "GUIRenderer.h"
 #include "FakeFurnace.h"
 #include <ColorPalette.h>
@@ -35,6 +35,7 @@ TemperatureSensor temperatureSensor;
 CurveSelector curveSelector(curveManager);
 FakeFurnace furnace;
 EnergyUsageMeter energyMeter;
+HeatingController heatingController(energyMeter);
 GUIRenderer guiRenderer(tft, temperatureSensor,curveSelector , curveManager, furnace, energyMeter);
 
 //ProcessController& controller = ProcessController::get();
@@ -54,7 +55,7 @@ void setup() {
     Serial.println("SPIFFS init failed. Retrying...");
     delay(1000);
   }
-  ProcessController::get().begin(curveManager, temperatureSensor, MeasurementManager::get());
+  ProcessController::get().begin(curveManager, temperatureSensor, heatingController);
   //StorageManager::saveSettings();
   StorageManager::loadSettings();
   //Serial.println("Settings loaded: " + String(SettingsManager::get().getSettings().pid_kp) + ", " + String(SettingsManager::get().getSettings().pid_ki) + ", " + String(SettingsManager::get().getSettings().pid_kd));

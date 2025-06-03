@@ -3,6 +3,7 @@
 
 void EnergyUsageMeter::startMeasurement() {
     heatingStartTime = millis();
+    Serial.println("Starting energy measurement at: " + String(heatingStartTime));
 }
 
 void EnergyUsageMeter::stopMeasurement() {
@@ -11,6 +12,7 @@ void EnergyUsageMeter::stopMeasurement() {
         totalHeatingTimeMs += (now - heatingStartTime);
         heatingStartTime = 0;
     }
+    Serial.println("Stopping energy measurement at: " + String(now) + ", total heating time: " + String(totalHeatingTimeMs) + " ms");
 }
 
 float EnergyUsageMeter::getEnergyKWh() const {
@@ -30,6 +32,7 @@ float EnergyUsageMeter::calculateEnergyKWh() const {
     float powerWatts = SettingsManager::get().getSettings().kilnPower; // np. 1500
     float hours = totalHeatingTimeMs / 3600000.0f;
     return powerWatts * hours ; // kWh
+    //Serial.println("Total heating time in ms: " + String(totalHeatingTimeMs));
 }
 
 float EnergyUsageMeter::calculateCost() const {
