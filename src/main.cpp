@@ -13,8 +13,9 @@
 #include "HeatingController.h"
 #include "GUIRenderer.h"
 #include "FakeFurnace.h"
-#include <ColorPalette.h>
-#include <EnergyUsageMeter.h>
+#include "ColorPalette.h"
+#include "EnergyUsageMeter.h"
+#include "WebServerManager.h"
 
 TFT_eSPI tft = TFT_eSPI();
 
@@ -37,6 +38,7 @@ FakeFurnace furnace;
 EnergyUsageMeter energyMeter;
 HeatingController heatingController(energyMeter);
 GUIRenderer guiRenderer(tft, temperatureSensor,curveSelector , curveManager, furnace, energyMeter);
+WebServerManager webServerManager(curveManager, furnace);
 
 //ProcessController& controller = ProcessController::get();
 //MeasurementManager measurementManager = MeasurementManager::get();
@@ -77,7 +79,7 @@ void setup() {
   // Note: in some displays, the touchscreen might be upside down, so you might need to set the rotation to 3: touchscreen.setRotation(3);
   touchscreen.setRotation(3);
   furnace.begin();
-  
+  webServerManager.begin();
 }
 TS_Point lastP;
 void loop() {
@@ -86,7 +88,7 @@ void loop() {
     if(millis() > nextMeasurementTime) {
    // Serial.println("Adding measurement at: " + String(millis()) + " furnace temp: " + String(furnace.getTemperature()));
     nextMeasurementTime = millis() + measurementInterval;
-    MeasurementManager::get().addMeasurement(millis() - ProcessController::get().getCurveStartTime(),furnace.getTemperature());
+    MeasurementManager::get().addMeasurement(millis() - ProcessController::get().getProgramStartTime(),furnace.getTemperature());
    // Serial.println("Measurements no: " + String(MeasurementManager::get().getMeasurements().size()));
   }
     if(lastUpdateTime + 1000 < millis()) {

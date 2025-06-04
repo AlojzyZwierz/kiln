@@ -188,7 +188,8 @@ void GUIRenderer::setupUIFormodes(SystemMode mode) {
             leftArrow.setVisible(true);
             rightArrow.setVisible(true);
             leftArrow.setCallback([&]() {
-                curveSelector.selectPrevious(); 
+                curveSelector.selectPrevious();
+                Serial.println("Selected previous curve index: " + String(curveSelector.getSelectedIndex()));
             });
             rightArrow.setCallback([&]() {
                 curveSelector.selectNext(); // musisz mieć taką metodę!

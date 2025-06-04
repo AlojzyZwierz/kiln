@@ -202,7 +202,7 @@ void GraphRenderer::drawMeasurements(unsigned long totalTime) {
  void GraphRenderer::drawCurrentTempDot(float temp, unsigned long totalTime) {
   float xScale = TFT_HEIGHT *activeGraphArea/ (totalTime ); 
   float yScale = TFT_WIDTH/1300.0f; 
-  currentTempPosX = (int)((millis() - ProcessController::get().getCurveStartTime()) * xScale);
+  currentTempPosX = (int)((millis() - ProcessController::get().getProgramStartTime()) * xScale);
   currentTempPosY = TFT_WIDTH - (int)(temp * yScale);
   sprite.fillCircle(currentTempPosX, currentTempPosY, 3, COLOR_RED_DOT);
 

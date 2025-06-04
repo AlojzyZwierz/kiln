@@ -34,9 +34,13 @@ static ProcessController& get(){
         return exp;
         
     }
-    unsigned long getCurveStartTime()  { return curveStartTime; }
+    //unsigned long getCurveStartTime()  { return curveStartTime; }
+    unsigned long getProgramStartTime() const { return programStartTime; }
+    float getProgramStartTemperature() const { return programStartTemperature; }
+    unsigned long getSegmentStartTime() const { return segmentStartTime; }
+    //unsigned long getSegmentEndTime() const { return segmentEndTime; }
 private:
-    
+
     void useSegment();
     void nextSegment();
     ProcessController(){}
@@ -53,7 +57,9 @@ private:
     unsigned long segmentStartTime = 0;
     unsigned long segmentEndTime = 0;
     unsigned long lastPidCheckTime =0;
-    unsigned long curveStartTime = 0;
+    //unsigned long curveStartTime = 0;
+    unsigned long programStartTime = 0;
+   float programStartTemperature; // czas zakończenia programu
 
     float startTemp = 0;
     float ratio = 0;

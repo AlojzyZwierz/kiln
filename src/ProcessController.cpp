@@ -14,6 +14,8 @@ void ProcessController::startFiring() {
     Serial.println("Starting firing process...");
     if (running) return; // Jeśli już działa, nie rób nic   
     SystemState::get().setMode(SystemMode::Firing);
+    programStartTemperature = getCurrentTemp();
+    programStartTime = millis();
     //curveManager = sourceCurveManager->clone();
     const Curve& curve = curveManager->getOriginalCurve();
 
@@ -27,7 +29,6 @@ void ProcessController::startFiring() {
     ratio = 0.07;
     integral = 0;
     running = true;
-    curveStartTime = millis();
     heating->setCycleTime(SettingsManager::get().getSettings().heatingCycleMs);
     heating->setEnabled(true);
     heating->setRatio(ratio);
