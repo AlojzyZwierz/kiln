@@ -7,6 +7,6 @@ class UIElement {
         bool isVisible() const { return visible; }
     
     protected:
-        bool visible = true;
+        bool visible = false;
     };
     

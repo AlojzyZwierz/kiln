@@ -14,6 +14,7 @@ void ProcessController::startFiring() {
     Serial.println("Starting firing process...");
     if (running) return; // Jeśli już działa, nie rób nic   
     SystemState::get().setMode(SystemMode::Firing);
+    Serial.println("System mode set to Firing" + String(static_cast<int>(SystemState::get().getMode())));
     programStartTemperature = getCurrentTemp();
     programStartTime = millis();
     //curveManager = sourceCurveManager->clone();
@@ -122,6 +123,7 @@ void ProcessController::finishFiring() {
     setHeaterPower(0);
     SystemState::get().setMode(SystemMode::Idle);
     SoundManager::playFanfare();
+    ResumeManager::clear();
 }
 
 float ProcessController::getCurrentTemp() {
@@ -152,7 +154,7 @@ void ProcessController::applyPID() {
     float integ = constrain((SettingsManager::get().getSettings().pid_ki / 10000.0f) * integral, -1, 1);
     float deriv = SettingsManager::get().getSettings().pid_kd * (error - lastError) / (SettingsManager::get().getSettings().pidIntervalMs / 100.0f);
     float prop = SettingsManager::get().getSettings().pid_kp * error / 1000.0f;
-Serial.println("PID: " + String(prop) + " " + String(deriv) + " " + String(integ) + "; " + String(error) + " " + String(currentTemp) + " " + String(setpoint) + " " + String(ratio) + " " + String(integral) + " " + String(lastError) + " " + String(segmentLine.a, 6)  );
+//Serial.println("PID: " + String(prop) + " " + String(deriv) + " " + String(integ) + "; " + String(error) + " " + String(currentTemp) + " " + String(setpoint) + " " + String(ratio) + " " + String(integral) + " " + String(lastError) + " " + String(segmentLine.a, 6)  );
     Serial.println(String(SettingsManager::get().getSettings().pid_kp) + " " + String(SettingsManager::get().getSettings().pid_ki) + " " + String(SettingsManager::get().getSettings().pid_kd) + " " + String(SettingsManager::get().getSettings().pidIntervalMs));
     float correction = prop + deriv + integ;
     ratio = constrain(ratio , 0, 1)+ correction;
@@ -183,6 +185,7 @@ void ProcessController::abort(const char* reason) {
     //tone(BUZZERPIN, 1000, 500);
     SystemState::get().setMode(SystemMode::Idle);
     SoundManager::beep(1000, 500);
+    ResumeManager::clear();
 }
  float ProcessController::getMaxTemp(Curve c){
     long maxT = 0;

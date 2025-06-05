@@ -13,6 +13,7 @@ GUIRenderer::GUIRenderer(
     tempSensor(sensor), 
     curveSelector(cs),
       curveManager(cm),
+      
       leftArrow( 10, 110, 30,  ArrowDirection::Left, COLOR_MODAL_BG),
       rightArrow( 280, 110, 30,  ArrowDirection::Right, COLOR_MODAL_BG),
 
@@ -34,21 +35,25 @@ GUIRenderer::GUIRenderer(
         energyMeter(em),
         costLabel("", 25, 90, COLOR_BLACK, 1)
       {
-        
+        SystemState::get().onModeChange = [this](SystemMode newMode) {
+        this->setupUIFormodes(newMode);
+        render(); // Odśwież GUI po zmianie trybu
+    };
+
+    // Możesz też od razu ustawić początkowy stan GUI
+    setupUIFormodes(SystemState::get().getMode());
         startButton.setCallback([&]() {
             ProcessController::get().startFiring();
-            setMode(SystemMode::Firing);
+            //setMode(SystemMode::Firing);
         });
         editButton.setCallback([&]() {
             //curveSelector.selectNext();
-            setMode(SystemMode::Edit);
+            SystemState::get().setMode(SystemMode::Edit);
         });
         closeButton.setCallback([&]() {
-
-        setMode(SystemMode::Idle);
-        StorageManager::loadCurve(curveManager, curveSelector.getSelectedIndex());
-        
-    });
+            SystemState::get().setMode(SystemMode::Idle);
+            StorageManager::loadCurve(curveManager, curveSelector.getSelectedIndex());        
+        });
 
     clickables.push_back(&startButton);
     clickables.push_back(&leftArrow);
@@ -67,13 +72,12 @@ GUIRenderer::GUIRenderer(
     uiElements.push_back(&segmentIndexLabel);
     uiElements.push_back(&costLabel);
 
-    setMode(SystemMode::Idle);
     Serial.println("Clickables in list in constructor: " + String(clickables.size()));
     sprite.setFreeFont(FONT_SMALL);
 
     modal.onClose = [this]() {
-    this->render();  // albo render(), co tam masz
-};
+        this->render();  // albo render(), co tam masz
+    };
       }
 
 void GUIRenderer::render() {
@@ -89,7 +93,7 @@ void GUIRenderer::render() {
     if (!sprite.created()) {
         Serial.println("Sprite creation failed!");
     }else {
-        Serial.println("Sprite created successfully!");
+        //Serial.println("Sprite created successfully!");
     }
     sprite.fillSprite(COLOR_BG);
     graphRenderer.render( ); // Rysuje wykres
@@ -111,7 +115,7 @@ void GUIRenderer::render() {
         modal.render(sprite); // Rysujemy modal, jeśli jest widoczny
     }
     uint16_t test_color = sprite.getPaletteColor(1); // Powinien zwrócić uiPalette[1]
-Serial.printf("Kolor indeksu 1: 0x%04X\n", test_color);
+
     
     sprite.pushSprite(0, 0); // Wyświetlamy sprite na ekranie
 }
@@ -156,7 +160,7 @@ void GUIRenderer::drawHeader() {
 }
 
 void GUIRenderer::handleTouch(int x, int y) {
-    //Serial.println("Clickables on list: " + String(clickables.size()));
+    Serial.println("Clickables on list: " + String(clickables.size()));
     if (modal.isVisible()) {
         if (modal.handleClick(x, y)) {
             Serial.println("Modal clicked at: " + String(x) + ", " + String(y));
@@ -164,8 +168,9 @@ void GUIRenderer::handleTouch(int x, int y) {
         }
     }
     for (const auto& clickable : clickables) {
-        //Serial.println("visible-"+ String(clickable->isVisible())+" active-" + String(clickable->isActive()));
+        Serial.println("visible-"+ String(clickable->isVisible())+" active-" + String(clickable->isActive()));
         if(clickable->isVisible()) {                        // dodać sprawdzenie aktywności
+            Serial.println("Checking clickable at: " + String(x) + ", " + String(y));
             if(clickable->handleClick(x, y)) break;
         }        
     }
@@ -189,7 +194,7 @@ void GUIRenderer::setupUIFormodes(SystemMode mode) {
             rightArrow.setVisible(true);
             leftArrow.setCallback([&]() {
                 curveSelector.selectPrevious();
-                Serial.println("Selected previous curve index: " + String(curveSelector.getSelectedIndex()));
+                //Serial.println("Selected previous curve index: " + String(curveSelector.getSelectedIndex()));
             });
             rightArrow.setCallback([&]() {
                 curveSelector.selectNext(); // musisz mieć taką metodę!
@@ -224,7 +229,7 @@ void GUIRenderer::setupUIFormodes(SystemMode mode) {
                  //   curveManager.getOriginalCurve().elems[0].hTime = 0;
                 }
                 StorageManager::saveCurve(curveManager, curveSelector.getSelectedIndex());
-                setMode(SystemMode::Idle);
+                SystemState::get().setMode(SystemMode::Idle);
             });
             /*            saveButton.setCallback([&]() {
                 StorageManager::saveCurve(curveManager, curveSelector.getSelectedIndex());
@@ -269,7 +274,7 @@ void GUIRenderer::setupUIFormodes(SystemMode mode) {
         expectedTempLabel.setVisible(true);
         stopButton.setCallback([&]() {
             ProcessController::get().abort("Aborted by user");
-            setMode(SystemMode::Idle);
+            SystemState::get().setMode(SystemMode::Idle);
         });
         settingsButton.setVisible(true);
         settingsButton.setCallback([&]() {

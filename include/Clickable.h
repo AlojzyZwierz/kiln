@@ -18,6 +18,7 @@ public:
     virtual bool wasClicked(int touchX, int touchY) = 0;
     virtual bool handleClick(int x, int y) {
         if (wasClicked(x, y)){ onClick();
+            Serial.println("Clickable clicked at: " + String(x) + ", " + String(y));
             return true;
         }
         return false;

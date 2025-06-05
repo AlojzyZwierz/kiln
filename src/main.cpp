@@ -80,6 +80,12 @@ void setup() {
   touchscreen.setRotation(3);
   furnace.begin();
   webServerManager.begin();
+  if(ResumeManager::hasResumeData()) {
+    curveManager.setcurrentCurveIndex(ResumeManager::loadCurveIndex());
+    ProcessController::get().startFiring();
+    //SystemState::get().setMode(SystemMode::Firing);
+  }
+  SystemState::get().setMode(SystemMode::Idle);
 }
 TS_Point lastP;
 void loop() {
@@ -96,7 +102,7 @@ void loop() {
       lastUpdateTime = millis();
       guiRenderer.render();
      // Serial.println("GUI rendered at: " + String(millis()));
-     Serial.println("seg htime: " + String(curveManager.getOriginalCurve().elems[0].hTime) + " current segment index: " + String(curveManager.getSegmentIndex()) + " current temp: " + String(furnace.getTemperature()));
+    // Serial.println("seg htime: " + String(curveManager.getOriginalCurve().elems[0].hTime) + " current segment index: " + String(curveManager.getSegmentIndex()) + " current temp: " + String(furnace.getTemperature()));
       ProcessController::get().checkSegmentAdvance();
   }  
   ProcessController::get().applyPID();  

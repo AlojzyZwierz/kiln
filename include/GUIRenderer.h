@@ -33,11 +33,11 @@ public:
 
     void render();               // Rysuje cały GUI
     void handleTouch(int x, int y); // Obsługa kliknięć
-    void setMode(SystemMode newMode) { 
+    /*void setMode(SystemMode newMode) { 
         SystemState::get().setMode(newMode); 
-        setupUIFormodes(SystemState::get().getMode()); // Ustawia widoczność przycisków
+        //setupUIFormodes(SystemState::get().getMode()); // Ustawia widoczność przycisków
         Serial.println("mode Set: " + String(static_cast<int>(SystemState::get().getMode())));
-    }// Ustawia tryb GUI
+    //}// Ustawia tryb GUI*/
 
 private:
     EnergyUsageMeter& energyMeter;

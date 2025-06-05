@@ -15,9 +15,9 @@ void ArrowButton::render(TFT_eSprite& tft) {
 
     if (direction == ArrowDirection::Left) {
         tft.fillTriangle(
-            posX, posY + half,
-            posX + size, posY,
-            posX + size, posY + size,
+     posX + size, posY,               // góra prawa
+        posX, posY + half,               // środek lewa
+        posX + size, posY + size,   
             arrowColor
         );
     } else {
