@@ -1,6 +1,6 @@
 #include "WebServerManager.h"
 
-WebServerManager::WebServerManager(CurveManager& cm, FakeFurnace& f) : server(80), curveManager(cm), furnace(f) {
+WebServerManager::WebServerManager(CurveManager& cm, TemperatureSensor& ts) : server(80), curveManager(cm), temperatureSensor(ts) {
   //server.begin();
   //Serial.println("Web server started");
   //Serial.println("IP address: " + WiFi.localIP().toString());
@@ -31,7 +31,7 @@ void WebServerManager::begin() {
 
 String  WebServerManager::generateSVG(const Curve& curIn) {
 
-    float currentTemp = furnace.getTemperature();
+    float currentTemp = temperatureSensor.getTemperature();
   //Serial.println(String(curveManager.getSegmentIndex()) + " endtemp: " + String(curveManager.getAdjustedCurve().elems[curveManager.getSegmentIndex()].endTemp) + " endtemp-1 " + String(curveManager.getSegmentIndex() == 0 ? 0 : curveManager.getAdjustedCurve()elems[curveManager.getSegmentIndex() - 1].endTemp) + " endtime " + String(endTime) + " starttime" + String(startTime) + " millis " + String(millis()) + " a " + String(eL.a, 5) + " b " + String(eL.b) + " ");
   unsigned long totalTime = 0;
   for (int i = 0; i < curveElemsNo; i++) {

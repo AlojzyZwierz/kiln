@@ -14,7 +14,7 @@
 
 class GraphRenderer {
 public:
-  GraphRenderer(TFT_eSprite& tftSprite, CurveManager& cm, FakeFurnace& furnace);
+  GraphRenderer(TFT_eSprite& tftSprite, CurveManager& cm, TemperatureSensor& ts);
   void drawMeasurements(unsigned long totalTime);
   //void render(const Curve& curve);
   void render();
@@ -26,7 +26,8 @@ private:
   float timeRatio = 1.0f;
   float tempRatio = 1.0f;
   CurveManager& curveManager;
-  FakeFurnace& furnace ; // Get the singleton instance of FakeFurnace
+  //FakeFurnace& furnace ; // Get the singleton instance of FakeFurnace
+  TemperatureSensor& temperatureSensor;
   const float activeGraphArea = 0.8f; 
   int currentTempPosX = 0;
   int currentTempPosY = 0;

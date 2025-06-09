@@ -3,6 +3,7 @@
 #include "UIElement.h"
 #include "TextButton.h"
 #include <functional>
+#include <WiFi.h>
 #include "UILabel.h"
 #include "SettingsManager.h"
 #include "StorageManager.h"
@@ -12,7 +13,7 @@
 enum class ModalMode {
     None,
     Settings,
-    ConfirmExit,
+    Error,
     Info
 };
 
@@ -31,8 +32,8 @@ public:
 private:
     void buildSettings();
     void updateFromCurrentEntry();
-    //void buildConfirmExit();
-    //void buildInfo(const String& message);
+    //void buildError();
+    //void buildInfo();
 
     bool visible = false;
     ModalMode currentMode = ModalMode::None;
@@ -52,6 +53,7 @@ private:
 
     UILabel valueLabel; // (opcjonalnie: etykieta do wyświetlania informacji)
     UILabel entryNameLabel; // (opcjonalnie: etykieta tytułu)
+    UILabel ipLabel;
 
     // (opcjonalnie: komunikat dla okna info)
     String infoMessage;

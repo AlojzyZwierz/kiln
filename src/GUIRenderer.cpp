@@ -1,26 +1,26 @@
 #include "GUIRenderer.h"
 #include "FakeFurnace.h"
-extern FakeFurnace furnace;
+//extern FakeFurnace furnace;
 GUIRenderer::GUIRenderer(
     TFT_eSPI& display, 
     TemperatureSensor& sensor, 
     CurveSelector& cs, 
     CurveManager& cm, 
-    FakeFurnace& f,
+    TemperatureSensor& ts,
     EnergyUsageMeter& em
 )    : tft(display), 
     sprite(&display),
-    tempSensor(sensor), 
+    temperatureSensor(sensor), 
     curveSelector(cs),
       curveManager(cm),
       
-      leftArrow( 10, 110, 30,  ArrowDirection::Left, COLOR_MODAL_BG),
-      rightArrow( 280, 110, 30,  ArrowDirection::Right, COLOR_MODAL_BG),
+      leftArrow( 10, 110, 30,  ArrowDirection::Left, COLOR_BLACK),
+      rightArrow( 280, 110, 30,  ArrowDirection::Right, COLOR_BLACK),
 
         startButton( "Start", 150, 200, 60, 25, COLOR_BUTTON, COLOR_BLACK),
         editButton( "Edit", 220, 200, 60, 25, COLOR_BUTTON, COLOR_BLACK),
         stopButton( "Stop", 170, 200, 90, 25, COLOR_BUTTON, COLOR_BLACK),
-        graphRenderer(sprite, cm, f),
+        graphRenderer(sprite, cm, temperatureSensor),
         temperatureLabel("Temperature", 25, 40, COLOR_BLACK, 2),
         curveIndexLabel("Curve Index", 25, 60, COLOR_BLACK, 1),
         expectedTempLabel("Expected Temp", 25, 75, COLOR_BLACK, 1),
@@ -30,10 +30,12 @@ GUIRenderer::GUIRenderer(
         closeButton( "X", 290, 13, 17, 20, COLOR_BUTTON, COLOR_BLACK),
         saveButton( "Save", 200, 200, 90, 25, COLOR_BUTTON, COLOR_BLACK),
         endHereButton( "Cut", 140, 200, 40, 25, COLOR_BUTTON, COLOR_BLACK),
-        furnace(f),
+        //furnace(f),
+        
         settingsButton("S",  290, 13, 17, 20, COLOR_BUTTON, COLOR_BLACK),
         energyMeter(em),
-        costLabel("", 25, 90, COLOR_BLACK, 1)
+        costLabel("", 25, 90, COLOR_BLACK, 1),
+        errorLabel("", 25, 120, COLOR_RED_DOT, 2)
       {
         SystemState::get().onModeChange = [this](SystemMode newMode) {
         this->setupUIFormodes(newMode);
@@ -71,6 +73,7 @@ GUIRenderer::GUIRenderer(
     uiElements.push_back(&timeLabel);
     uiElements.push_back(&segmentIndexLabel);
     uiElements.push_back(&costLabel);
+    uiElements.push_back(&errorLabel);
 
     Serial.println("Clickables in list in constructor: " + String(clickables.size()));
     sprite.setFreeFont(FONT_SMALL);
@@ -123,7 +126,7 @@ void GUIRenderer::render() {
 void GUIRenderer::drawHeader() {
     //float temperature = tempSensor.getTemperature();
 
-    float temperature = SystemState::get().getMode()!=SystemMode::Edit?furnace.getTemperature():curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex()].endTemp; // potrzebujesz takiej metody
+    float temperature = SystemState::get().getMode()!=SystemMode::Edit?temperatureSensor.getTemperature():curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex()].endTemp; // potrzebujesz takiej metody
     int curveIndex = curveSelector.getSelectedIndex(); // potrzebujesz takiej metody
 
 
@@ -137,6 +140,11 @@ void GUIRenderer::drawHeader() {
     timeLabel.setText(((curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex()].hTime)==60000)?"skip": Utils::millisToHM( curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex()].hTime)); // potrzebujesz takiej metody
     float cost = energyMeter.getCost(); // potrzebujesz takiej metody
     if (cost > 0) costLabel.setText( String(cost, 2) + " zł"); // potrzebujesz takiej metody
+    else costLabel.setText(" ");
+    int errorCount = temperatureSensor.getErrorCount();
+    if( errorCount != 0) {
+    errorLabel.setText("Error:" +  String(temperatureSensor.GetLastErrorCode()) + " : " + String(errorCount) ); }else
+    errorLabel.setText(" ");
   /*  sprite.setFreeFont(FONT_LARGE);
     sprite.setTextSize(1.8);
     

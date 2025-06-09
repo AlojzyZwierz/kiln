@@ -29,7 +29,7 @@ class Clickable;
 class GUIRenderer {
 public:
    //           GUIRenderer(TFT_eSPI& display, TemperatureSensor& sensor, CurveSelector& cs, CurveManager& cm);
-   GUIRenderer(TFT_eSPI& display, TemperatureSensor& sensor, CurveSelector& cs, CurveManager& cm, FakeFurnace& f, EnergyUsageMeter& em);
+   GUIRenderer(TFT_eSPI& display, TemperatureSensor& sensor, CurveSelector& cs, CurveManager& cm, TemperatureSensor& f, EnergyUsageMeter& em);
 
     void render();               // Rysuje cały GUI
     void handleTouch(int x, int y); // Obsługa kliknięć
@@ -43,7 +43,7 @@ private:
     EnergyUsageMeter& energyMeter;
     TFT_eSPI& tft;
     TFT_eSprite sprite;
-    TemperatureSensor& tempSensor;
+    TemperatureSensor& temperatureSensor;
     CurveManager& curveManager;
     CurveSelector& curveSelector;
     ArrowButton leftArrow;
@@ -61,6 +61,7 @@ private:
     UILabel timeLabel;
     UILabel segmentIndexLabel;
     UILabel costLabel;
+    UILabel errorLabel;
     EditCircle editCircle;
     GraphRenderer graphRenderer; 
     void drawHeader(); // Rysuje temperaturę i nr krzywej
@@ -68,7 +69,7 @@ private:
     std::vector<UIElement*> uiElements; // Wektor elementów UI
     //SystemMode CurrentMode = SystemMode::Idle;
     void setupUIFormodes(SystemMode mode);
-    FakeFurnace& furnace; 
+    //FakeFurnace& furnace; 
     Modal modal;
     bool isModalVisible = false;
 };

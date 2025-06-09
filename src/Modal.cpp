@@ -6,30 +6,34 @@ Modal::Modal()
       prevButton("<", 50, 110, 40, 40),
       plusButton("+", 140, 50, 40, 40),
       minusButton("-", 140, 170, 40, 40),
-      valueLabel("0", 160, 120,     COLOR_BLACK, 2),
-      entryNameLabel("XXX", 160, 150, COLOR_BLACK, 1)
+      valueLabel("0", 110, 120,     COLOR_BLACK, 2),
+      entryNameLabel("XXX", 125, 150, COLOR_BLACK, 1),
+      ipLabel("IP:", 180, 200, COLOR_BLACK, 1)
 {
-    
+        clickables.push_back(&okButton);
+    clickables.push_back(&closeButton);
+    clickables.push_back(&nextButton);
+    clickables.push_back(&prevButton);
+    clickables.push_back(&plusButton);
+    clickables.push_back(&minusButton);
+    uiElements.push_back(&valueLabel);
+    uiElements.push_back(&entryNameLabel);
+    uiElements.push_back(&ipLabel);
 }
 void Modal::show(ModalMode mode, const String& extra) {
     Serial.println("Modal::show() called with mode: " + String(static_cast<int>(mode)) + " extra: " + extra);
     
     visible = true;
     currentMode = mode;
-    uiElements.clear();
-    clickables.clear();
+    //uiElements.clear();
+    //clickables.clear();
     infoMessage = "";
 
     switch (mode) {
         case ModalMode::Settings:
             buildSettings();
             break;
-        case ModalMode::ConfirmExit:
-            //buildConfirmExit();
-            break;
-        case ModalMode::Info:
-            //buildInfo(extra);
-            break;
+
         default:
             break;
     }
@@ -79,6 +83,9 @@ bool Modal::handleClick(int x, int y) {
 
 void Modal::buildSettings() {
     title = "Settings";
+
+    ipLabel.setText(WiFi.localIP().toString()); // Ustawia IP urządzenia
+
     updateFromCurrentEntry(); // Ustawia aktualną wartość i nazwę wpisu
     // Przyciski np. do zwiększania/zmniejszania wartości
     // lub np. delegacja do `SettingsManager`
@@ -118,16 +125,25 @@ void Modal::buildSettings() {
         updateFromCurrentEntry();
     });
     
+    for (auto* el : clickables) {
+        el->setVisible(false);
+    }
+    for (auto* el : uiElements) {
+        el->setVisible(false);
+    }
+    okButton.setVisible(true);
+    closeButton.setVisible(true);
+    nextButton.setVisible(true);
+    prevButton.setVisible(true);
+    plusButton.setVisible(true);
+    minusButton.setVisible(true);
+    valueLabel.setVisible(true);
+    entryNameLabel.setVisible(true);
+    ipLabel.setVisible(true);
 
-    clickables.push_back(&okButton);
-    clickables.push_back(&closeButton);
-    clickables.push_back(&nextButton);
-    clickables.push_back(&prevButton);
-    clickables.push_back(&plusButton);
-    clickables.push_back(&minusButton);
-    uiElements.push_back(&valueLabel);
-    uiElements.push_back(&entryNameLabel);
+
 }
+
 
 void Modal::updateFromCurrentEntry() {
         const auto& entry = SettingsManager::get().getCurrentEntry();

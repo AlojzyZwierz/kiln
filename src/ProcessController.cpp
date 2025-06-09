@@ -1,6 +1,6 @@
 #include "ProcessController.h"
 
-extern FakeFurnace furnace;
+//extern FakeFurnace furnace;
 
 void ProcessController::begin(CurveManager& cm, TemperatureSensor& sensor,  HeatingController& h) {
     curveManager = &cm;
@@ -12,7 +12,7 @@ void ProcessController::begin(CurveManager& cm, TemperatureSensor& sensor,  Heat
 
 void ProcessController::startFiring() {  
     Serial.println("Starting firing process...");
-    if (running) return; // Jeśli już działa, nie rób nic   
+    if (SystemState::get().getMode() == SystemMode::Firing) return; // Jeśli już działa, nie rób nic   
     SystemState::get().setMode(SystemMode::Firing);
     Serial.println("System mode set to Firing" + String(static_cast<int>(SystemState::get().getMode())));
     programStartTemperature = getCurrentTemp();
@@ -27,9 +27,8 @@ void ProcessController::startFiring() {
     //currentSegmentIndex =  determineStartSegment(curve, getCurrentTemp());
     curveManager->setSegmentIndex(determineStartSegment(curve, getCurrentTemp()));
     Serial.println("__segIndex: " + String(curveManager->getSegmentIndex()));
-    ratio = 0.07;
-    integral = 0;
-    running = true;
+    ratio = 0.35;
+    integral = 0;   
     heating->setCycleTime(SettingsManager::get().getSettings().heatingCycleMs);
     heating->setEnabled(true);
     heating->setRatio(ratio);
@@ -40,9 +39,6 @@ void ProcessController::startFiring() {
    // Serial.println("Process started with segment index: " + String(curveManager->getSegmentIndex()));
 }
 
-bool ProcessController::isRunning() const {
-    return running;
-}
 
 void ProcessController::checkSegmentAdvance() {
 
@@ -118,7 +114,6 @@ uint8_t ProcessController::determineStartSegment(const Curve& curve, float curre
 }
 
 void ProcessController::finishFiring() {
-    running = false;
     heating->setEnabled(false);
     setHeaterPower(0);
     SystemState::get().setMode(SystemMode::Idle);
@@ -129,13 +124,13 @@ void ProcessController::finishFiring() {
 float ProcessController::getCurrentTemp() {
     // TODO: Replace with actual temp reading
     //return temperatureSensor->getTemperature();
-    return furnace.getTemperature();
+    return temperatureSensor->getTemperature();
 }
 
 void ProcessController::applyPID() {
     
     if (millis() - lastPidCheckTime < SettingsManager::get().getSettings().pidIntervalMs) return;
-    if (!running) return;
+    if (SystemState::get().getMode() != SystemMode::Firing) return;
     
     //Serial.println("2");
     lastPidCheckTime = millis();
@@ -165,12 +160,12 @@ void ProcessController::applyPID() {
 
 void ProcessController::setHeaterPower(float ratio) {
     
-    //heating.setRatio(ratio);
-    furnace.setHeatingPower(ratio);
+    heating->setRatio(ratio);
+    //furnace.setHeatingPower(ratio);
 }
 
 void ProcessController::abort(const char* reason) {
-    running = false;
+    
     //digitalWrite(SSR, LOW);
     heating->setEnabled(false);
 

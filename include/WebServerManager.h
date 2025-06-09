@@ -7,7 +7,7 @@
 #include "CurveManager.h"
 //#include "TemperatureSensor.h"
 
-#include "FakeFurnace.h"
+//#include "FakeFurnace.h"
 #include "SystemState.h"
 #include "ProcessController.h"
 #include "MeasurementManager.h"
@@ -27,10 +27,10 @@ private:
 
     String generateSVG(const Curve& curIn);
     CurveManager& curveManager;
-    FakeFurnace& furnace;
+    TemperatureSensor& temperatureSensor;
 
     public:
-    WebServerManager(CurveManager& cm, FakeFurnace& f);
+    WebServerManager(CurveManager& cm, TemperatureSensor& ts);
     void begin();
     void handleClient();
     void StartWebServer();

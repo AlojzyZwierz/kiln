@@ -23,7 +23,7 @@ static ProcessController& get(){
     void checkSegmentAdvance();
     //void updateHeating();
     void startFiring();
-    bool isRunning() const;
+    //bool isRunning() const;
     void abort(const char* reason = nullptr);
     void applyPID();
     //int getCurrentSegmentIndex() const { return curveManager.getSegmentIndex(); }
@@ -48,7 +48,7 @@ private:
 
     CurveManager* curveManager;
     //CurveManager* sourceCurveManager ;
-    TemperatureSensor* temperatureSensor = nullptr;
+    TemperatureSensor* temperatureSensor;// = nullptr;
     HeatingController* heating;
     //MeasurementManager* measurementManager;
 
@@ -67,7 +67,7 @@ private:
     float lastError = 0;
 
     Line segmentLine;
-    bool running = false;
+    //bool running = false;
 
     float getCurrentTemp();
     

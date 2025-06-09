@@ -1,6 +1,6 @@
 #include "GraphRenderer.h"
 
-GraphRenderer::GraphRenderer(TFT_eSprite& tftSprite, CurveManager& cm, FakeFurnace& f) : sprite(tftSprite), curveManager(cm), furnace(f)  {}
+GraphRenderer::GraphRenderer(TFT_eSprite& tftSprite, CurveManager& cm, TemperatureSensor& ts) : sprite(tftSprite), curveManager(cm), temperatureSensor(ts) {}
 
 
 
@@ -27,7 +27,7 @@ void GraphRenderer::render() {
     //drawMeasurements(curveManager.getMeasurementManager());
     drawTempLabels();
     drawTimeLabels(totalTime);
-    drawCurrentTempDot(furnace.getTemperature(), totalTime);
+    drawCurrentTempDot(temperatureSensor.getTemperature(), totalTime);
     drawMeasurements(totalTime);
     break;
   

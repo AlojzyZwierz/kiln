@@ -1,6 +1,6 @@
 #include "HeatingController.h"
 
-#define SSR 5 // pin przekaźnika – ustaw wg własnych potrzeb
+#define SSR 16 // pin przekaźnika – ustaw wg własnych potrzeb
 
 void HeatingController::update() {
     unsigned long now = millis();
@@ -11,10 +11,12 @@ void HeatingController::update() {
             digitalWrite(SSR, HIGH);
             hON = true;
             energyMeter.startMeasurement(); // Start measuring energy usage
+            //Serial.println("Heating ON, cycle time: " + String(cycleTime) + ", hOnInCycle: " + String(hOnInCycle) + ", timeFromCycleStart: " + String(timeFromCycleStart));
         } else {
             digitalWrite(SSR, LOW);
             hON = false;
             energyMeter.stopMeasurement(); // Stop measuring energy usage
+            //Serial.println("Heating OFF, cycle time: " + String(cycleTime) + ", hOnInCycle: " + String(hOnInCycle) + ", timeFromCycleStart: " + String(timeFromCycleStart));
         }
 
         if (timeFromCycleStart >= cycleTime) {

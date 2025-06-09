@@ -25,20 +25,21 @@ TFT_eSPI tft = TFT_eSPI();
 #define XPT2046_MISO 39  // T_OUT
 #define XPT2046_CLK 25   // T_CLK
 #define XPT2046_CS 33    // T_CS
+#define BUZZERPIN 19
+#define FONT_SIZE 2
+#define SSR 22 // pin przekaźnika – ustaw wg własnych potrzeb
+
 
 SPIClass touchscreenSPI = SPIClass(VSPI);
 XPT2046_Touchscreen touchscreen(XPT2046_CS, XPT2046_IRQ);
-//#define BUZZERPIN 21
-#define FONT_SIZE 2
-//#define SSR 9 // pin przekaźnika – ustaw wg własnych potrzeb
 CurveManager curveManager;
 TemperatureSensor temperatureSensor;
 CurveSelector curveSelector(curveManager);
-FakeFurnace furnace;
+//FakeFurnace furnace;
 EnergyUsageMeter energyMeter;
 HeatingController heatingController(energyMeter);
-GUIRenderer guiRenderer(tft, temperatureSensor,curveSelector , curveManager, furnace, energyMeter);
-WebServerManager webServerManager(curveManager, furnace);
+GUIRenderer guiRenderer(tft, temperatureSensor,curveSelector , curveManager, temperatureSensor, energyMeter);
+WebServerManager webServerManager(curveManager, temperatureSensor);
 
 //ProcessController& controller = ProcessController::get();
 //MeasurementManager measurementManager = MeasurementManager::get();
@@ -48,9 +49,9 @@ bool wasTouched = false;
 unsigned long lastTouchTime = 0;
 //MeasurementManager measurementManager;
 unsigned long nextMeasurementTime = 0;
-unsigned long measurementInterval = 30000; 
+unsigned long measurementInterval = 60000; 
 void setup() {
-  //pinMode(BUZZERPIN, OUTPUT);
+  pinMode(16, OUTPUT);
   Serial.begin(115200);
   delay(1000);
   while(StorageManager::begin()  == false) {
@@ -62,53 +63,60 @@ void setup() {
   StorageManager::loadSettings();
   //Serial.println("Settings loaded: " + String(SettingsManager::get().getSettings().pid_kp) + ", " + String(SettingsManager::get().getSettings().pid_ki) + ", " + String(SettingsManager::get().getSettings().pid_kd));
   //Serial.println("Settings loaded: " + String(SettingsManager::get().getSettings().heatingCycleMs) + ", " + String(SettingsManager::get().getSettings().kilnPower) + ", " + String(SettingsManager::get().getSettings().unitCost));
- 
+  temperatureSensor.begin();
   tft.init();
   buildCustomPalette();
   
   tft.setRotation(1);
   tft.fillScreen(COLOR_BG);
   tft.setTextColor(COLOR_BLACK);
-  
+  tft.setTextSize(2);
+              tft.setCursor(50, 50);
+            tft.print("Initializing...");
   curveSelector.selectByIndex(10);
-  guiRenderer.render();
+  
   //controller.begin(curveManager, temperatureSensor);
   touchscreenSPI.begin(XPT2046_CLK, XPT2046_MISO, XPT2046_MOSI, XPT2046_CS);
   touchscreen.begin(touchscreenSPI);
   // Set the Touchscreen rotation in landscape mode
   // Note: in some displays, the touchscreen might be upside down, so you might need to set the rotation to 3: touchscreen.setRotation(3);
   touchscreen.setRotation(3);
-  furnace.begin();
+  //furnace.begin();
   webServerManager.begin();
+  /*
   if(ResumeManager::hasResumeData()) {
     curveManager.setcurrentCurveIndex(ResumeManager::loadCurveIndex());
     ProcessController::get().startFiring();
     //SystemState::get().setMode(SystemMode::Firing);
   }
+  */
   SystemState::get().setMode(SystemMode::Idle);
+  guiRenderer.render();
 }
 TS_Point lastP;
 void loop() {
   
-  if(ProcessController::get().isRunning()) {  
+  if(SystemState::get().getMode() == SystemMode::Firing) {  
     if(millis() > nextMeasurementTime) {
    // Serial.println("Adding measurement at: " + String(millis()) + " furnace temp: " + String(furnace.getTemperature()));
     nextMeasurementTime = millis() + measurementInterval;
-    MeasurementManager::get().addMeasurement(millis() - ProcessController::get().getProgramStartTime(),furnace.getTemperature());
+    MeasurementManager::get().addMeasurement(millis() - ProcessController::get().getProgramStartTime(),temperatureSensor.getTemperature());
    // Serial.println("Measurements no: " + String(MeasurementManager::get().getMeasurements().size()));
   }
-    if(lastUpdateTime + 1000 < millis()) {
+   
+  ProcessController::get().applyPID();  
+  heatingController.update();
+  //furnace.update();    
+  }
+   if(lastUpdateTime + 1000 < millis()) {
       //Serial.println("Rendering GUI at: " + String(millis()));
       lastUpdateTime = millis();
       guiRenderer.render();
      // Serial.println("GUI rendered at: " + String(millis()));
     // Serial.println("seg htime: " + String(curveManager.getOriginalCurve().elems[0].hTime) + " current segment index: " + String(curveManager.getSegmentIndex()) + " current temp: " + String(furnace.getTemperature()));
-      ProcessController::get().checkSegmentAdvance();
+     if(SystemState::get().getMode() == SystemMode::Firing) ProcessController::get().checkSegmentAdvance();
+     temperatureSensor.update();
   }  
-  ProcessController::get().applyPID();  
-  
-  furnace.update();    
-  }
   bool isTouched = touchscreen.tirqTouched() && touchscreen.touched();
  if (isTouched) {
   wasTouched = true;

@@ -1,7 +1,7 @@
 #include "TemperatureSensor.h"
 
 TemperatureSensor::TemperatureSensor()
-    : thermocouple(10, 11, 12, 13) // CS, DI, DO, CLK – zmień piny wg potrzeb
+    : thermocouple(5, 23, 19, 18) // CS, DI, DO, CLK – zmień piny wg potrzeb
 {
 }
 
@@ -12,13 +12,13 @@ void TemperatureSensor::begin() {
 
 void TemperatureSensor::update() {
     float temp = thermocouple.readThermocoupleTemperature();
-    uint8_t faults = thermocouple.readFault();
+    lastErrorCode = thermocouple.readFault();
 
-    if (faults == 0 && !isnan(temp)) {
+    if (lastErrorCode == 0 && !isnan(temp)) {
         lastValidTemperature = temp;
         errorCount = 0;
     } else {
-        handleError();
+       if(SystemState::get().getMode() == SystemMode::Firing) handleError();
     }
 }
 
