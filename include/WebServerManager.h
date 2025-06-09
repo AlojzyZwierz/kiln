@@ -1,4 +1,5 @@
 
+#pragma once
 #include <WiFi.h>
 #include <ESPAsyncWebServer.h>
 #include <AsyncTCP.h>  // <- KONIECZNE DLA ESP32
@@ -11,7 +12,7 @@
 #include "SystemState.h"
 #include "ProcessController.h"
 #include "MeasurementManager.h"
-
+#include "StorageManager.h"
 
 
 class WebServerManager {
@@ -19,11 +20,11 @@ class WebServerManager {
 private:
     //WiFiServer server;
     AsyncWebServer server;
-    char* ssid = "T-Mobile_Swiatlowod_2822";
-    char* password = "52963065802928863554";
+    //char* ssid = "T-Mobile_Swiatlowod_2822";
+    //char* password = "52963065802928863554";
 
     const char* apSSID = "kiln";
-    const char* apPassword = "11223344";
+    const char* apPassword = "abcd1234";
 
     String generateSVG(const Curve& curIn);
     CurveManager& curveManager;
@@ -34,5 +35,5 @@ private:
     void begin();
     void handleClient();
     void StartWebServer();
-
+    WiFiCredentials wifiCreds;
 };

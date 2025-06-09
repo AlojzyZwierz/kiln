@@ -120,7 +120,9 @@ String  WebServerManager::generateSVG(const Curve& curIn) {
 }
 
 void WebServerManager::StartWebServer() {
-  WiFi.begin(ssid, password);
+  wifiCreds = StorageManager::loadWiFiCredentials();  // <-- funkcja zależna od wybranego formatu
+
+  WiFi.begin(wifiCreds.ssid, wifiCreds.password);
 
   unsigned long startAttemptTime = millis();
   while (WiFi.status() != WL_CONNECTED && millis() - startAttemptTime < 10000) {
@@ -141,36 +143,104 @@ void WebServerManager::StartWebServer() {
 
   // Serwowanie strony HTML
   server.on("/", HTTP_GET, [](AsyncWebServerRequest* request) {
-    request->send(200, "text/html", R"rawliteral(
-            <html>
-            <head>
-            <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
-            <title>KILN</title>
-              <style>body {display: flex;flex-direction: column;height: 100vh; }.svg-container {flex-grow: 1; width: 100%; position: relative;}svg {position: absolute;width: 100%; height: 100%;}</style>
-                <script>
-                    function updateChart() {
-                        fetch('/svg')
-                        .then(response => response.text())
-                        .then(data => {
-                            document.getElementById('chart').innerHTML = data;
-                        });
-                    }
-                    setInterval(updateChart, 3000); // Odświeżanie co 3 sekundy
-                </script>
-            </head>
-            <body>
-                <div id="chart" ></div>
-                <script> updateChart(); </script>
-            </body>
-            </html>
-        )rawliteral");
+request->send(200, "text/html", R"rawliteral(
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KILN</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      margin: 0;
+    }
+    .svg-container {
+      flex-grow: 1;
+      width: 100%;
+      position: relative;
+    }
+    svg {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+    }
+    #settingsBtn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 10;
+      padding: 6px 10px;
+      font-size: 16px;
+      background-color: rgba(255, 255, 255, 0.8);
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
+  <script>
+    function updateChart() {
+      fetch('/svg')
+        .then(response => response.text())
+        .then(data => {
+          document.getElementById('chart').innerHTML = data;
+        });
+    }
+    setInterval(updateChart, 3000); // Odświeżanie co 3 sekundy
+  </script>
+</head>
+<body>
+  <div class="svg-container">
+    <div id="chart"></div>
+    <a id="settingsBtn" href="/settings">wifi password</a>
+  </div>
+  <script> updateChart(); </script>
+</body>
+</html>
+)rawliteral");
   });
-
   // Endpoint zwracający dynamiczny SVG
   server.on("/svg", HTTP_GET, [this](AsyncWebServerRequest* request) {
     request->send(200, "image/svg+xml", generateSVG(curveManager.getAdjustedCurve()));
     //request->send(200, "image/svg+xml", generateSVG((ON || (cooling && measurements.size()!=0))? graphCurve : cur));
   });
 
+  server.on("/settings", HTTP_GET, [](AsyncWebServerRequest *request) {
+  String html = R"rawliteral(
+    <html>
+    <head><title>WiFi</title></head>
+    <body>
+      <h1>WiFi</h1>
+      <form action="/save" method="POST">
+        SSID: <input type="text" name="ssid"><br>
+        passWD: <input type="password" name="password"><br>
+        <input type="submit" value="Save">
+      </form>
+      <a href="/">Back</a>
+    </body>
+    </html>
+  )rawliteral";
+  request->send(200, "text/html", html);
+});
+server.on("/save", HTTP_POST, [this](AsyncWebServerRequest *request) {
+  if (request->hasParam("ssid", true) && request->hasParam("password", true)) {
+    String ssid = request->getParam("ssid", true)->value();
+    String password = request->getParam("password", true)->value();
+
+    ssid.toCharArray(this->wifiCreds.ssid, sizeof(wifiCreds.ssid));
+    password.toCharArray(this->wifiCreds.password, sizeof(wifiCreds.password));
+
+    StorageManager::saveWiFiCredentials(this->wifiCreds);  // <-- funkcja zależna od wybranego formatu
+
+    request->send(200, "text/html", "<p>data saved</p><a href='/'>Back</a>");
+
+    // Opcjonalnie: restart WiFi po zapisaniu
+    WiFi.disconnect(true);
+    delay(1000);
+    WiFi.begin(wifiCreds.ssid, wifiCreds.password);
+  } else {
+    request->send(400, "text/plain", "insufficient parameters");
+  }
+});
   server.begin();
 }

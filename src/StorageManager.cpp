@@ -1,6 +1,5 @@
 #include "StorageManager.h"
 
-
 bool StorageManager::begin() {
     Serial.println("Mounting SPIFFS...");
     if (!SPIFFS.begin(true)) {
@@ -34,6 +33,15 @@ void StorageManager::loadSettings(){
     Settings settings;
     load("/settings.bin", settings);
     SettingsManager::get().setSettings(settings);
+}
+void StorageManager::saveWiFiCredentials(WiFiCredentials& creds) {
+    save("/wifi_creds.bin", creds);
+}
+
+WiFiCredentials StorageManager::loadWiFiCredentials() {
+    WiFiCredentials creds;
+    load("/wifi_creds.bin", creds);
+    return creds;
 }
 
 void StorageManager::saveCurve(CurveManager& curveManager, int index){

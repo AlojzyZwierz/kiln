@@ -30,6 +30,8 @@ TFT_eSPI tft = TFT_eSPI();
 #define SSR 22 // pin przekaźnika – ustaw wg własnych potrzeb
 
 
+
+
 SPIClass touchscreenSPI = SPIClass(VSPI);
 XPT2046_Touchscreen touchscreen(XPT2046_CS, XPT2046_IRQ);
 CurveManager curveManager;

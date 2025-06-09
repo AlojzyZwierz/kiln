@@ -3,9 +3,11 @@
 #include <Arduino.h>
 #include <FS.h>
 #include <SPIFFS.h>
-#include <CurveManager.h> // zakładamy, że masz taką strukturę
-#include <SettingsManager.h> // zakładamy, że masz taką strukturę
+#include "CurveManager.h" // zakładamy, że masz taką strukturę
+#include "SettingsManager.h" // zakładamy, że masz taką strukturę
+#include "WifiCredentials.h"
 class SettingsManager;
+
 
 // zakładamy, że masz instancję CurveManager
 
@@ -23,6 +25,9 @@ public:
     // Power
     static void saveSettings();
     static void loadSettings();
+
+    static void saveWiFiCredentials(WiFiCredentials& creds);
+    static WiFiCredentials loadWiFiCredentials();
 
     static void format(); // czyści SPIFFS
     //void setCurveManager(CurveManager& manager);
