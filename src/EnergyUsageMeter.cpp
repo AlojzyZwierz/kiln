@@ -1,42 +1,50 @@
 #include "EnergyUsageMeter.h"
 #include "SettingsManager.h"
 
-void EnergyUsageMeter::startMeasurement() {
+void EnergyUsageMeter::startMeasurement()
+{
     heatingStartTime = millis();
-    //Serial.println("Starting energy measurement at: " + String(heatingStartTime));
+    // Serial.println("Starting energy measurement at: " + String(heatingStartTime));
 }
 
-void EnergyUsageMeter::stopMeasurement() {
+void EnergyUsageMeter::stopMeasurement()
+{
     unsigned long now = millis();
-    if (heatingStartTime != 0) {
+    if (heatingStartTime != 0)
+    {
         totalHeatingTimeMs += (now - heatingStartTime);
         heatingStartTime = 0;
     }
-    //Serial.println("Stopping energy measurement at: " + String(now) + ", total heating time: " + String(totalHeatingTimeMs) + " ms");
+    // Serial.println("Stopping energy measurement at: " + String(now) + ", total heating time: " + String(totalHeatingTimeMs) + " ms");
 }
 
-float EnergyUsageMeter::getEnergyKWh() const {
+float EnergyUsageMeter::getEnergyKWh() const
+{
     return calculateEnergyKWh();
 }
 
-float EnergyUsageMeter::getCost() const {
-    //Serial.println("Calculating cost based on energy usage." + String(calculateCost(), 6) );
+float EnergyUsageMeter::getCost() const
+{
+    // Serial.println("Calculating cost based on energy usage." + String(calculateCost(), 6) );
     return calculateCost();
 }
 
-void EnergyUsageMeter::reset() {
+void EnergyUsageMeter::reset()
+{
     totalHeatingTimeMs = 0;
     heatingStartTime = 0;
 }
 
-float EnergyUsageMeter::calculateEnergyKWh() const {
+float EnergyUsageMeter::calculateEnergyKWh() const
+{
     float powerWatts = SettingsManager::get().getSettings().kilnPower; // np. 1500
     float hours = totalHeatingTimeMs / 3600000.0f;
-    return powerWatts * hours ; // kWh
-    //Serial.println("Total heating time in ms: " + String(totalHeatingTimeMs));
+    return powerWatts * hours; // kWh
+    // Serial.println("Total heating time in ms: " + String(totalHeatingTimeMs));
 }
 
-float EnergyUsageMeter::calculateCost() const {
+float EnergyUsageMeter::calculateCost() const
+{
     float pricePerKWh = SettingsManager::get().getSettings().unitCost; // np. 0.90 zł
     return getEnergyKWh() * pricePerKWh;
 }

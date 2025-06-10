@@ -2,7 +2,8 @@
 
 uint16_t uiPalette[256];
 
-void buildCustomPalette() {
+void buildCustomPalette()
+{
     /*
     uiPalette[COLOR_BLACK]        = TFT_eSPI().color565(20, 20, 20);
     uiPalette[COLOR_GRID]         = TFT_eSPI().color565(120, 120, 120);
@@ -12,7 +13,4 @@ void buildCustomPalette() {
     uiPalette[COLOR_MODAL_BG]     = TFT_eSPI().color565(90, 85, 95);       // szarobeż
     uiPalette[COLOR_COOLING_LINE] = TFT_eSPI().color565(80, 130, 200)   ;      // niebanalny niebieski
     // możesz resztę wypełnić TFT_BLACK albo 0, jeśli nie używasz więcej*/
-    
- 
-    
 }

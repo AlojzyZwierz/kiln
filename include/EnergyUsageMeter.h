@@ -1,6 +1,7 @@
 #pragma once
 #include <Arduino.h>
-class EnergyUsageMeter {
+class EnergyUsageMeter
+{
 public:
     void startMeasurement();
     void stopMeasurement();
@@ -8,7 +9,8 @@ public:
     float getEnergyKWh() const;
     float getCost() const;
 
-    String getCostString() const {
+    String getCostString() const
+    {
         float cost = calculateCost();
         return (cost == 0.0f) ? "" : String(getCost(), 4) + " zł";
     }
@@ -21,5 +23,4 @@ private:
 
     float calculateEnergyKWh() const;
     float calculateCost() const;
-
 };

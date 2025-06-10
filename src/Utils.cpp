@@ -1,12 +1,15 @@
 #include "Utils.h"
 
-long Utils::HMStoMillis(int h, int m, int s) {
+long Utils::HMStoMillis(int h, int m, int s)
+{
     return (h * 3600000L + m * 60000L + s * 1000L);
 }
 
-String Utils::millisToHMS(long t) {
+String Utils::millisToHMS(long t)
+{
     String toReturn = "";
-    if (t < 0) {
+    if (t < 0)
+    {
         toReturn = "-";
         t = -t;
     }
@@ -16,9 +19,11 @@ String Utils::millisToHMS(long t) {
     return toReturn + leadingZero(h) + ":" + leadingZero(m) + ":" + leadingZero(s);
 }
 
-String Utils::millisToHM(long t) {
+String Utils::millisToHM(long t)
+{
     String toReturn = "";
-    if (t < 0) {
+    if (t < 0)
+    {
         toReturn = "-";
         t = -t;
     }
@@ -27,8 +32,10 @@ String Utils::millisToHM(long t) {
     return toReturn + leadingZero(h) + ":" + leadingZero(m);
 }
 
-String Utils::leadingZero(int num, int width) {
+String Utils::leadingZero(int num, int width)
+{
     String s = String(num);
-    while (s.length() < width) s = "0" + s;
+    while (s.length() < width)
+        s = "0" + s;
     return s;
 }

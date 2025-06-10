@@ -3,16 +3,17 @@
 
 #include "CurveManager.h"
 
-class CurveSelector {
+class CurveSelector
+{
 public:
-    CurveSelector(CurveManager& manager);
-    void selectByIndex(int index) ;
+    CurveSelector(CurveManager &manager);
+    void selectByIndex(int index);
     void selectNext();
     void selectPrevious();
     int getSelectedIndex() const;
 
 private:
-    CurveManager& curveManager;
+    CurveManager &curveManager;
     int selectedIndex = 0;
 };
 

@@ -1,7 +1,8 @@
 #ifndef FAKE_FURNACE_H
 #define FAKE_FURNACE_H
 
-class FakeFurnace {
+class FakeFurnace
+{
 public:
     void begin();
     void update();

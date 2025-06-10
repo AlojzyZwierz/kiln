@@ -6,11 +6,11 @@ Modal::Modal()
       prevButton("<", 50, 110, 40, 40),
       plusButton("+", 140, 50, 40, 40),
       minusButton("-", 140, 170, 40, 40),
-      valueLabel("0", 110, 120,     COLOR_BLACK, 2),
+      valueLabel("0", 110, 120, COLOR_BLACK, 2),
       entryNameLabel("XXX", 125, 150, COLOR_BLACK, 1),
       ipLabel("IP:", 180, 200, COLOR_BLACK, 1)
 {
-        clickables.push_back(&okButton);
+    clickables.push_back(&okButton);
     clickables.push_back(&closeButton);
     clickables.push_back(&nextButton);
     clickables.push_back(&prevButton);
@@ -20,60 +20,76 @@ Modal::Modal()
     uiElements.push_back(&entryNameLabel);
     uiElements.push_back(&ipLabel);
 }
-void Modal::show(ModalMode mode, const String& extra) {
+void Modal::show(ModalMode mode, const String &extra)
+{
     Serial.println("Modal::show() called with mode: " + String(static_cast<int>(mode)) + " extra: " + extra);
-    
+
     visible = true;
     currentMode = mode;
-    //uiElements.clear();
-    //clickables.clear();
+    // uiElements.clear();
+    // clickables.clear();
     infoMessage = "";
 
-    switch (mode) {
-        case ModalMode::Settings:
-            buildSettings();
-            break;
-
-        default:
-            break;
+    switch (mode)
+    {
+    case ModalMode::Settings:
+        buildSettings();
+        break;
+    case ModalMode::Error:
+        buildError(extra);
+        break;
+    default:
+        break;
     }
 }
-void Modal::hide() {
+void Modal::hide()
+{
     visible = false;
     Serial.println("Modal::hide() called");
-    uiElements.clear();
-    clickables.clear();
+    // uiElements.clear();
+    // clickables.clear();
 }
 
-void Modal::render(TFT_eSprite& sprite) {
-    if (!visible) return;
+void Modal::render(TFT_eSprite &sprite)
+{
+    if (!visible)
+        return;
 
-    sprite.fillRect(20, 20, 280, 200, COLOR_MODAL_BG); 
+    sprite.fillRect(20, 20, 280, 200, COLOR_MODAL_BG);
     sprite.drawRect(20, 20, 280, 200, COLOR_BLACK); // outline
     sprite.setTextDatum(MC_DATUM);
     sprite.drawString(title, 160, 40);
 
-    for (auto* el : uiElements) {
-        el->render(sprite);
+    for (auto *el : uiElements)
+    {
+        if (el->isVisible())
+            el->render(sprite);
     }
 
-    for (auto* btn : clickables) {
-        btn->render(sprite);
+    for (auto *btn : clickables)
+    {
+        if (btn->isVisible())
+            btn->render(sprite);
     }
 
     // np. info dialog
-    if (currentMode == ModalMode::Info && !infoMessage.isEmpty()) {
+    if (currentMode == ModalMode::Info && !infoMessage.isEmpty())
+    {
         sprite.setTextDatum(MC_DATUM);
         sprite.drawString(infoMessage, 160, 100);
     }
 }
 
-bool Modal::handleClick(int x, int y) {
-    if (!visible) return false;
-//Serial.println("Modal::handleClick() called at: " + String(clickables.size()) + " " + String(x) + " " + String(y));
-    for (auto* el : clickables) {
-        if (el->handleClick(x, y)) {
-            //Serial.println("Clickable element clicked: " + String(el->isVisible()) + " " +  String(x) + " " + String(y));
+bool Modal::handleClick(int x, int y)
+{
+    if (!visible)
+        return false;
+    // Serial.println("Modal::handleClick() called at: " + String(clickables.size()) + " " + String(x) + " " + String(y));
+    for (auto *el : clickables)
+    {
+        if (el->handleClick(x, y))
+        {
+            // Serial.println("Clickable element clicked: " + String(el->isVisible()) + " " +  String(x) + " " + String(y));
             return true; // kliknięcie obsłużone
         }
     }
@@ -81,7 +97,8 @@ bool Modal::handleClick(int x, int y) {
     return false; // żaden przycisk nie został kliknięty
 }
 
-void Modal::buildSettings() {
+void Modal::buildSettings()
+{
     title = "Settings";
 
     ipLabel.setText(WiFi.localIP().toString()); // Ustawia IP urządzenia
@@ -89,46 +106,48 @@ void Modal::buildSettings() {
     updateFromCurrentEntry(); // Ustawia aktualną wartość i nazwę wpisu
     // Przyciski np. do zwiększania/zmniejszania wartości
     // lub np. delegacja do `SettingsManager`
-    //Serial.println("Building settings modal");
+    // Serial.println("Building settings modal");
 
-    okButton.setCallback([this]() { 
+    okButton.setCallback([this]()
+                         { 
         // np. zapisz zmiany
         //Serial.println("OK button clicked in modal");
         StorageManager::saveSettings(); // Zapisz ustawienia
         hide(); 
         if(onClose) {
             onClose();
-        }
-    });
+        } });
 
-    closeButton.setCallback([this]() { 
+    closeButton.setCallback([this]()
+                            { 
         hide(); 
         if(onClose) {
             onClose();
-        }
-    });
+        } });
 
-    nextButton.setCallback([this]() { 
+    nextButton.setCallback([this]()
+                           { 
         SettingsManager::get().next(); 
-        updateFromCurrentEntry();
-    });
-    prevButton.setCallback([this]() { 
+        updateFromCurrentEntry(); });
+    prevButton.setCallback([this]()
+                           { 
         SettingsManager::get().previous(); 
-        updateFromCurrentEntry();
-    });
-    plusButton.setCallback([this]() { 
+        updateFromCurrentEntry(); });
+    plusButton.setCallback([this]()
+                           { 
         SettingsManager::get().increase(); 
-        updateFromCurrentEntry();
-    });
-    minusButton.setCallback([this]() { 
+        updateFromCurrentEntry(); });
+    minusButton.setCallback([this]()
+                            { 
         SettingsManager::get().decrease(); 
-        updateFromCurrentEntry();
-    });
-    
-    for (auto* el : clickables) {
+        updateFromCurrentEntry(); });
+
+    for (auto *el : clickables)
+    {
         el->setVisible(false);
     }
-    for (auto* el : uiElements) {
+    for (auto *el : uiElements)
+    {
         el->setVisible(false);
     }
     okButton.setVisible(true);
@@ -140,18 +159,43 @@ void Modal::buildSettings() {
     valueLabel.setVisible(true);
     entryNameLabel.setVisible(true);
     ipLabel.setVisible(true);
-
-
 }
 
+void Modal::buildError(const String &errorMessage)
+{
+    for (auto *el : clickables)
+    {
+        el->setVisible(false);
+    }
+    for (auto *el : uiElements)
+    {
+        el->setVisible(false);
+    }
+    okButton.setCallback([this]()
+                         {
+        hide();
+        if (onClose) {
+            onClose();
+        } });
 
-void Modal::updateFromCurrentEntry() {
-        const auto& entry = SettingsManager::get().getCurrentEntry();
-        if(entry.type == SettingEntry::FLOAT) {
-            valueLabel.setText(String(*static_cast<float*>(entry.valuePtr), 4));
-        } else if (entry.type == SettingEntry::ULONG) {
-            valueLabel.setText(String(*static_cast<unsigned long*>(entry.valuePtr)));
-        }
-        
-        entryNameLabel.setText(entry.name);
+    okButton.setVisible(true);
+    title = "Error";
+    infoMessage = errorMessage;
+    entryNameLabel.setText(errorMessage);
+    entryNameLabel.setVisible(true);
+}
+
+void Modal::updateFromCurrentEntry()
+{
+    const auto &entry = SettingsManager::get().getCurrentEntry();
+    if (entry.type == SettingEntry::FLOAT)
+    {
+        valueLabel.setText(String(*static_cast<float *>(entry.valuePtr), 4));
+    }
+    else if (entry.type == SettingEntry::ULONG)
+    {
+        valueLabel.setText(String(*static_cast<unsigned long *>(entry.valuePtr)));
+    }
+
+    entryNameLabel.setText(entry.name);
 }

@@ -1,5 +1,6 @@
 #pragma once
-struct WiFiCredentials {
+struct WiFiCredentials
+{
   char ssid[32];
   char password[64];
 };

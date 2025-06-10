@@ -1,23 +1,25 @@
 #pragma once
 #include <Arduino.h>
 #include "EnergyUsageMeter.h"
+#include "SystemState.h"
 
-class HeatingController {
+class HeatingController
+{
 public:
-HeatingController(EnergyUsageMeter& meter) : energyMeter(meter) {}
+    HeatingController(EnergyUsageMeter &meter) : energyMeter(meter) {}
     void update();
-    void setRatio(float r);            // wartość PID: 0.0 - 1.0
-    float getRatio();  
-    void setEnabled(bool on);          // czy grzanie ma działać
+    void setRatio(float r); // wartość PID: 0.0 - 1.0
+    float getRatio();
+    // void setEnabled(bool on);          // czy grzanie ma działać
     void setCycleTime(unsigned long t); // czas cyklu grzania (config.hc)
 
-    bool isHeating() const;            // czy SSR jest aktualnie załączony
+    bool isHeating() const; // czy SSR jest aktualnie załączony
 
 private:
-    EnergyUsageMeter& energyMeter; // obiekt do pomiaru zużycia energii
+    EnergyUsageMeter &energyMeter; // obiekt do pomiaru zużycia energii
     float ratio = 0.0f;
-    unsigned long cycleTime = 10000;   // domyślnie np. 10s
+    unsigned long cycleTime = 10000; // domyślnie np. 10s
     unsigned long hCycleStartTime = 0;
-    bool enabled = false;         // czy grzanie jest włączone
-    bool hON = false;         // czy grzanie jest aktualnie włączone
+    // bool enabled = false;         // czy grzanie jest włączone
+    bool hON = false; // czy grzanie jest aktualnie włączone
 };

@@ -10,20 +10,22 @@
 #include <TFT_eSPI.h> // Include the TFT_eSPI library
 #include "ColorPalette.h"
 
-enum class ModalMode {
+enum class ModalMode
+{
     None,
     Settings,
     Error,
     Info
 };
 
-class Modal {
+class Modal
+{
 public:
-    Modal() ;
-    void show(ModalMode mode, const String& extra = "");
+    Modal();
+    void show(ModalMode mode, const String &extra = " ");
     void hide();
 
-    void render(TFT_eSprite& sprite);
+    void render(TFT_eSprite &sprite);
     bool handleClick(int x, int y);
 
     bool isVisible() const { return visible; }
@@ -32,15 +34,15 @@ public:
 private:
     void buildSettings();
     void updateFromCurrentEntry();
-    //void buildError();
-    //void buildInfo();
+    void buildError(const String &errorMessage = "An error occurred. Please try again.");
+    // void buildInfo();
 
     bool visible = false;
     ModalMode currentMode = ModalMode::None;
     String title;
 
-    std::vector<UIElement*> uiElements;
-    std::vector<TextButton*> clickables;
+    std::vector<UIElement *> uiElements;
+    std::vector<TextButton *> clickables;
 
     // Można je zdefiniować raz i reużywać
     TextButton okButton;
@@ -51,7 +53,7 @@ private:
     TextButton plusButton;
     TextButton minusButton;
 
-    UILabel valueLabel; // (opcjonalnie: etykieta do wyświetlania informacji)
+    UILabel valueLabel;     // (opcjonalnie: etykieta do wyświetlania informacji)
     UILabel entryNameLabel; // (opcjonalnie: etykieta tytułu)
     UILabel ipLabel;
 

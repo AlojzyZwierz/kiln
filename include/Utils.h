@@ -3,7 +3,8 @@
 
 #include <Arduino.h>
 
-class Utils {
+class Utils
+{
 public:
     static long HMStoMillis(int h, int m, int s);
     static String millisToHMS(long t);

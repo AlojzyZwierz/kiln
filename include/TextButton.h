@@ -6,16 +6,16 @@
 #include "Clickable.h"
 #include "ColorPalette.h"
 
-class TextButton : public Clickable {
+class TextButton : public Clickable
+{
 public:
-    TextButton(        
-        const String& label,
+    TextButton(
+        const String &label,
         int x, int y, int w, int h,
         uint16_t bgColor = COLOR_BG,
-        uint16_t textColor = COLOR_BLACK
-    );
+        uint16_t textColor = COLOR_BLACK);
 
-    void render(TFT_eSprite& tft) ;
+    void render(TFT_eSprite &tft);
     bool wasClicked(int tx, int ty) override;
 
     void setActive(bool isActive);
@@ -23,16 +23,15 @@ public:
 
     void setHighlighted(bool state);
     bool isHighlighted() const;
-    
 
 private:
-//TFT_eSprite& tft;
+    // TFT_eSprite& tft;
     String text;
     int posX, posY, width, height;
     uint16_t backgroundColor;
-    uint16_t fontColor;    
+    uint16_t fontColor;
     bool highlighted;
-    //std::function<void()> onClick;
+    // std::function<void()> onClick;
 };
 
 #endif
