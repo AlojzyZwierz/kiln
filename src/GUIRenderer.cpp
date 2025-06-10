@@ -27,14 +27,15 @@ GUIRenderer::GUIRenderer(
                             segmentIndexLabel("Segment Index", 5, 40, COLOR_BLACK, 1), // Dodajemy etykietę dla segmentu
                             editCircle(110, 90, 70, cm),                               // Dodajemy okrąg edycyjny
                             closeButton("X", 290, 13, 17, 20, COLOR_BUTTON, COLOR_BLACK),
-                            saveButton("Save", 200, 200, 90, 25, COLOR_BUTTON, COLOR_BLACK),
-                            endHereButton("Cut", 140, 200, 40, 25, COLOR_BUTTON, COLOR_BLACK),
-                            // furnace(f),
-
+                            saveButton("Save", 265, 200, 50, 25, COLOR_BUTTON, COLOR_BLACK),
+                            endHereButton("Cut", 220, 200, 40, 25, COLOR_BUTTON, COLOR_BLACK),
+                            holdButton("Hold", 175, 200, 40, 25, COLOR_BUTTON, COLOR_BLACK),
+                            skipButton("Skip", 130, 200, 40, 25, COLOR_BUTTON, COLOR_BLACK),
                             settingsButton("S", 290, 13, 17, 20, COLOR_BUTTON, COLOR_BLACK),
                             energyMeter(em),
                             costLabel("", 25, 90, COLOR_BLACK, 1),
                             errorLabel("", 25, 120, COLOR_RED_DOT, 2)
+
 {
     SystemState::get().onModeChange = [this](SystemMode newMode)
     {
@@ -70,6 +71,8 @@ GUIRenderer::GUIRenderer(
     clickables.push_back(&endHereButton);
     clickables.push_back(&editCircle);
     clickables.push_back(&settingsButton);
+    clickables.push_back(&holdButton);
+    clickables.push_back(&skipButton);
     uiElements.push_back(&temperatureLabel);
     uiElements.push_back(&curveIndexLabel);
     uiElements.push_back(&expectedTempLabel);
@@ -263,6 +266,8 @@ void GUIRenderer::setupUIFormodes(SystemMode mode)
         closeButton.setVisible(true);
         saveButton.setVisible(true);
         endHereButton.setVisible(true);
+        holdButton.setVisible(true);
+        skipButton.setVisible(true);
 
         saveButton.setCallback([&]()
                                {
@@ -305,6 +310,17 @@ void GUIRenderer::setupUIFormodes(SystemMode mode)
                                           curveManager.updateTime(curveManager.getSegmentIndex() + 1, 0);
                                       Serial.println("End here pressed " + curveManager.getOriginalCurve().toString()); });
 
+        holdButton.setCallback([&]()
+                               {
+                                      if(curveManager.getSegmentIndex() >0){
+                                        curveManager.updateTemperature(curveManager.getSegmentIndex(), curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex() - 1].endTemp);
+                                      } });
+        skipButton.setCallback([&]()
+                               {
+            if (curveManager.getSegmentIndex() + 1 < curveElemsNo)
+            {
+                curveManager.updateTime(curveManager.getSegmentIndex() , 60000);
+            } });
         break;
     case SystemMode::Firing:
         costLabel.setVisible(true);
