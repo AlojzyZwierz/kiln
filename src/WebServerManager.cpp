@@ -1,11 +1,5 @@
 #include "WebServerManager.h"
 
-WebServerManager::WebServerManager(CurveManager &cm, TemperatureSensor &ts) : server(80), curveManager(cm), temperatureSensor(ts)
-{
-  // server.begin();
-  // Serial.println("Web server started");
-  // Serial.println("IP address: " + WiFi.localIP().toString());
-}
 
 // server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
 //   request->send(200, "text/plain", "Hello World");
@@ -125,8 +119,8 @@ String WebServerManager::generateSVG(const Curve &curIn)
     // svg += "<text x=\"100\" y=\"100\" fill=\"black\" font-size=\"30\">" + String(ratio, 2) + "</text>";
   }
   svg += "<circle r=\"5\" cx=\"" + String((SystemState::get().getMode() == SystemMode::Firing || (MeasurementManager::get().getMeasurements().size() != 0)) ? ((millis() - ProcessController::get().getProgramStartTime()) * timeRatio) : 5) + "\" cy=\"" + String(1300 - currentTemp) + "\" fill=\"red\"></circle>";
-  svg += "<text x=\" 80\" y=\"80\" fill=\"black\" font-size=\"70\">" + String((float)currentTemp, 1) + "</text>";
-  svg += "<text x=\" 80\" y=\"110\" fill=\"black\" font-size=\"40\">" + String(curveManager.getcurrentCurveIndex()) + " " + String(curveManager.getSegmentIndex()) + "</text>";
+  svg += "<text x=\" 200\" y=\"80\" fill=\"black\" font-size=\"70\">" + String((float)currentTemp, 1) + "</text>";
+  svg += "<text x=\" 240\" y=\"110\" fill=\"black\" font-size=\"40\">" + String(curveManager.getcurrentCurveIndex()) + " " + String(curveManager.getSegmentIndex()) + "</text>";
   svg += "</svg></div></body></html>";
 
   return svg;
@@ -142,6 +136,7 @@ void WebServerManager::StartWebServer()
   while (WiFi.status() != WL_CONNECTED && millis() - startAttemptTime < 10000)
   {
     Serial.print(".");
+    tft.print(".");
     delay(500);
   }
 

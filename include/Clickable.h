@@ -2,7 +2,8 @@
 #pragma once
 
 #include <TFT_eSPI.h>
-#include <UIElement.h>
+#include "UIElement.h"
+#include "SoundManager.h"
 
 class Clickable : public UIElement
 {
@@ -24,7 +25,8 @@ public:
         if (wasClicked(x, y))
         {
             onClick();
-            Serial.println("Clickable clicked at: " + String(x) + ", " + String(y));
+            //Serial.println("Clickable clicked at: " + String(x) + ", " + String(y));
+            SoundManager::click(); // Dźwięk kliknięcia
             return true;
         }
         return false;

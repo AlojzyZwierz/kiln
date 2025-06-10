@@ -2,6 +2,7 @@
 
 #include <Adafruit_MAX31856.h>
 #include "SystemState.h"
+#include "SoundManager.h"
 
 class TemperatureSensor
 {

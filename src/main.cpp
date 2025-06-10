@@ -25,7 +25,7 @@ TFT_eSPI tft = TFT_eSPI();
 #define XPT2046_MISO 39 // T_OUT
 #define XPT2046_CLK 25  // T_CLK
 #define XPT2046_CS 33   // T_CS
-#define BUZZERPIN 19
+// #define BUZZERPIN 22
 #define FONT_SIZE 2
 // #define SSR 22 // pin przekaźnika – ustaw wg własnych potrzeb
 
@@ -38,7 +38,7 @@ CurveSelector curveSelector(curveManager);
 EnergyUsageMeter energyMeter;
 HeatingController heatingController(energyMeter);
 GUIRenderer guiRenderer(tft, temperatureSensor, curveSelector, curveManager, temperatureSensor, energyMeter);
-WebServerManager webServerManager(curveManager, temperatureSensor);
+WebServerManager webServerManager(curveManager, temperatureSensor, tft);
 
 // ProcessController& controller = ProcessController::get();
 // MeasurementManager measurementManager = MeasurementManager::get();
@@ -72,27 +72,31 @@ void setup()
   tft.fillScreen(COLOR_BG);
   tft.setTextColor(COLOR_BLACK);
   tft.setTextSize(2);
-  tft.setCursor(50, 50);
-  tft.print("Initializing...");
+  tft.setCursor(24, 50);
+  tft.print("Initializing.");
   curveSelector.selectByIndex(10);
 
   // controller.begin(curveManager, temperatureSensor);
   touchscreenSPI.begin(XPT2046_CLK, XPT2046_MISO, XPT2046_MOSI, XPT2046_CS);
   touchscreen.begin(touchscreenSPI);
+  tft.print(".");
   // Set the Touchscreen rotation in landscape mode
   // Note: in some displays, the touchscreen might be upside down, so you might need to set the rotation to 3: touchscreen.setRotation(3);
   touchscreen.setRotation(3);
   // furnace.begin();
   webServerManager.begin();
+  tft.print(".");
   SystemState::get().setMode(SystemMode::Idle);
-  if(ResumeManager::hasResumeData()) {
+  if (ResumeManager::hasResumeData())
+  {
     curveManager.setcurrentCurveIndex(ResumeManager::loadCurveIndex());
     ProcessController::get().startFiring();
-    //SystemState::get().setMode(SystemMode::Firing);
+    // SystemState::get().setMode(SystemMode::Firing);
   }
-  
-  
+  tft.print(".");
+
   guiRenderer.render();
+  SoundManager::siren();
 }
 TS_Point lastP;
 void loop()
@@ -137,7 +141,7 @@ void loop()
   {
     if (wasTouched)
     {
-
+      
       TS_Point p = touchscreen.getPoint();
       int y = map(p.x, 400, 3800, 0, 240);
       int x = map(p.y, 3800, 300, 0, 320);

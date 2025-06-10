@@ -28,6 +28,8 @@ void TemperatureSensor::update()
     {
         if (SystemState::get().getMode() == SystemMode::Firing)
             handleError();
+            SoundManager::playTone(300, 100); // Dźwięk błędu
+            Serial.print("Temperature read error: " + String(lastErrorCode) + " Temp: " + String(temp));
     }
 }
 

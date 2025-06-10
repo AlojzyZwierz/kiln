@@ -29,3 +29,15 @@ void SoundManager::beep(int freq, int duration)
     delay(duration);
     noTone(BUZZERPIN);
 }
+
+void SoundManager::playTone( int freq, int duration_ms) {
+  long delay_us = 1000000L / freq / 2;
+  long cycles = freq * duration_ms / 1000;
+  for (long i = 0; i < cycles; i++) {
+    digitalWrite(BUZZERPIN, HIGH);
+    delayMicroseconds(delay_us);
+    digitalWrite(BUZZERPIN, LOW);
+    delayMicroseconds(delay_us);
+  }
+
+}
