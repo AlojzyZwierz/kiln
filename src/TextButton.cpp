@@ -13,6 +13,7 @@ void TextButton::render(TFT_eSprite &tft)
     tft.fillRect(posX, posY, width, height, drawColor);
     tft.drawRect(posX, posY, width, height, COLOR_BLACK); // outline
     tft.setTextColor(fontColor);
+    tft.setTextSize(1);
     tft.setTextDatum(MC_DATUM);
     tft.drawString(text, posX + width / 2, posY + height / 2);
 }

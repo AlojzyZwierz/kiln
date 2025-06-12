@@ -1,12 +1,14 @@
 #include "TemperatureSensor.h"
-
+#ifndef NO_THERMOCOUPLE
 TemperatureSensor::TemperatureSensor()
-    : thermocouple(5, 23, 19, 18) // CS, DI, DO, CLK – zmień piny wg potrzeb
+    : thermocouple(MAX_CS, MAX_MOSI, MAX_MISO, MAX_CLK) // CS, DI, DO, CLK – zmień piny wg potrzeb
 {
 }
 float TemperatureSensor::getCJTemperature()
 {
-    return thermocouple.readCJTemperature();
+    float cjTemp = thermocouple.readCJTemperature();
+    //Serial.println("cjtemp: " + String(cjTemp));
+    return cjTemp;
 }
 void TemperatureSensor::begin()
 {
@@ -56,3 +58,42 @@ bool TemperatureSensor::hasError() const
 {
     return errorCount > 0;
 }
+#else
+TemperatureSensor::TemperatureSensor()
+    // CS, DI, DO, CLK – zmień piny wg potrzeb
+{
+}
+float TemperatureSensor::getCJTemperature()
+{
+    return 20.0f; // Zwracamy domyślną wartość, gdy nie używamy termopary
+}
+void TemperatureSensor::begin()
+{
+   
+}
+
+void TemperatureSensor::update()
+{
+
+}
+
+void TemperatureSensor::handleError()
+{
+
+}
+
+float TemperatureSensor::getTemperature() const
+{
+    return 30.0f; // Zwracamy domyślną wartość, gdy nie używamy termopary
+}
+
+int TemperatureSensor::getErrorCount() const
+{
+    return 0;
+}
+
+bool TemperatureSensor::hasError() const
+{
+    return false;
+}
+#endif

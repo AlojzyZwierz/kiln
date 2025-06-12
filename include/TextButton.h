@@ -5,6 +5,7 @@
 #include <functional>
 #include "Clickable.h"
 #include "ColorPalette.h"
+#include "fonts.h"
 
 class TextButton : public Clickable
 {

@@ -119,14 +119,24 @@ void ProcessController::nextSegment()
 
 uint8_t ProcessController::determineStartSegment(const Curve &curve, float currentTemp)
 {
-    for (int i = 0; i < curveElemsNo; ++i)
+
+    uint8_t elemWithCurrentTemp = 0;
+    for (int i = 0; i < curveElemsNo; i++)
     {
+
         if (curve.elems[i].hTime == 0)
+        {
+            if (i > 0)
+                elemWithCurrentTemp = i - 1;
             break;
+        }
         if (curve.elems[i].endTemp > currentTemp)
-            return i;
+        {
+            elemWithCurrentTemp = i;
+            break;
+        }
     }
-    return 0;
+    return elemWithCurrentTemp;
 }
 
 float ProcessController::getCurrentTemp()
@@ -143,7 +153,22 @@ void ProcessController::applyPID()
         return;
     if (SystemState::get().getMode() != SystemMode::Firing)
         return;
-
+    if (curveManager->getSegmentTime() == 60000)
+    {
+        // Serial.println("Segment time is 0, skipping PID application.");
+        if (curveManager->getSegmentTemp() < getCurrentTemp())
+        {
+            // Serial.println("Segment temp is higher than current temp, setting ratio to 0.");
+            setHeaterPower(0);
+        }
+        else
+        {
+            // Serial.println("Segment temp is lower or equal to current temp, setting ratio to 1.");
+            setHeaterPower(1);
+        }
+        
+        return;
+    }
     // Serial.println("2");
     lastPidCheckTime = millis();
     // Serial.println("3 " + String(segmentLine.a) + " " + String(segmentLine.b) + " " );
@@ -218,7 +243,7 @@ void ProcessController::checkForErrors()
 {
     if (abs(lastError) > 100)
     {
-        abort("Temperature deviation too high");
+        abort("Temperature deviation\n too high");
     }
     else if (temperatureSensor->getCJTemperature() > 70)
     {
@@ -228,9 +253,9 @@ void ProcessController::checkForErrors()
     {
         abort("Kiln temperature too high");
     }
-    else if (temperatureSensor->getErrorCount() > 30)
+    else if (temperatureSensor->getErrorCount() > TemperatureSensor::MAX_ERRORS)
     {
-        abort("Temperature sensor error");
+        abort("Temperature sensor \n error count exceeded");
     }
     else if (IsHeatingStuckDuringSkipMode())
     {

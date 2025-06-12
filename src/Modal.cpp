@@ -8,7 +8,8 @@ Modal::Modal()
       minusButton("-", 140, 170, 40, 40),
       valueLabel("0", 110, 120, COLOR_BLACK, 2),
       entryNameLabel("XXX", 125, 150, COLOR_BLACK, 1),
-      ipLabel("IP:", 180, 200, COLOR_BLACK, 1)
+      ipLabel("IP:", 180, 210, COLOR_BLACK, 1),
+      cjTempLabel("CJ:", 190, 190, COLOR_BLACK, 1)
 {
     clickables.push_back(&okButton);
     clickables.push_back(&closeButton);
@@ -19,8 +20,9 @@ Modal::Modal()
     uiElements.push_back(&valueLabel);
     uiElements.push_back(&entryNameLabel);
     uiElements.push_back(&ipLabel);
+    uiElements.push_back(&cjTempLabel);
 }
-void Modal::show(ModalMode mode, const String &extra)
+void Modal::show(ModalMode mode,  const String &extra)
 {
     Serial.println("Modal::show() called with mode: " + String(static_cast<int>(mode)) + " extra: " + extra);
 
@@ -102,7 +104,8 @@ void Modal::buildSettings()
     title = "Settings";
 
     ipLabel.setText(WiFi.localIP().toString()); // Ustawia IP urządzenia
-
+    cjTempLabel.setText(String(cjTemp, 2) + " C"); // Ustawia temperaturę cold junction
+Serial.println("Building settings modal with " + String(cjTemp));
     updateFromCurrentEntry(); // Ustawia aktualną wartość i nazwę wpisu
     // Przyciski np. do zwiększania/zmniejszania wartości
     // lub np. delegacja do `SettingsManager`
@@ -159,6 +162,7 @@ void Modal::buildSettings()
     valueLabel.setVisible(true);
     entryNameLabel.setVisible(true);
     ipLabel.setVisible(true);
+    cjTempLabel.setVisible(true);
 }
 
 void Modal::buildError(const String &errorMessage)

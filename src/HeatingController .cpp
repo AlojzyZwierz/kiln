@@ -9,14 +9,14 @@ void HeatingController::update()
     {
         if (hOnInCycle > timeFromCycleStart)
         {
-            digitalWrite(SSR, HIGH);
+            digitalWrite(SSR_PIN, HIGH);
             hON = true;
             energyMeter.startMeasurement(); // Start measuring energy usage
             // Serial.println("Heating ON, cycle time: " + String(cycleTime) + ", hOnInCycle: " + String(hOnInCycle) + ", timeFromCycleStart: " + String(timeFromCycleStart));
         }
         else
         {
-            digitalWrite(SSR, LOW);
+            digitalWrite(SSR_PIN, LOW);
             hON = false;
             energyMeter.stopMeasurement(); // Stop measuring energy usage
             // Serial.println("Heating OFF, cycle time: " + String(cycleTime) + ", hOnInCycle: " + String(hOnInCycle) + ", timeFromCycleStart: " + String(timeFromCycleStart));
@@ -29,7 +29,7 @@ void HeatingController::update()
     }
     else
     {
-        digitalWrite(SSR, LOW);
+        digitalWrite(SSR_PIN, LOW);
         hON = false;
     }
 }

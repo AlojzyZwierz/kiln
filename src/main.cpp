@@ -51,7 +51,12 @@ unsigned long nextMeasurementTime = 0;
 unsigned long measurementInterval = 60000;
 void setup()
 {
-  pinMode(16, OUTPUT);
+#ifdef NO_THERMOCOUPLE
+  pinMode(BACKLIGHT_PIN, OUTPUT);
+  digitalWrite(BACKLIGHT_PIN, LOW); // Włącz podświetlenie
+#endif
+  pinMode(SSR_PIN, OUTPUT);
+  pinMode(BUZZERPIN, OUTPUT);
   Serial.begin(115200);
   delay(1000);
   while (StorageManager::begin() == false)
@@ -65,20 +70,24 @@ void setup()
   // Serial.println("Settings loaded: " + String(SettingsManager::get().getSettings().pid_kp) + ", " + String(SettingsManager::get().getSettings().pid_ki) + ", " + String(SettingsManager::get().getSettings().pid_kd));
   // Serial.println("Settings loaded: " + String(SettingsManager::get().getSettings().heatingCycleMs) + ", " + String(SettingsManager::get().getSettings().kilnPower) + ", " + String(SettingsManager::get().getSettings().unitCost));
   temperatureSensor.begin();
+  Serial.println("Temperature sensor initialized.");
   tft.init();
+  Serial.println("TFT initialized.");
   buildCustomPalette();
-
+  Serial.println("Custom palette built.");
   tft.setRotation(1);
   tft.fillScreen(COLOR_BG);
   tft.setTextColor(COLOR_BLACK);
   tft.setTextSize(2);
   tft.setCursor(24, 50);
   tft.print("Initializing.");
-  curveSelector.selectByIndex(10);
+  Serial.println("tft done...");
+  curveSelector.selectByIndex(0);
 
   // controller.begin(curveManager, temperatureSensor);
   touchscreenSPI.begin(XPT2046_CLK, XPT2046_MISO, XPT2046_MOSI, XPT2046_CS);
   touchscreen.begin(touchscreenSPI);
+  Serial.println("Touchscreen initialized.");
   tft.print(".");
   // Set the Touchscreen rotation in landscape mode
   // Note: in some displays, the touchscreen might be upside down, so you might need to set the rotation to 3: touchscreen.setRotation(3);
@@ -96,7 +105,7 @@ void setup()
   tft.print(".");
 
   guiRenderer.render();
-  SoundManager::siren();
+  SoundManager::wobbleStartSound();
 }
 TS_Point lastP;
 void loop()
@@ -118,7 +127,7 @@ void loop()
   }
   if (lastUpdateTime + 1000 < millis())
   {
-    // Serial.println("Rendering GUI at: " + String(millis()));
+    // Serial.println(" : " + String(millis()));
     lastUpdateTime = millis();
     guiRenderer.render();
     // Serial.println("GUI rendered at: " + String(millis()));
@@ -141,7 +150,7 @@ void loop()
   {
     if (wasTouched)
     {
-      
+
       TS_Point p = touchscreen.getPoint();
       int y = map(p.x, 400, 3800, 0, 240);
       int x = map(p.y, 3800, 300, 0, 320);

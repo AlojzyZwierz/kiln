@@ -34,7 +34,7 @@ GUIRenderer::GUIRenderer(
                             settingsButton("S", 290, 13, 17, 20, COLOR_BUTTON, COLOR_BLACK),
                             energyMeter(em),
                             costLabel("", 25, 90, COLOR_BLACK, 1),
-                            errorLabel("", 25, 120, COLOR_RED_DOT, 2)
+                            errorLabel("X", 25, 220, COLOR_RED_DOT, 2)
 
 {
     SystemState::get().onModeChange = [this](SystemMode newMode)
@@ -137,8 +137,12 @@ void GUIRenderer::render()
     // Serial.println("modal visible: " + String(modal.isVisible()));
     if (modal.isVisible())
     {
+        modal.setCJTemp(temperatureSensor.getCJTemperature()); // Ustawiamy temperaturę cold junction w modalu
+        
         //  Serial.println("Rendering modal");
         modal.render(sprite); // Rysujemy modal, jeśli jest widoczny
+        
+
     }
     // uint16_t test_color = sprite.getPaletteColor(1); // Powinien zwrócić uiPalette[1]
 
@@ -232,6 +236,7 @@ void GUIRenderer::setupUIFormodes(SystemMode mode)
     switch (mode)
     {
     case SystemMode::Idle:
+        errorLabel.setVisible(true);
         startButton.setVisible(true);
         editButton.setVisible(true);
         leftArrow.setVisible(true);
@@ -323,6 +328,7 @@ void GUIRenderer::setupUIFormodes(SystemMode mode)
             } });
         break;
     case SystemMode::Firing:
+    errorLabel.setVisible(true);
         costLabel.setVisible(true);
         stopButton.setVisible(true);
         temperatureLabel.setVisible(true);

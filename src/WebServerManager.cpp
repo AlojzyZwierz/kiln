@@ -69,7 +69,7 @@ String WebServerManager::generateSVG(const Curve &curIn)
   int i = 0;
   int lastX = 0;
   // int lastY = SystemState::get().getMode()==SystemMode::Firing ? (programStartTemp ) : 20;
-  int lastY = 20;
+  int lastY = SystemState::get().getMode() == SystemMode::Firing ? (ProcessController::get().getProgramStartTemperature()) : 20;
   totalTime = 0;
   while (i < curveElemsNo)
   {

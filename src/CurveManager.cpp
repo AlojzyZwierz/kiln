@@ -25,6 +25,7 @@ void CurveManager::loadOriginalCurve(const Curve &inputCurve)
     }
 
     adjustedCurve = genCurveWithFakeSkips(originalCurve);
+    
 }
 
 void CurveManager::resetAdjustedCurve()

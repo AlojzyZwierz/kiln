@@ -9,13 +9,15 @@
 #include "StorageManager.h"
 #include <TFT_eSPI.h> // Include the TFT_eSPI library
 #include "ColorPalette.h"
+#include "TemperatureSensor.h"
 
 enum class ModalMode
 {
     None,
     Settings,
     Error,
-    Info
+    Info, 
+    Confirmation
 };
 
 class Modal
@@ -30,6 +32,10 @@ public:
 
     bool isVisible() const { return visible; }
     std::function<void()> onClose;
+    void setCJTemp(float temp) { 
+        cjTemp = temp;
+        Serial.println("setCJTemp: " + String(cjTemp));
+    }
 
 private:
     void buildSettings();
@@ -56,7 +62,10 @@ private:
     UILabel valueLabel;     // (opcjonalnie: etykieta do wyświetlania informacji)
     UILabel entryNameLabel; // (opcjonalnie: etykieta tytułu)
     UILabel ipLabel;
+    UILabel cjTempLabel; // Etykieta do wyświetlania temperatury cold junction
 
     // (opcjonalnie: komunikat dla okna info)
     String infoMessage;
+
+    float cjTemp = 0.0f; // temperatura cold junction
 };

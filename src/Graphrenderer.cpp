@@ -148,7 +148,7 @@ void GraphRenderer::drawTimeLabels(unsigned long totalTime)
 void GraphRenderer::drawCurve(const Curve &curve, int selectedSegment)
 {
   float totalTime = 0;
-  float lastX = 0, lastY = 4;
+  float lastX = 0, lastY = SystemState::get().getMode() == SystemMode::Firing ? (ProcessController::get().getProgramStartTemperature()) * tempRatio : 2;
 
   for (int i = 0; i < 25; i++)
   {

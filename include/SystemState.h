@@ -1,6 +1,6 @@
 #pragma once
 
-#define SSR 16 // pin przekaźnika – ustaw wg własnych potrzeb
+//#define SSR 16 // pin przekaźnika – ustaw wg własnych potrzeb
 enum class SystemMode
 {
     Idle,
@@ -28,7 +28,7 @@ public:
         }
         if (newMode != SystemMode::Firing)
         {
-            digitalWrite(SSR, LOW);
+            digitalWrite(SSR_PIN, LOW);
         }
     }
     SystemMode getMode() const { return mode; }
