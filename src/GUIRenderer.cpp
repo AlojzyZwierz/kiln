@@ -21,7 +21,7 @@ GUIRenderer::GUIRenderer(
                             stopButton("Stop", 170, 200, 90, 25, COLOR_BUTTON, COLOR_BLACK),
                             graphRenderer(sprite, cm, temperatureSensor),
                             temperatureLabel("Temperature", 25, 40, COLOR_BLACK, 2),
-                            curveIndexLabel("Curve Index", 25, 60, COLOR_BLACK, 1),
+                            curveIndexLabel("Curve Index", 25, 56, COLOR_BLACK, 1),
                             expectedTempLabel("Expected Temp", 25, 75, COLOR_BLACK, 1),
                             timeLabel("Time", 25, 70, COLOR_BLACK, 2),
                             segmentIndexLabel("Segment Index", 5, 40, COLOR_BLACK, 1), // Dodajemy etykietę dla segmentu

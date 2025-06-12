@@ -73,7 +73,8 @@ void ProcessController::useSegment()
 
     if (curveManager->getSegmentIndex() == 0)
     {
-        startTemp = getCurrentTemp();
+        //startTemp = getCurrentTemp();
+        startTemp = 20;
     }
     else
     {
@@ -85,6 +86,7 @@ void ProcessController::useSegment()
     {
         unsigned long remainingTime = (segmentEndTime - segmentLine.x(getCurrentTemp()));
         segmentEndTime = remainingTime + millis();
+        curveManager->updateAdjustedCurve(curveManager->getSegmentIndex(),remainingTime);
         segmentLine = Line(segmentStartTime, startTemp, segmentEndTime, segment.endTemp);
     }
 }
