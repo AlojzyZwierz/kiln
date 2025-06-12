@@ -80,6 +80,10 @@ void SoundManager::wobbleStartSound()
         playTone(freq, 40);
         delay(10);
     }
-    delay(100);
+    delay(50);
     playTone(660, 250); 
+    delay(50);
+    playTone(380, 330); 
+    delay(50);
+    playTone(170, 440); 
 }

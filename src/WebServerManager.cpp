@@ -94,7 +94,7 @@ String WebServerManager::generateSVG(const Curve &curIn)
   }
   svg += "<line x1=\"" + String(lastX) + "\" y1=\"" + String(1300 - lastY) + "\" x2=\"1600\" y2=\"1280\" style=\"stroke:blue;stroke-width:2; stroke-dasharray:10,5\" />";
 
-  svg += "<text x=\"" + String((SystemState::get().getMode() == SystemMode::Firing) ? ((millis() - ProcessController::get().getProgramStartTime()) * timeRatio + 5) : 10) + "\" y=\"" + String((1300 - currentTemp) - 5) + "\" fill=\"black\" font-size=\"30\">" + String((float)currentTemp, 1) + "</text>";
+  svg += "<text x=\"" + String((SystemState::get().getMode() == SystemMode::Firing) ? ((millis() - ProcessController::get().getProgramStartTime()) * timeRatio + 5) : 10) + "\" y=\"" + String((1300 - currentTemp) + 10) + "\" fill=\"black\" font-size=\"30\">" + String((float)currentTemp, 1) + "</text>";
 
   // The HTTP response ends with another blank line
   i = 0;
@@ -120,7 +120,7 @@ String WebServerManager::generateSVG(const Curve &curIn)
   }
   svg += "<circle r=\"5\" cx=\"" + String((SystemState::get().getMode() == SystemMode::Firing || (MeasurementManager::get().getMeasurements().size() != 0)) ? ((millis() - ProcessController::get().getProgramStartTime()) * timeRatio) : 5) + "\" cy=\"" + String(1300 - currentTemp) + "\" fill=\"red\"></circle>";
   svg += "<text x=\" 200\" y=\"80\" fill=\"black\" font-size=\"70\">" + String((float)currentTemp, 1) + "</text>";
-  svg += "<text x=\" 240\" y=\"110\" fill=\"black\" font-size=\"40\">" + String(curveManager.getcurrentCurveIndex()) + " " + String(curveManager.getSegmentIndex()) + "</text>";
+  svg += "<text x=\" 240\" y=\"110\" fill=\"black\" font-size=\"40\">" + String(curveManager.getcurrentCurveIndex())+1 + " " + String(curveManager.getSegmentIndex()+1) + "</text>";
   svg += "</svg></div></body></html>";
 
   return svg;

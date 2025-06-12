@@ -58,6 +58,7 @@ private:
     TextButton settingsButton;
     TextButton holdButton;
     TextButton skipButton;
+    TextButton infoButton;
     // TextButton editButton;
     UILabel temperatureLabel;
     UILabel curveIndexLabel;

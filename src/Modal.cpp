@@ -9,7 +9,11 @@ Modal::Modal()
       valueLabel("0", 110, 120, COLOR_BLACK, 2),
       entryNameLabel("XXX", 125, 150, COLOR_BLACK, 1),
       ipLabel("IP:", 180, 210, COLOR_BLACK, 1),
-      cjTempLabel("CJ:", 190, 190, COLOR_BLACK, 1)
+      cjTempLabel("CJ:", 190, 190, COLOR_BLACK, 1),
+      cancelButton("Cancel", 140, 180, 65, 30),
+    infoLabel1("...", 27, 55, COLOR_BLACK, 1),
+    infoLabel2("...", 27, 75, COLOR_BLACK, 1)
+    
 {
     clickables.push_back(&okButton);
     clickables.push_back(&closeButton);
@@ -17,12 +21,16 @@ Modal::Modal()
     clickables.push_back(&prevButton);
     clickables.push_back(&plusButton);
     clickables.push_back(&minusButton);
+    clickables.push_back(&cancelButton);
     uiElements.push_back(&valueLabel);
     uiElements.push_back(&entryNameLabel);
     uiElements.push_back(&ipLabel);
     uiElements.push_back(&cjTempLabel);
+    uiElements.push_back(&infoLabel1);
+    uiElements.push_back(&infoLabel2);
+    // uiElements.push_back(&infoLabel);
 }
-void Modal::show(ModalMode mode,  const String &extra)
+void Modal::show(ModalMode mode, const String &extra, std::function<void()> confirmCallback)
 {
     Serial.println("Modal::show() called with mode: " + String(static_cast<int>(mode)) + " extra: " + extra);
 
@@ -31,7 +39,14 @@ void Modal::show(ModalMode mode,  const String &extra)
     // uiElements.clear();
     // clickables.clear();
     infoMessage = "";
-
+    for (auto *el : clickables)
+    {
+        el->setVisible(false);
+    }
+    for (auto *el : uiElements)
+    {
+        el->setVisible(false);
+    }
     switch (mode)
     {
     case ModalMode::Settings:
@@ -40,6 +55,13 @@ void Modal::show(ModalMode mode,  const String &extra)
     case ModalMode::Error:
         buildError(extra);
         break;
+    case ModalMode::Confirmation:
+        buildConfirmation(extra, confirmCallback);
+        break;
+    case ModalMode::Info:
+        buildInfo();
+        break;
+
     default:
         break;
     }
@@ -61,6 +83,10 @@ void Modal::render(TFT_eSprite &sprite)
     sprite.drawRect(20, 20, 280, 200, COLOR_BLACK); // outline
     sprite.setTextDatum(MC_DATUM);
     sprite.drawString(title, 160, 40);
+    infoLabel1.setText(String(ProcessController::get().getP(),3)+ " " + String(ProcessController::get().getI(),3) );
+    infoLabel2.setText(String(ProcessController::get().getD(),3)+ " " + String(ProcessController::get().getRatio(),3) );
+    cjTempLabel.setText(String( ProcessController::get().getCJTemp()));
+    ipLabel.setText(WiFi.localIP().toString());
 
     for (auto *el : uiElements)
     {
@@ -77,8 +103,8 @@ void Modal::render(TFT_eSprite &sprite)
     // np. info dialog
     if (currentMode == ModalMode::Info && !infoMessage.isEmpty())
     {
-        sprite.setTextDatum(MC_DATUM);
-        sprite.drawString(infoMessage, 160, 100);
+        sprite.setTextDatum(BL_DATUM);
+        sprite.drawString(infoMessage, 30, 100);
     }
 }
 
@@ -103,9 +129,7 @@ void Modal::buildSettings()
 {
     title = "Settings";
 
-    ipLabel.setText(WiFi.localIP().toString()); // Ustawia IP urządzenia
-    cjTempLabel.setText(String(cjTemp, 2) + " C"); // Ustawia temperaturę cold junction
-Serial.println("Building settings modal with " + String(cjTemp));
+    Serial.println("Building settings modal with " + String(cjTemp));
     updateFromCurrentEntry(); // Ustawia aktualną wartość i nazwę wpisu
     // Przyciski np. do zwiększania/zmniejszania wartości
     // lub np. delegacja do `SettingsManager`
@@ -145,14 +169,6 @@ Serial.println("Building settings modal with " + String(cjTemp));
         SettingsManager::get().decrease(); 
         updateFromCurrentEntry(); });
 
-    for (auto *el : clickables)
-    {
-        el->setVisible(false);
-    }
-    for (auto *el : uiElements)
-    {
-        el->setVisible(false);
-    }
     okButton.setVisible(true);
     closeButton.setVisible(true);
     nextButton.setVisible(true);
@@ -161,20 +177,15 @@ Serial.println("Building settings modal with " + String(cjTemp));
     minusButton.setVisible(true);
     valueLabel.setVisible(true);
     entryNameLabel.setVisible(true);
-    ipLabel.setVisible(true);
-    cjTempLabel.setVisible(true);
+    infoLabel1.setVisible(true);
+    infoLabel2.setVisible(true);
+     ipLabel.setVisible(true);
+     cjTempLabel.setVisible(true);
 }
 
 void Modal::buildError(const String &errorMessage)
 {
-    for (auto *el : clickables)
-    {
-        el->setVisible(false);
-    }
-    for (auto *el : uiElements)
-    {
-        el->setVisible(false);
-    }
+
     okButton.setCallback([this]()
                          {
         hide();
@@ -202,4 +213,44 @@ void Modal::updateFromCurrentEntry()
     }
 
     entryNameLabel.setText(entry.name);
+}
+
+void Modal::buildConfirmation(const String &message, std::function<void()> confirmCallback)
+{
+    title = "you sure?";
+    infoMessage = message;
+    entryNameLabel.setText(message);
+    entryNameLabel.setVisible(true);
+
+    okButton.setCallback([this]()
+                         {
+                             hide();
+                             if (onConfirm)
+                                 onConfirm(); // <-- WYKONAJ oryginalną akcję!
+                         });
+
+    cancelButton.setCallback([this]()
+                             { hide();
+                                if (onClose)                                     onClose(); });
+
+    okButton.setVisible(true);
+    cancelButton.setVisible(true);
+
+    onConfirm = confirmCallback; // <-- ZAPAMIĘTAJ CO MIAŁO SIĘ STAĆ
+}
+void Modal::buildInfo()
+{
+    ipLabel.setVisible(true);
+    cjTempLabel.setVisible(true);
+    ipLabel.setText(WiFi.localIP().toString());    // Ustawia IP urządzenia
+    cjTempLabel.setText(String(cjTemp, 2) + " C"); // Ustawia temperaturę cold junction
+    /// infoLabel.setVisible(true);
+    closeButton.setVisible(true);
+    infoMessage = "P:" + String(ProcessController::get().getP()) + "\nI: " + String(ProcessController::get().getI()) + "\nD: " + String(ProcessController::get().getD()) + "\nr: " + String(ProcessController::get().getRatio());
+    closeButton.setCallback([this]()
+                            { 
+        hide(); 
+        if(onClose) {
+            onClose();
+        } });
 }

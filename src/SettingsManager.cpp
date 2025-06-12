@@ -3,9 +3,9 @@
 
 // ⚙️ Definicja tablicy entries[]
 SettingEntry SettingsManager::entries[] = {
-    {"PID Kp", &get().settings.pid_kp, SettingEntry::FLOAT, 0.0f, 10.0f, 0.1f, PERCENT, 10.0f},
-    {"PID Ki", &get().settings.pid_ki, SettingEntry::FLOAT, 0.0f, 10.0f, 0.1f, PERCENT, 10.0f},
-    {"PID Kd", &get().settings.pid_kd, SettingEntry::FLOAT, 0.0f, 10.0f, 0.1f, PERCENT, 10.0f},
+    {"PID Kp", &get().settings.pid_kp, SettingEntry::FLOAT, 0.0f, 1000.0f, 0.1f, PERCENT, 10.0f},
+    {"PID Ki", &get().settings.pid_ki, SettingEntry::FLOAT, 0.0f, 1000.0f, 0.1f, PERCENT, 10.0f},
+    {"PID Kd", &get().settings.pid_kd, SettingEntry::FLOAT, 0.0f, 1000.0f, 0.1f, PERCENT, 10.0f},
     {"PID Interval", &get().settings.pidIntervalMs, SettingEntry::ULONG, 100, 30000, 1000, FIXED, 0.0f},
     {"Cycle Time", &get().settings.heatingCycleMs, SettingEntry::ULONG, 100, 30000, 1000, FIXED, 0.0f},
     {"Power [kW]", &get().settings.kilnPower, SettingEntry::FLOAT, 0.1f, 10.0f, 0.1f, FIXED, 10.0f},

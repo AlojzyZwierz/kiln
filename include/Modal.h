@@ -10,6 +10,7 @@
 #include <TFT_eSPI.h> // Include the TFT_eSPI library
 #include "ColorPalette.h"
 #include "TemperatureSensor.h"
+#include <ProcessController.h>
 
 enum class ModalMode
 {
@@ -24,7 +25,9 @@ class Modal
 {
 public:
     Modal();
-    void show(ModalMode mode, const String &extra = " ");
+    std::function<void()> onConfirm;
+
+    void show(ModalMode mode, const String& extra = "", std::function<void()> confirmCallback = nullptr);
     void hide();
 
     void render(TFT_eSprite &sprite);
@@ -36,12 +39,14 @@ public:
         cjTemp = temp;
         Serial.println("setCJTemp: " + String(cjTemp));
     }
+    void setInfoMessage(String info);
 
 private:
     void buildSettings();
     void updateFromCurrentEntry();
     void buildError(const String &errorMessage = "An error occurred. Please try again.");
-    // void buildInfo();
+    void buildConfirmation(const String& message, std::function<void()> confirmCallback);
+    void buildInfo();
 
     bool visible = false;
     ModalMode currentMode = ModalMode::None;
@@ -58,11 +63,15 @@ private:
     TextButton prevButton;
     TextButton plusButton;
     TextButton minusButton;
+    TextButton cancelButton;
 
     UILabel valueLabel;     // (opcjonalnie: etykieta do wyświetlania informacji)
     UILabel entryNameLabel; // (opcjonalnie: etykieta tytułu)
     UILabel ipLabel;
     UILabel cjTempLabel; // Etykieta do wyświetlania temperatury cold junction
+    UILabel infoLabel2;
+    UILabel infoLabel1;
+    
 
     // (opcjonalnie: komunikat dla okna info)
     String infoMessage;

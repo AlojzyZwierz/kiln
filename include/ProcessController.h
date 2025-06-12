@@ -46,6 +46,13 @@ public:
     {
         onError = cb;
     }
+    float getP(){return prop;}
+    float getI(){return integ;}
+    float getD(){return deriv;}
+    float getRatio(){return ratio;}
+    float getCJTemp();
+
+
 
 private:
     std::function<void(const String &)> onError;
@@ -75,6 +82,10 @@ private:
     float lastError = 0;
     float maxSkipTemp = 0;
     unsigned long maxSkipTime = 0;
+
+    float integ ;
+    float deriv ;
+    float prop; 
 
     Line segmentLine;
     // bool running = false;

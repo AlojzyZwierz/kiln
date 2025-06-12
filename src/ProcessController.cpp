@@ -166,7 +166,7 @@ void ProcessController::applyPID()
             // Serial.println("Segment temp is lower or equal to current temp, setting ratio to 1.");
             setHeaterPower(1);
         }
-        
+
         return;
     }
     // Serial.println("2");
@@ -184,9 +184,9 @@ void ProcessController::applyPID()
     }
 
     integral += error * (SettingsManager::get().getSettings().pidIntervalMs / 100.0f);
-    float integ = constrain((SettingsManager::get().getSettings().pid_ki / 10000.0f) * integral, -1, 1);
-    float deriv = SettingsManager::get().getSettings().pid_kd * (error - lastError) / (SettingsManager::get().getSettings().pidIntervalMs / 100.0f);
-    float prop = SettingsManager::get().getSettings().pid_kp * error / 1000.0f;
+    integ = constrain((SettingsManager::get().getSettings().pid_ki / 10000.0f) * integral, -1, 1);
+    deriv = SettingsManager::get().getSettings().pid_kd * (error - lastError) / (SettingsManager::get().getSettings().pidIntervalMs / 100.0f);
+    prop = SettingsManager::get().getSettings().pid_kp * error / 1000.0f;
     // Serial.println("PID: " + String(prop) + " " + String(deriv) + " " + String(integ) + "; " + String(error) + " " + String(currentTemp) + " " + String(setpoint) + " " + String(ratio) + " " + String(integral) + " " + String(lastError) + " " + String(segmentLine.a, 6)  );
     Serial.println(String(SettingsManager::get().getSettings().pid_kp) + " " + String(SettingsManager::get().getSettings().pid_ki) + " " + String(SettingsManager::get().getSettings().pid_kd) + " " + String(SettingsManager::get().getSettings().pidIntervalMs));
     float correction = prop + deriv + integ;
@@ -219,7 +219,7 @@ void ProcessController::abort(const char *reason)
     String errorMessage = reason ? String(reason) : "Aborted";
     StorageManager::appendErrorLog(errorMessage);
     SystemState::get().setMode(SystemMode::Idle);
-    SoundManager::beep(1000, 500);
+    SoundManager::beep(700, 400);
     ResumeManager::clear();
     if (onError)
         onError(reason);
@@ -262,7 +262,9 @@ void ProcessController::checkForErrors()
         abort("Heating stuck during skip mode");
     }
 }
-
+float ProcessController::getCJTemp(){
+    return temperatureSensor->getCJTemperature();
+}
 bool ProcessController::IsHeatingStuckDuringSkipMode()
 {
     if (curveManager->getSegmentTime() > 60000)

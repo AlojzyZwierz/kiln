@@ -7,13 +7,21 @@ TemperatureSensor::TemperatureSensor()
 float TemperatureSensor::getCJTemperature()
 {
     float cjTemp = thermocouple.readCJTemperature();
-    //Serial.println("cjtemp: " + String(cjTemp));
+    // Serial.println("cjtemp: " + String(cjTemp));
     return cjTemp;
 }
 void TemperatureSensor::begin()
 {
     thermocouple.begin();
     thermocouple.setThermocoupleType(MAX31856_TCTYPE_S);
+    float temp;
+    do
+    {
+        delay(400);
+        temp = thermocouple.readThermocoupleTemperature();
+        lastErrorCode = thermocouple.readFault();
+    } while (lastErrorCode != 0 || isnan(temp) || temp == 0.0f);
+    lastValidTemperature = temp;
 }
 
 void TemperatureSensor::update()
@@ -30,8 +38,8 @@ void TemperatureSensor::update()
     {
         if (SystemState::get().getMode() == SystemMode::Firing)
             handleError();
-            SoundManager::playTone(300, 100); // Dźwięk błędu
-            Serial.print("Temperature read error: " + String(lastErrorCode) + " Temp: " + String(temp));
+        SoundManager::playTone(300, 100); // Dźwięk błędu
+        Serial.print("Temperature read error: " + String(lastErrorCode) + " Temp: " + String(temp));
     }
 }
 
@@ -60,7 +68,7 @@ bool TemperatureSensor::hasError() const
 }
 #else
 TemperatureSensor::TemperatureSensor()
-    // CS, DI, DO, CLK – zmień piny wg potrzeb
+// CS, DI, DO, CLK – zmień piny wg potrzeb
 {
 }
 float TemperatureSensor::getCJTemperature()
@@ -69,17 +77,14 @@ float TemperatureSensor::getCJTemperature()
 }
 void TemperatureSensor::begin()
 {
-   
 }
 
 void TemperatureSensor::update()
 {
-
 }
 
 void TemperatureSensor::handleError()
 {
-
 }
 
 float TemperatureSensor::getTemperature() const

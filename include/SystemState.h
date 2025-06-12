@@ -1,6 +1,8 @@
 #pragma once
 
 //#define SSR 16 // pin przekaźnika – ustaw wg własnych potrzeb
+#include <functional>
+#include <Arduino.h>
 enum class SystemMode
 {
     Idle,
@@ -17,7 +19,7 @@ public:
         static SystemState instance;
         return instance;
     }
-    std::function<void(SystemMode)> onModeChange;
+    
     void setMode(SystemMode newMode)
     {
         if (mode != newMode)
@@ -34,8 +36,9 @@ public:
     SystemMode getMode() const { return mode; }
 
     bool isLocked() const { return mode == SystemMode::Firing; }
-
+    std::function<void(SystemMode)> onModeChange;
 private:
     SystemState() = default;
     SystemMode mode = SystemMode::Idle;
+    
 };

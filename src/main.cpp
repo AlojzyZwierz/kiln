@@ -81,6 +81,7 @@ void setup()
   tft.setTextSize(2);
   tft.setCursor(24, 50);
   tft.print("Initializing.");
+  temperatureSensor.begin();
   Serial.println("tft done...");
   curveSelector.selectByIndex(0);
 

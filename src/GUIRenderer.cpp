@@ -34,7 +34,8 @@ GUIRenderer::GUIRenderer(
                             settingsButton("S", 290, 13, 17, 20, COLOR_BUTTON, COLOR_BLACK),
                             energyMeter(em),
                             costLabel("", 25, 90, COLOR_BLACK, 1),
-                            errorLabel("X", 25, 220, COLOR_RED_DOT, 2)
+                            errorLabel("X", 25, 220, COLOR_RED_DOT, 2),
+                            infoButton("I", 270, 13, 17, 20, COLOR_BUTTON, COLOR_BLACK)
 
 {
     SystemState::get().onModeChange = [this](SystemMode newMode)
@@ -60,6 +61,8 @@ GUIRenderer::GUIRenderer(
                             {
             SystemState::get().setMode(SystemMode::Idle);
             StorageManager::loadCurve(curveManager, curveSelector.getSelectedIndex()); });
+    infoButton.setCallback([&]()
+                           { modal.show(ModalMode::Info); });
 
     clickables.push_back(&startButton);
     clickables.push_back(&leftArrow);
@@ -73,6 +76,7 @@ GUIRenderer::GUIRenderer(
     clickables.push_back(&settingsButton);
     clickables.push_back(&holdButton);
     clickables.push_back(&skipButton);
+    clickables.push_back(&infoButton);
     uiElements.push_back(&temperatureLabel);
     uiElements.push_back(&curveIndexLabel);
     uiElements.push_back(&expectedTempLabel);
@@ -138,11 +142,9 @@ void GUIRenderer::render()
     if (modal.isVisible())
     {
         modal.setCJTemp(temperatureSensor.getCJTemperature()); // Ustawiamy temperaturę cold junction w modalu
-        
+
         //  Serial.println("Rendering modal");
         modal.render(sprite); // Rysujemy modal, jeśli jest widoczny
-        
-
     }
     // uint16_t test_color = sprite.getPaletteColor(1); // Powinien zwrócić uiPalette[1]
 
@@ -236,6 +238,7 @@ void GUIRenderer::setupUIFormodes(SystemMode mode)
     switch (mode)
     {
     case SystemMode::Idle:
+        infoButton.setVisible(true);
         errorLabel.setVisible(true);
         startButton.setVisible(true);
         editButton.setVisible(true);
@@ -257,7 +260,8 @@ void GUIRenderer::setupUIFormodes(SystemMode mode)
         costLabel.setVisible(true);
         settingsButton.setCallback([&]()
                                    { modal.show(ModalMode::Settings); });
-
+        infoButton.setCallback([&]()
+                               { modal.show(ModalMode::Info); });
         break;
     case SystemMode::Edit:
         curveManager.setSegmentIndex(0);
@@ -328,20 +332,24 @@ void GUIRenderer::setupUIFormodes(SystemMode mode)
             } });
         break;
     case SystemMode::Firing:
-    errorLabel.setVisible(true);
+        infoButton.setVisible(true);
+        errorLabel.setVisible(true);
         costLabel.setVisible(true);
         stopButton.setVisible(true);
         temperatureLabel.setVisible(true);
         curveIndexLabel.setVisible(true);
         expectedTempLabel.setVisible(true);
         stopButton.setCallback([&]()
-                               {
-            ProcessController::get().abort("Aborted by user");
-            SystemState::get().setMode(SystemMode::Idle); });
-        settingsButton.setVisible(true);
-        settingsButton.setCallback([&]()
-                                   { modal.show(ModalMode::Settings); });
+                               { modal.show(ModalMode::Confirmation, "Stop firing?", []()
+                                            { ProcessController::get().abort("Aborted by user"); }); });
 
+        
+               //     ProcessController::get().abort("Aborted by user");
+             //       SystemState::get().setMode(SystemMode::Idle); });
+                settingsButton.setVisible(true);
+                settingsButton.setCallback([&]()
+                                           { modal.show(ModalMode::Settings); });
+        
         break;
     }
 }
