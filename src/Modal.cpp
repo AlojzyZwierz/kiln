@@ -4,15 +4,17 @@ Modal::Modal()
       closeButton("X", 270, 30, 25, 25),
       nextButton(">", 230, 110, 40, 40),
       prevButton("<", 50, 110, 40, 40),
-      plusButton("+", 140, 50, 40, 40),
+      plusButton("+", 140, 60, 40, 40),
       minusButton("-", 140, 170, 40, 40),
-      valueLabel("0", 110, 120, COLOR_BLACK, 2),
-      entryNameLabel("XXX", 125, 150, COLOR_BLACK, 1),
+      valueLabel("0", 110, 135, COLOR_BLACK, 2),
+      entryNameLabel("XXX", 125, 165, COLOR_BLACK, 1),
       ipLabel("IP:", 180, 210, COLOR_BLACK, 1),
       cjTempLabel("CJ:", 190, 190, COLOR_BLACK, 1),
       cancelButton("Cancel", 140, 180, 65, 30),
-    infoLabel1("...", 27, 55, COLOR_BLACK, 1),
-    infoLabel2("...", 27, 75, COLOR_BLACK, 1)
+    infoLabel1("...", 27, 62, COLOR_BLACK, 1),
+    infoLabel2("...", 27, 80, COLOR_BLACK, 1),
+    currentTempLabel("",280,65, COLOR_BLACK, 1 ),
+    expectedTempLabel("",280,80, COLOR_BLACK, 1 )
     
 {
     clickables.push_back(&okButton);
@@ -28,6 +30,8 @@ Modal::Modal()
     uiElements.push_back(&cjTempLabel);
     uiElements.push_back(&infoLabel1);
     uiElements.push_back(&infoLabel2);
+    uiElements.push_back(&expectedTempLabel);
+    uiElements.push_back(&currentTempLabel);
     // uiElements.push_back(&infoLabel);
 }
 void Modal::show(ModalMode mode, const String &extra, std::function<void()> confirmCallback)
@@ -87,6 +91,8 @@ void Modal::render(TFT_eSprite &sprite)
     infoLabel2.setText(String(ProcessController::get().getD(),3)+ " " + String(ProcessController::get().getRatio(),3) );
     cjTempLabel.setText(String( ProcessController::get().getCJTemp()));
     ipLabel.setText(WiFi.localIP().toString());
+    expectedTempLabel.setText(String(ProcessController::get().getExpectedTemp()));
+    currentTempLabel.setText(String(ProcessController::get().getCurrentTemp()));
 
     for (auto *el : uiElements)
     {
@@ -181,6 +187,8 @@ void Modal::buildSettings()
     infoLabel2.setVisible(true);
      ipLabel.setVisible(true);
      cjTempLabel.setVisible(true);
+     currentTempLabel.setVisible(true);
+     expectedTempLabel.setVisible(true);
 }
 
 void Modal::buildError(const String &errorMessage)

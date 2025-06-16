@@ -19,6 +19,7 @@ void ProcessController::startFiring()
     Serial.println("System mode set to: " + String(static_cast<int>(SystemState::get().getMode())));
     programStartTemperature = getCurrentTemp();
     programStartTime = millis();
+    startTimeOffset = 0;
     // curveManager = sourceCurveManager->clone();
     const Curve &curve = curveManager->getOriginalCurve();
 
@@ -30,8 +31,9 @@ void ProcessController::startFiring()
     // currentSegmentIndex =  determineStartSegment(curve, getCurrentTemp());
     curveManager->setSegmentIndex(determineStartSegment(curve, getCurrentTemp()));
     Serial.println("__segIndex: " + String(curveManager->getSegmentIndex()));
-    ratio = 0.35;
+    ratio = 0.35f;
     integral = 0;
+    lastError = 0;
     heating->setCycleTime(SettingsManager::get().getSettings().heatingCycleMs);
     // heating->setEnabled(true);
     heating->setRatio(ratio);
@@ -73,7 +75,7 @@ void ProcessController::useSegment()
 
     if (curveManager->getSegmentIndex() == 0)
     {
-        //startTemp = getCurrentTemp();
+        // startTemp = getCurrentTemp();
         startTemp = 20;
     }
     else
@@ -86,8 +88,9 @@ void ProcessController::useSegment()
     {
         unsigned long remainingTime = (segmentEndTime - segmentLine.x(getCurrentTemp()));
         segmentEndTime = remainingTime + millis();
-        curveManager->updateAdjustedCurve(curveManager->getSegmentIndex(),remainingTime);
+        // curveManager->updateAdjustedCurve(curveManager->getSegmentIndex(),remainingTime);
         segmentLine = Line(segmentStartTime, startTemp, segmentEndTime, segment.endTemp);
+        startTimeOffset += segmentEndTime - remainingTime;
     }
 }
 
@@ -121,24 +124,23 @@ void ProcessController::nextSegment()
 
 uint8_t ProcessController::determineStartSegment(const Curve &curve, float currentTemp)
 {
-
-    uint8_t elemWithCurrentTemp = 0;
+    startTimeOffset = 0;
+    // uint8_t elemWithCurrentTemp = 0;
     for (int i = 0; i < curveElemsNo; i++)
     {
-
-        if (curve.elems[i].hTime == 0)
-        {
-            if (i > 0)
-                elemWithCurrentTemp = i - 1;
-            break;
-        }
         if (curve.elems[i].endTemp > currentTemp)
         {
-            elemWithCurrentTemp = i;
+            return i;
             break;
         }
+        if (curve.elems[i].hTime == 0)
+        {
+            abort("start temp. too high");
+        }
+        startTimeOffset += curve.elems[i].hTime;
     }
-    return elemWithCurrentTemp;
+    abort("cant determine start temp");
+    return -1;
 }
 
 float ProcessController::getCurrentTemp()
@@ -160,15 +162,12 @@ void ProcessController::applyPID()
         // Serial.println("Segment time is 0, skipping PID application.");
         if (curveManager->getSegmentTemp() < getCurrentTemp())
         {
-            // Serial.println("Segment temp is higher than current temp, setting ratio to 0.");
             setHeaterPower(0);
         }
         else
         {
-            // Serial.println("Segment temp is lower or equal to current temp, setting ratio to 1.");
             setHeaterPower(1);
         }
-
         return;
     }
     // Serial.println("2");
@@ -243,9 +242,9 @@ float ProcessController::getMaxTemp(Curve c)
 }
 void ProcessController::checkForErrors()
 {
-    if (abs(lastError) > 100)
+    if (abs(lastError) > 100 && curveManager->getSegmentTime() > 60000)
     {
-        abort("Temperature deviation\n too high");
+        abort(("Temp dev:" + String(lastError)).c_str());
     }
     else if (temperatureSensor->getCJTemperature() > 70)
     {
@@ -264,8 +263,12 @@ void ProcessController::checkForErrors()
         abort("Heating stuck during skip mode");
     }
 }
-float ProcessController::getCJTemp(){
+float ProcessController::getCJTemp()
+{
     return temperatureSensor->getCJTemperature();
+}
+float ProcessController::getCurrentTemp(){
+    return temperatureSensor->getTemperature();
 }
 bool ProcessController::IsHeatingStuckDuringSkipMode()
 {

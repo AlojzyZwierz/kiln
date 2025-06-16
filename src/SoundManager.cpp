@@ -23,12 +23,6 @@ void SoundManager::playError()
     noTone(BUZZERPIN);
 }
 
-void SoundManager::beep(int freq, int duration)
-{
-    tone(BUZZERPIN, freq, duration);
-    delay(duration);
-    noTone(BUZZERPIN);
-}
 
 void SoundManager::playTone(int freq, int duration_ms)
 {
@@ -87,3 +81,25 @@ void SoundManager::wobbleStartSound()
     delay(50);
     playTone(170, 440); 
 }
+void SoundManager::beep(int note, int duration) {
+    if (note == 0) {
+      delay(duration);
+    } else {
+      playTone(note, duration);
+    }
+    delay(10);  // krótka pauza między nutami
+  }
+void SoundManager::chiptuneIntro() {
+    int melody[] = {
+      659, 784, 988, 1319, 1175, 988, 1319, 0, 1319
+    };
+  
+    int durations[] = {
+      120, 120, 120, 160, 100, 100, 160, 60, 250
+    };
+  
+    int len = sizeof(melody) / sizeof(melody[0]);
+    for (int i = 0; i < len; i++) {
+      beep(melody[i], durations[i]);
+    }
+  }

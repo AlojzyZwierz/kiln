@@ -14,5 +14,7 @@ public:
 
     static void click();
     static void wobbleStartSound();
+    //static void SoundManager::beep(int note, int duration);
+    static void chiptuneIntro() ;
 private:
 };

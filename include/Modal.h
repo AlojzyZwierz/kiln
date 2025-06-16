@@ -71,6 +71,8 @@ private:
     UILabel cjTempLabel; // Etykieta do wyświetlania temperatury cold junction
     UILabel infoLabel2;
     UILabel infoLabel1;
+    UILabel currentTempLabel;
+    UILabel expectedTempLabel;
     
 
     // (opcjonalnie: komunikat dla okna info)

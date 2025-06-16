@@ -94,7 +94,7 @@ String WebServerManager::generateSVG(const Curve &curIn)
   }
   svg += "<line x1=\"" + String(lastX) + "\" y1=\"" + String(1300 - lastY) + "\" x2=\"1600\" y2=\"1280\" style=\"stroke:blue;stroke-width:2; stroke-dasharray:10,5\" />";
 
-  svg += "<text x=\"" + String((SystemState::get().getMode() == SystemMode::Firing) ? ((millis() - ProcessController::get().getProgramStartTime()) * timeRatio + 5) : 10) + "\" y=\"" + String((1300 - currentTemp) + 10) + "\" fill=\"black\" font-size=\"30\">" + String((float)currentTemp, 1) + "</text>";
+  svg += "<text x=\"" + String((SystemState::get().getMode() == SystemMode::Firing) ? ((millis() - ProcessController::get().getProgramStartTime()+ProcessController::get().getStartTimeOffset()) * timeRatio + 5) : 10) + "\" y=\"" + String((1300 - currentTemp) + 20) + "\" fill=\"black\" font-size=\"30\">" + String((float)currentTemp, 1) + "</text>";
 
   // The HTTP response ends with another blank line
   i = 0;
@@ -104,10 +104,10 @@ String WebServerManager::generateSVG(const Curve &curIn)
 
     if (i != 0)
     {
-      svg += "<line x1=\"" + String(last.time * timeRatio * 1000) + "\" y1=\"" + String(1300 - last.temp) + "\" x2=\"" + String(m.time * timeRatio * 1000) + "\" y2=\"" + String(1300 - m.temp) + "\" style=\"stroke:orange;stroke-width:2;\"></line>";
+      svg += "<line x1=\"" + String((last.time+ProcessController::get().getStartTimeOffset()) * timeRatio * 1000) + "\" y1=\"" + String(1300 - last.temp) + "\" x2=\"" + String(m.time * timeRatio * 1000) + "\" y2=\"" + String(1300 - m.temp) + "\" style=\"stroke:orange;stroke-width:2;\"></line>";
       // svg += "<line x1=\"100\" y1=\"100\" x2=\"" + String(m.time * timeRatio) + "\" y2=\"" + String(1300 - m.temp / 100) + "\" style=\"stroke:\"orange\";stroke-width:2\" stroke-linecap=\"round\"/>";
 
-      svg += "<circle r=\"2\" cx=\"" + String(m.time * timeRatio * 1000) + "\" cy=\"" + String(1300 - m.temp) + "\" fill=\"red\"></circle>";
+      svg += "<circle r=\"2\" cx=\"" + String((m.time + ProcessController::get().getStartTimeOffset())* timeRatio * 1000) + "\" cy=\"" + String(1300 - m.temp) + "\" fill=\"red\"></circle>";
     }
     last = m;
     i++;
@@ -115,12 +115,12 @@ String WebServerManager::generateSVG(const Curve &curIn)
   }
   if (SystemState::get().getMode() == SystemMode::Firing)
   {
-    svg += "<line x1=\"" + String(last.time * timeRatio * 1000) + "\" y1=\"" + String(1300 - last.temp) + "\" x2=\"" + String((millis() - ProcessController::get().getProgramStartTime()) * timeRatio) + "\" y2=\"" + String(1300 - currentTemp) + "\" style=\"stroke:orange;stroke-width:2;\"></line>";
+    svg += "<line x1=\"" + String((last.time+ProcessController::get().getStartTimeOffset() )* timeRatio * 1000) + "\" y1=\"" + String(1300 - last.temp) + "\" x2=\"" + String((millis() - ProcessController::get().getProgramStartTime()) * timeRatio) + "\" y2=\"" + String(1300 - currentTemp) + "\" style=\"stroke:orange;stroke-width:2;\"></line>";
     // svg += "<text x=\"100\" y=\"100\" fill=\"black\" font-size=\"30\">" + String(ratio, 2) + "</text>";
   }
-  svg += "<circle r=\"5\" cx=\"" + String((SystemState::get().getMode() == SystemMode::Firing || (MeasurementManager::get().getMeasurements().size() != 0)) ? ((millis() - ProcessController::get().getProgramStartTime()) * timeRatio) : 5) + "\" cy=\"" + String(1300 - currentTemp) + "\" fill=\"red\"></circle>";
+  svg += "<circle r=\"5\" cx=\"" + String((SystemState::get().getMode() == SystemMode::Firing || (MeasurementManager::get().getMeasurements().size() != 0)) ? ((millis() - ProcessController::get().getProgramStartTime()+ProcessController::get().getStartTimeOffset()) * timeRatio) : 5) + "\" cy=\"" + String(1300 - currentTemp) + "\" fill=\"red\"></circle>";
   svg += "<text x=\" 200\" y=\"80\" fill=\"black\" font-size=\"70\">" + String((float)currentTemp, 1) + "</text>";
-  svg += "<text x=\" 240\" y=\"110\" fill=\"black\" font-size=\"40\">" + String(curveManager.getcurrentCurveIndex())+1 + " " + String(curveManager.getSegmentIndex()+1) + "</text>";
+  svg += "<text x=\" 240\" y=\"110\" fill=\"black\" font-size=\"40\">" + String(curveManager.getcurrentCurveIndex()) + " " + String(curveManager.getSegmentIndex()+1) + "</text>";
   svg += "</svg></div></body></html>";
 
   return svg;

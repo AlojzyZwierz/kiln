@@ -2,9 +2,9 @@
 #include "StorageManager.h"
 
 CurveSelector::CurveSelector(CurveManager &manager)
-    : curveManager(manager), selectedIndex(1)
+    : curveManager(manager), selectedIndex(0)
 {
-    (StorageManager::loadCurve(manager, 1));
+    (StorageManager::loadCurve(manager, 0));
 }
 
 void CurveSelector::selectNext()
@@ -28,5 +28,7 @@ int CurveSelector::getSelectedIndex() const
 
 void CurveSelector::selectByIndex(int index)
 {
+    if (index < 1)
+        index = 1;
     (StorageManager::loadCurve(curveManager, index));
 }

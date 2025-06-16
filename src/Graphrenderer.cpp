@@ -148,7 +148,7 @@ void GraphRenderer::drawTimeLabels(unsigned long totalTime)
 void GraphRenderer::drawCurve(const Curve &curve, int selectedSegment)
 {
   float totalTime = 0;
-  float lastX = 0, lastY = SystemState::get().getMode() == SystemMode::Firing ? (ProcessController::get().getProgramStartTemperature()) * tempRatio : 2;
+  float lastX = 0, lastY= 2;// = SystemState::get().getMode() == SystemMode::Firing ? (ProcessController::get().getProgramStartTemperature()) * tempRatio : 2;
 
   for (int i = 0; i < 25; i++)
   {
@@ -159,7 +159,7 @@ void GraphRenderer::drawCurve(const Curve &curve, int selectedSegment)
     float x = totalTime * timeRatio;
     float y = (curve.elems[i].endTemp) * tempRatio;
     uint16_t color = COLOR_RED_DOT;
-    int tempLabelOffset = 0;
+    //int tempLabelOffset = 0;
     SystemMode mode = SystemState::get().getMode();
     if (mode == SystemMode::Edit && curveManager.getSegmentIndex() == i)
     {
@@ -188,6 +188,7 @@ void GraphRenderer::drawCurve(const Curve &curve, int selectedSegment)
   }
   sprite.drawLine((int)lastX, 240 - (int)lastY, (int)320, 240 - (int)(20 * tempRatio), COLOR_COOLING_LINE);
   sprite.setTextDatum(BL_DATUM);
+  sprite.drawFastVLine(ProcessController::get().getStartTimeOffset(), 0,TFT_WIDTH,COLOR_RED_DOT );
 }
 
 void GraphRenderer::drawMeasurements(unsigned long totalTime)
@@ -207,9 +208,9 @@ void GraphRenderer::drawMeasurements(unsigned long totalTime)
   int y2 = 0;
   for (size_t i = 1; i < MeasurementManager::get().getMeasurements().size(); ++i)
   {
-    int x1 = MeasurementManager::get().getMeasurements()[i - 1].time * xScale;
+    int x1 = (MeasurementManager::get().getMeasurements()[i - 1].time +ProcessController::get().getStartTimeOffset())* xScale;
     int y1 = TFT_WIDTH - MeasurementManager::get().getMeasurements()[i - 1].temp * yScale;
-    x2 = MeasurementManager::get().getMeasurements()[i].time * xScale;
+    x2 = (MeasurementManager::get().getMeasurements()[i].time + ProcessController::get().getStartTimeOffset())* xScale;
     y2 = TFT_WIDTH - MeasurementManager::get().getMeasurements()[i].temp * yScale;
 
     sprite.drawLine(x1, y1, x2, y2, COLOR_RED_DOT);
@@ -227,7 +228,7 @@ void GraphRenderer::drawCurrentTempDot(float temp, unsigned long totalTime)
 {
   float xScale = TFT_HEIGHT * activeGraphArea / (totalTime);
   float yScale = TFT_WIDTH / 1300.0f;
-  currentTempPosX = (int)((millis() - ProcessController::get().getProgramStartTime()) * xScale);
+  currentTempPosX = (int)((millis() - ProcessController::get().getProgramStartTime()+ProcessController::get().getStartTimeOffset()) * xScale);
   currentTempPosY = TFT_WIDTH - (int)(temp * yScale);
   sprite.fillCircle(currentTempPosX, currentTempPosY, 3, COLOR_RED_DOT);
 }

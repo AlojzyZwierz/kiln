@@ -50,8 +50,11 @@ public:
     float getI(){return integ;}
     float getD(){return deriv;}
     float getRatio(){return ratio;}
+    float getCurrentTemp();
     float getCJTemp();
-
+    unsigned long getStartTimeOffset(){
+        Serial.println("startTimeOffset: " + String(startTimeOffset));
+        return startTimeOffset;}
 
 
 private:
@@ -90,10 +93,11 @@ private:
     Line segmentLine;
     // bool running = false;
 
-    float getCurrentTemp();
+   
 
     void setHeaterPower(float ratio);
     void finishFiring();
     uint8_t determineStartSegment(const Curve &curve, float currentTemp);
     bool IsHeatingStuckDuringSkipMode();
+    unsigned long startTimeOffset;
 };

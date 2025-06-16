@@ -64,16 +64,19 @@ void setup()
     Serial.println("SPIFFS init failed. Retrying...");
     delay(1000);
   }
+  curveSelector.selectByIndex(1);
+  curveSelector.selectNext();
   ProcessController::get().begin(curveManager, temperatureSensor, heatingController);
   // StorageManager::saveSettings();
   StorageManager::loadSettings();
+  
   // Serial.println("Settings loaded: " + String(SettingsManager::get().getSettings().pid_kp) + ", " + String(SettingsManager::get().getSettings().pid_ki) + ", " + String(SettingsManager::get().getSettings().pid_kd));
   // Serial.println("Settings loaded: " + String(SettingsManager::get().getSettings().heatingCycleMs) + ", " + String(SettingsManager::get().getSettings().kilnPower) + ", " + String(SettingsManager::get().getSettings().unitCost));
   temperatureSensor.begin();
   Serial.println("Temperature sensor initialized.");
   tft.init();
   Serial.println("TFT initialized.");
-  buildCustomPalette();
+  //buildCustomPalette();
   Serial.println("Custom palette built.");
   tft.setRotation(1);
   tft.fillScreen(COLOR_BG);
@@ -83,7 +86,7 @@ void setup()
   tft.print("Initializing.");
   temperatureSensor.begin();
   Serial.println("tft done...");
-  curveSelector.selectByIndex(0);
+  
 
   // controller.begin(curveManager, temperatureSensor);
   touchscreenSPI.begin(XPT2046_CLK, XPT2046_MISO, XPT2046_MOSI, XPT2046_CS);
@@ -101,12 +104,13 @@ void setup()
   {
     curveManager.setcurrentCurveIndex(ResumeManager::loadCurveIndex());
     ProcessController::get().startFiring();
-    // SystemState::get().setMode(SystemMode::Firing);
   }
   tft.print(".");
-
+  
   guiRenderer.render();
-  SoundManager::wobbleStartSound();
+  SoundManager::chiptuneIntro();
+  int ffff = curveManager.getcurrentCurveIndex();
+  Serial.println("cur " + String(ffff) + " " ) ;
 }
 TS_Point lastP;
 void loop()
