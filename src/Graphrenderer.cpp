@@ -107,7 +107,7 @@ unsigned long GraphRenderer::calculateTotalTime(const Curve &curve)
 
 void GraphRenderer::drawGrid(unsigned long totalTime)
 {
-  for (int i = 1; i < 13; i++)
+  for (int i = 1; i <= 13; i++)
   {
     int y = 240 - (int)(i * 100 * tempRatio);
     sprite.drawFastHLine(0, y, TFT_HEIGHT, COLOR_GRID);
@@ -188,7 +188,7 @@ void GraphRenderer::drawCurve(const Curve &curve, int selectedSegment)
   }
   sprite.drawLine((int)lastX, 240 - (int)lastY, (int)320, 240 - (int)(20 * tempRatio), COLOR_COOLING_LINE);
   sprite.setTextDatum(BL_DATUM);
-  sprite.drawFastVLine(ProcessController::get().getStartTimeOffset(), 0,TFT_WIDTH,COLOR_RED_DOT );
+  sprite.drawFastVLine(ProcessController::get().getStartTimeOffset()*timeRatio, 0,TFT_WIDTH,COLOR_RED_DOT );
 }
 
 void GraphRenderer::drawMeasurements(unsigned long totalTime)
@@ -208,9 +208,9 @@ void GraphRenderer::drawMeasurements(unsigned long totalTime)
   int y2 = 0;
   for (size_t i = 1; i < MeasurementManager::get().getMeasurements().size(); ++i)
   {
-    int x1 = (MeasurementManager::get().getMeasurements()[i - 1].time +ProcessController::get().getStartTimeOffset())* xScale;
+    int x1 = (MeasurementManager::get().getMeasurements()[i - 1].time +ProcessController::get().getStartTimeOffset()/1000)* xScale;
     int y1 = TFT_WIDTH - MeasurementManager::get().getMeasurements()[i - 1].temp * yScale;
-    x2 = (MeasurementManager::get().getMeasurements()[i].time + ProcessController::get().getStartTimeOffset())* xScale;
+    x2 = (MeasurementManager::get().getMeasurements()[i].time + ProcessController::get().getStartTimeOffset()/1000)* xScale;
     y2 = TFT_WIDTH - MeasurementManager::get().getMeasurements()[i].temp * yScale;
 
     sprite.drawLine(x1, y1, x2, y2, COLOR_RED_DOT);

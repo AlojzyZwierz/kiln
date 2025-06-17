@@ -88,6 +88,7 @@ void ProcessController::useSegment()
     {
         unsigned long remainingTime = (segmentEndTime - segmentLine.x(getCurrentTemp()));
         segmentEndTime = remainingTime + millis();
+        startTemp = getCurrentTemp();
         // curveManager->updateAdjustedCurve(curveManager->getSegmentIndex(),remainingTime);
         segmentLine = Line(segmentStartTime, startTemp, segmentEndTime, segment.endTemp);
         startTimeOffset += segmentEndTime - remainingTime;

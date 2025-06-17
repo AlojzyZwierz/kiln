@@ -33,6 +33,7 @@ public:
     void checkForErrors();
     float getExpectedTemp() const
     {
+        if (SystemState::get().getMode()!=SystemMode::Firing)return 0;
         float exp = segmentLine.y(millis());
         // Serial.println("Expected temp: " + String(exp) );
         return exp;

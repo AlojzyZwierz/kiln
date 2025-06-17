@@ -41,6 +41,7 @@ public:
     }
     void setInfoMessage(String info);
     void setTCVoltage(float volatage);
+    void setTCTemp(float temp);
 
 private:
     void buildSettings();
@@ -81,4 +82,5 @@ private:
 
     float cjTemp = 0.0f; // temperatura cold junction
     float tcVoltage;
+    float TCtemp;
 };

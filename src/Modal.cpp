@@ -92,7 +92,8 @@ void Modal::render(TFT_eSprite &sprite)
     cjTempLabel.setText(String( ProcessController::get().getCJTemp()) + " " + String(tcVoltage));
     ipLabel.setText(WiFi.localIP().toString());
     expectedTempLabel.setText(String(ProcessController::get().getExpectedTemp()));
-    currentTempLabel.setText(String(ProcessController::get().getCurrentTemp()));
+    //currentTempLabel.setText(String(ProcessController::get().getCurrentTemp()));
+    currentTempLabel.setText(String(TCtemp));
 
     Serial.println(String(ProcessController::get().getCurrentTemp() ) + " " +String(tcVoltage));
 
@@ -267,4 +268,8 @@ void Modal::buildInfo()
 
 void Modal::setTCVoltage(float voltage){
     tcVoltage = voltage;
+}
+
+void Modal::setTCTemp(float temp){
+    TCtemp = temp;
 }

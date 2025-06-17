@@ -19,6 +19,8 @@ public:
     static constexpr int MAX_ERRORS = 30;
     float getRawVoltage();
     float getTemperatureFromRawVoltage(float rawVoltage);
+    float readThermocoupleTemperature();
+    float calcCorrectedTemp(float wrongTemp);
 
 private:
 #ifndef NO_THERMOCOUPLE
