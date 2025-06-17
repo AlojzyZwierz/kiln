@@ -28,7 +28,9 @@ void TemperatureSensor::begin()
         temp = thermocouple.readThermocoupleTemperature();
         lastErrorCode = thermocouple.readFault();
     } while (lastErrorCode != 0 || isnan(temp) || temp == 0.0f);
-    lastValidTemperature = temp;
+    //lastValidTemperature = temp;
+    lastValidTemperature = getTemperatureFromRawVoltage(getRawVoltage()); // Ustawiamy ostatnią poprawną temperaturę na temperaturę zimnego złącza
+    
 }
 
 void TemperatureSensor::update()
@@ -39,7 +41,7 @@ void TemperatureSensor::update()
 
     if (lastErrorCode == 0 && !isnan(temp))
     {
-        lastValidTemperature = temp;
+        lastValidTemperature = getTemperatureFromRawVoltage(getRawVoltage());
         errorCount = 0;
     }
     else
@@ -128,6 +130,12 @@ float TemperatureSensor::getRawVoltage()
     Serial.print(" -> Voltage [mV]: ");
     Serial.println(voltage_mV);
     return voltage_mV;
+}
+
+float TemperatureSensor::getTemperatureFromRawVoltage(float rawVoltage)
+{
+    // Przykładowa konwersja napięcia na temperaturę   y=\left(1.32023\times10^{-9}\right)x^{3}-0.0000254108x^{2}+0.268784x-114.39058
+    return (1.32023e-9f * pow(rawVoltage, 3)) - (0.0000254108f * pow(rawVoltage, 2)) + (0.268784f * rawVoltage) - 114.39058f;
 }
 
 #else

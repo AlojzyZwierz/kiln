@@ -18,6 +18,7 @@ public:
     float getCJTemperature();
     static constexpr int MAX_ERRORS = 30;
     float getRawVoltage();
+    float getTemperatureFromRawVoltage(float rawVoltage);
 
 private:
 #ifndef NO_THERMOCOUPLE
