@@ -143,13 +143,6 @@ uint8_t ProcessController::determineStartSegment(const Curve &curve, float curre
     return -1;
 }
 
-float ProcessController::getCurrentTemp()
-{
-    // TODO: Replace with actual temp reading
-    // return temperatureSensor->getTemperature();
-    return temperatureSensor->getTemperature();
-}
-
 void ProcessController::applyPID()
 {
 

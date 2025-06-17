@@ -142,7 +142,7 @@ void GUIRenderer::render()
     if (modal.isVisible())
     {
         modal.setCJTemp(temperatureSensor.getCJTemperature()); // Ustawiamy temperaturę cold junction w modalu
-
+        modal.setTCVoltage(temperatureSensor.getRawVoltage());
         //  Serial.println("Rendering modal");
         modal.render(sprite); // Rysujemy modal, jeśli jest widoczny
     }
@@ -202,12 +202,12 @@ void GUIRenderer::drawHeader()
 
 void GUIRenderer::handleTouch(int x, int y)
 {
-    Serial.println("Clickables on list: " + String(clickables.size()));
+    //Serial.println("Clickables on list: " + String(clickables.size()));
     if (modal.isVisible())
     {
         if (modal.handleClick(x, y))
         {
-            Serial.println("Modal clicked at: " + String(x) + ", " + String(y));
+            //Serial.println("Modal clicked at: " + String(x) + ", " + String(y));
             return; // Kliknięcie obsłużone przez modal
         }
     }
@@ -238,7 +238,7 @@ void GUIRenderer::setupUIFormodes(SystemMode mode)
     switch (mode)
     {
     case SystemMode::Idle:
-        infoButton.setVisible(true);
+        //infoButton.setVisible(true);
         errorLabel.setVisible(true);
         startButton.setVisible(true);
         editButton.setVisible(true);
@@ -332,7 +332,7 @@ void GUIRenderer::setupUIFormodes(SystemMode mode)
             } });
         break;
     case SystemMode::Firing:
-        infoButton.setVisible(true);
+        //infoButton.setVisible(true);
         errorLabel.setVisible(true);
         costLabel.setVisible(true);
         stopButton.setVisible(true);

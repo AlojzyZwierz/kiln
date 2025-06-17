@@ -53,7 +53,7 @@ public:
     float getCurrentTemp();
     float getCJTemp();
     unsigned long getStartTimeOffset(){
-        Serial.println("startTimeOffset: " + String(startTimeOffset));
+       // Serial.println("startTimeOffset: " + String(startTimeOffset));
         return startTimeOffset;}
 
 

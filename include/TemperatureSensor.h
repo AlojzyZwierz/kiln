@@ -17,6 +17,7 @@ public:
     uint8_t GetLastErrorCode() { return lastErrorCode; }; // zwraca kod ostatniego błędu
     float getCJTemperature();
     static constexpr int MAX_ERRORS = 30;
+    float getRawVoltage();
 
 private:
 #ifndef NO_THERMOCOUPLE

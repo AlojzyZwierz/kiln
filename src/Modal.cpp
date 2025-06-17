@@ -13,8 +13,8 @@ Modal::Modal()
       cancelButton("Cancel", 140, 180, 65, 30),
     infoLabel1("...", 27, 62, COLOR_BLACK, 1),
     infoLabel2("...", 27, 80, COLOR_BLACK, 1),
-    currentTempLabel("",280,65, COLOR_BLACK, 1 ),
-    expectedTempLabel("",280,80, COLOR_BLACK, 1 )
+    currentTempLabel("",230,65, COLOR_BLACK, 1 ),
+    expectedTempLabel("",230,80, COLOR_BLACK, 1 )
     
 {
     clickables.push_back(&okButton);
@@ -73,7 +73,7 @@ void Modal::show(ModalMode mode, const String &extra, std::function<void()> conf
 void Modal::hide()
 {
     visible = false;
-    Serial.println("Modal::hide() called");
+    //Serial.println("Modal::hide() called");
     // uiElements.clear();
     // clickables.clear();
 }
@@ -89,10 +89,12 @@ void Modal::render(TFT_eSprite &sprite)
     sprite.drawString(title, 160, 40);
     infoLabel1.setText(String(ProcessController::get().getP(),3)+ " " + String(ProcessController::get().getI(),3) );
     infoLabel2.setText(String(ProcessController::get().getD(),3)+ " " + String(ProcessController::get().getRatio(),3) );
-    cjTempLabel.setText(String( ProcessController::get().getCJTemp()));
+    cjTempLabel.setText(String( ProcessController::get().getCJTemp()) + " " + String(tcVoltage));
     ipLabel.setText(WiFi.localIP().toString());
     expectedTempLabel.setText(String(ProcessController::get().getExpectedTemp()));
     currentTempLabel.setText(String(ProcessController::get().getCurrentTemp()));
+
+    Serial.println(String(ProcessController::get().getCurrentTemp() ) + " " +String(tcVoltage));
 
     for (auto *el : uiElements)
     {
@@ -261,4 +263,8 @@ void Modal::buildInfo()
         if(onClose) {
             onClose();
         } });
+}
+
+void Modal::setTCVoltage(float voltage){
+    tcVoltage = voltage;
 }

@@ -37,9 +37,10 @@ public:
     std::function<void()> onClose;
     void setCJTemp(float temp) { 
         cjTemp = temp;
-        Serial.println("setCJTemp: " + String(cjTemp));
+        //Serial.println("setCJTemp: " + String(cjTemp));
     }
     void setInfoMessage(String info);
+    void setTCVoltage(float volatage);
 
 private:
     void buildSettings();
@@ -79,4 +80,5 @@ private:
     String infoMessage;
 
     float cjTemp = 0.0f; // temperatura cold junction
+    float tcVoltage;
 };
