@@ -128,7 +128,7 @@ void GraphRenderer::drawTempLabels()
     int y = (int)(i * 100 * tempRatio);
     sprite.setFreeFont(FONT_SMALL);
     sprite.setTextSize(0.2);
-    sprite.drawString(String(13 - i * 1), 8, y + 2);
+    sprite.drawString(String(13 - i * 1), 3, y + 2);
   }
 }
 
@@ -188,7 +188,7 @@ void GraphRenderer::drawCurve(const Curve &curve, int selectedSegment)
   }
   sprite.drawLine((int)lastX, 240 - (int)lastY, (int)320, 240 - (int)(20 * tempRatio), COLOR_COOLING_LINE);
   sprite.setTextDatum(BL_DATUM);
-  sprite.drawFastVLine(ProcessController::get().getStartTimeOffset()*timeRatio, 0,TFT_WIDTH,COLOR_RED_DOT );
+  if (SystemState::get().getMode()==SystemMode::Firing) sprite.drawFastVLine(ProcessController::get().getStartTimeOffset()*timeRatio, 0,TFT_WIDTH,COLOR_RED_DOT );
 }
 
 void GraphRenderer::drawMeasurements(unsigned long totalTime)

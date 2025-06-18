@@ -99,13 +99,13 @@ String WebServerManager::generateSVG(const Curve &curIn)
 
   // The HTTP response ends with another blank line
   i = 0;
-  Measurement last(0, ProcessController::get().getProgramStartTemperature());
+  Measurement last(ProcessController::get().getStartTimeOffset(), ProcessController::get().getProgramStartTemperature());
   for (const Measurement &m : MeasurementManager::get().getMeasurements())
   {
 
     if (i != 0)
     {
-      svg += "<line x1=\"" + String((last.time+ProcessController::get().getStartTimeOffset()/1000) * timeRatio * 1000) + "\" y1=\"" + String(1300 - last.temp) + "\" x2=\"" + String(m.time * timeRatio * 1000) + "\" y2=\"" + String(1300 - m.temp) + "\" style=\"stroke:orange;stroke-width:2;\"></line>";
+      svg += "<line x1=\"" + String((last.time+ProcessController::get().getStartTimeOffset()/1000) * timeRatio * 1000) + "\" y1=\"" + String(1300 - last.temp) + "\" x2=\"" + String((m.time + ProcessController::get().getStartTimeOffset()/1000)* timeRatio * 1000) + "\" y2=\"" + String(1300 - m.temp) + "\" style=\"stroke:orange;stroke-width:2;\"></line>";
       // svg += "<line x1=\"100\" y1=\"100\" x2=\"" + String(m.time * timeRatio) + "\" y2=\"" + String(1300 - m.temp / 100) + "\" style=\"stroke:\"orange\";stroke-width:2\" stroke-linecap=\"round\"/>";
 
       svg += "<circle r=\"2\" cx=\"" + String((m.time + ProcessController::get().getStartTimeOffset()/1000)* timeRatio * 1000) + "\" cy=\"" + String(1300 - m.temp) + "\" fill=\"red\"></circle>";
@@ -116,10 +116,10 @@ String WebServerManager::generateSVG(const Curve &curIn)
   }
   if (SystemState::get().getMode() == SystemMode::Firing)
   {
-    svg += "<line x1=\"" + String((last.time+ProcessController::get().getStartTimeOffset()/1000 )* timeRatio * 1000) + "\" y1=\"" + String(1300 - last.temp) + "\" x2=\"" + String((millis() - ProcessController::get().getProgramStartTime()) * timeRatio) + "\" y2=\"" + String(1300 - currentTemp) + "\" style=\"stroke:orange;stroke-width:2;\"></line>";
+    svg += "<line x1=\"" + String((last.time+ProcessController::get().getStartTimeOffset()/1000 )* timeRatio * 1000) + "\" y1=\"" + String(1300 - last.temp) + "\" x2=\"" + String((millis() - ProcessController::get().getProgramStartTime()+ProcessController::get().getStartTimeOffset()) * timeRatio) + "\" y2=\"" + String(1300 - currentTemp) + "\" style=\"stroke:orange;stroke-width:2;\"></line>";
     // svg += "<text x=\"100\" y=\"100\" fill=\"black\" font-size=\"30\">" + String(ratio, 2) + "</text>";
   }
-  svg += "<circle r=\"5\" cx=\"" + String((SystemState::get().getMode() == SystemMode::Firing || (MeasurementManager::get().getMeasurements().size() != 0)) ? ((millis() - ProcessController::get().getProgramStartTime()+ProcessController::get().getStartTimeOffset()) * timeRatio) : 5) + "\" cy=\"" + String(1300 - currentTemp) + "\" fill=\"red\"></circle>";
+  svg += "<circle r=\"5\" cx=\"" + String((SystemState::get().getMode() == SystemMode::Firing && (MeasurementManager::get().getMeasurements().size() != 0)) ? ((millis() - ProcessController::get().getProgramStartTime()+ProcessController::get().getStartTimeOffset()) * timeRatio) : 5) + "\" cy=\"" + String(1300 - currentTemp) + "\" fill=\"red\"></circle>";
   svg += "<text x=\" 200\" y=\"80\" fill=\"black\" font-size=\"70\">" + String((float)currentTemp, 1) + "</text>";
   svg += "<text x=\" 240\" y=\"110\" fill=\"black\" font-size=\"40\">" + String(curveManager.getcurrentCurveIndex()) + " " + String(curveManager.getSegmentIndex()+1) + "</text>";
   svg += "</svg></div></body></html>";

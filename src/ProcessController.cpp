@@ -91,7 +91,8 @@ void ProcessController::useSegment()
         startTemp = getCurrentTemp();
         // curveManager->updateAdjustedCurve(curveManager->getSegmentIndex(),remainingTime);
         segmentLine = Line(segmentStartTime, startTemp, segmentEndTime, segment.endTemp);
-        startTimeOffset += segmentEndTime - remainingTime;
+        startTimeOffset += segment.hTime - remainingTime;
+        Serial.println(" use segment "+String(startTimeOffset) + " remainT "+String(remainingTime));
     }
 }
 
@@ -133,12 +134,15 @@ uint8_t ProcessController::determineStartSegment(const Curve &curve, float curre
         {
             return i;
             break;
+        }else{
+            startTimeOffset += curve.elems[i].hTime;
+            Serial.println("DetSS: sTO " + String(startTimeOffset));
         }
         if (curve.elems[i].hTime == 0)
         {
             abort("start temp. too high");
         }
-        startTimeOffset += curve.elems[i].hTime;
+        
     }
     abort("cant determine start temp");
     return -1;

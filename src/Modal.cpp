@@ -13,8 +13,8 @@ Modal::Modal()
       cancelButton("Cancel", 140, 180, 65, 30),
     infoLabel1("...", 27, 62, COLOR_BLACK, 1),
     infoLabel2("...", 27, 80, COLOR_BLACK, 1),
-    currentTempLabel("",230,65, COLOR_BLACK, 1 ),
-    expectedTempLabel("",230,80, COLOR_BLACK, 1 )
+    currentTempLabel("",200,65, COLOR_BLACK, 1 ),
+    expectedTempLabel("",200,80, COLOR_BLACK, 1 )
     
 {
     clickables.push_back(&okButton);
@@ -93,7 +93,7 @@ void Modal::render(TFT_eSprite &sprite)
     ipLabel.setText(WiFi.localIP().toString());
     expectedTempLabel.setText(String(ProcessController::get().getExpectedTemp()));
     //currentTempLabel.setText(String(ProcessController::get().getCurrentTemp()));
-    currentTempLabel.setText(String(TCtemp));
+    currentTempLabel.setText(String(ProcessController::get().getCurrentTemp()));
 
     Serial.println(String(ProcessController::get().getCurrentTemp() ) + " " +String(tcVoltage));
 

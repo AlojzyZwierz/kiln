@@ -163,13 +163,13 @@ void GUIRenderer::drawHeader()
     String segInd = (SystemState::get().getMode() == SystemMode::Idle) ? " " : ("." + String(curveManager.getSegmentIndex() + 1));
     // Serial.println(curveManager.getSegmentIndex());
     curveIndexLabel.setText("prog #" + String(curveIndex) + segInd);
-    expectedTempLabel.setText("e:" + String(ProcessController::get().getExpectedTemp(), 1) + "°C"); // potrzebujesz takiej metody
+    expectedTempLabel.setText("e:" + String(ProcessController::get().getExpectedTemp(), 1) + "'C"); // potrzebujesz takiej metody
     // timeLabel.setText("Time: " + String(curveManager.getTotalTime()) + "s"); // potrzebujesz takiej metody
     segmentIndexLabel.setText(String(curveManager.getSegmentIndex() + 1));                                                                                                                                                 // potrzebujesz takiej metody,
     timeLabel.setText(((curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex()].hTime) == 60000) ? "skip" : Utils::millisToHM(curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex()].hTime)); // potrzebujesz takiej metody
     float cost = energyMeter.getCost();                                                                                                                                                                                    // potrzebujesz takiej metody
     if (cost > 0)
-        costLabel.setText(String(cost, 2) + " zł"); // potrzebujesz takiej metody
+        costLabel.setText(String(cost, 2) + " zl"); // potrzebujesz takiej metody
     else
         costLabel.setText(" ");
     int errorCount = temperatureSensor.getErrorCount();
