@@ -77,7 +77,7 @@ void setup()
   tft.init();
   Serial.println("TFT initialized.");
   //buildCustomPalette();
-  Serial.println("Custom palette built.");
+//  Serial.println("Custom palette built.");
   tft.setRotation(1);
   tft.fillScreen(COLOR_BG);
   tft.setTextColor(COLOR_BLACK);
@@ -109,8 +109,8 @@ void setup()
   
   guiRenderer.render();
   SoundManager::chiptuneIntro();
-  int ffff = curveManager.getcurrentCurveIndex();
-  Serial.println("cur " + String(ffff) + " " ) ;
+ // int ffff = curveManager.getcurrentCurveIndex();
+  //Serial.println("cur " + String(ffff) + " " ) ;
 }
 TS_Point lastP;
 void loop()
@@ -130,7 +130,7 @@ void loop()
     heatingController.update();
     // furnace.update();
   }
-  if (lastUpdateTime + 1000 < millis())
+  if (lastUpdateTime + 1001 < millis())
   {
     // Serial.println(" : " + String(millis()));
     lastUpdateTime = millis();
@@ -141,6 +141,7 @@ void loop()
     {
       ProcessController::get().checkSegmentAdvance();
       ProcessController::get().checkForErrors();
+      ProcessController::get().adjustSkipTime();
     }
 
     temperatureSensor.update();

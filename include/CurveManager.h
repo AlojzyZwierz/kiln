@@ -42,6 +42,8 @@ public:
     void updateTime(char index, unsigned long newDurationMs);
     void updateTemperature(char index, float newTemperature);
     void updateAdjustedCurve(char index, unsigned long newDurationMs);
+    void adjustSkipTime(float deltaTemp, float deltaTime);
+    void adjustSkipTime(float deltaTemp, float deltaTime, int index);
 
     const Curve &getOriginalCurve() const;
     const Curve &getAdjustedCurve() const;
@@ -74,7 +76,10 @@ public:
             Serial.println("No more segments available.");
         }
     }
-
+    bool isSkip();
+    bool isSkip(int index);
+    unsigned long getSegmentStartTemperature(){return getSegmentStartTemperature(currentSegmentIndex); }
+    unsigned long getSegmentStartTemperature(int index){return index == 0?20:originalCurve.elems[index-1].endTemp;}
 private:
     int currentSegmentIndex = 0;
     Curve originalCurve;

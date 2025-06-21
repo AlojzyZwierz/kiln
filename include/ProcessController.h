@@ -33,7 +33,8 @@ public:
     void checkForErrors();
     float getExpectedTemp() const
     {
-        if (SystemState::get().getMode()!=SystemMode::Firing)return 0;
+        if (SystemState::get().getMode() != SystemMode::Firing)
+            return 0;
         float exp = segmentLine.y(millis());
         // Serial.println("Expected temp: " + String(exp) );
         return exp;
@@ -47,16 +48,19 @@ public:
     {
         onError = cb;
     }
-    float getP(){return prop;}
-    float getI(){return integ;}
-    float getD(){return deriv;}
-    float getRatio(){return ratio;}
+    float getP() { return prop; }
+    float getI() { return integ; }
+    float getD() { return deriv; }
+    float getRatio() { return ratio; }
     float getCurrentTemp();
     float getCJTemp();
-    unsigned long getStartTimeOffset(){
-       // Serial.println("startTimeOffset: " + String(startTimeOffset));
-        return startTimeOffset;}
-
+    unsigned long getStartTimeOffset()
+    {
+        // Serial.println("startTimeOffset: " + String(startTimeOffset));
+        return startTimeOffset + ProcessController::get().getInitialSkipTime();
+    }
+    void adjustSkipTime();
+    unsigned long getInitialSkipTime() { return initialSkipTime; }
 
 private:
     std::function<void(const String &)> onError;
@@ -87,18 +91,18 @@ private:
     float maxSkipTemp = 0;
     unsigned long maxSkipTime = 0;
 
-    float integ ;
-    float deriv ;
-    float prop; 
+    float integ;
+    float deriv;
+    float prop;
 
     Line segmentLine;
     // bool running = false;
 
-   
-
     void setHeaterPower(float ratio);
     void finishFiring();
-    uint8_t determineStartSegment(const Curve &curve, float currentTemp);
+    uint8_t determineStartSegment();
     bool IsHeatingStuckDuringSkipMode();
     unsigned long startTimeOffset;
+    bool initialSegment;
+    unsigned long initialSkipTime = 0;
 };

@@ -11,11 +11,11 @@ Modal::Modal()
       ipLabel("IP:", 180, 210, COLOR_BLACK, 1),
       cjTempLabel("CJ:", 190, 190, COLOR_BLACK, 1),
       cancelButton("Cancel", 140, 180, 65, 30),
-    infoLabel1("...", 27, 62, COLOR_BLACK, 1),
-    infoLabel2("...", 27, 80, COLOR_BLACK, 1),
-    currentTempLabel("",200,65, COLOR_BLACK, 1 ),
-    expectedTempLabel("",200,80, COLOR_BLACK, 1 )
-    
+      infoLabel1("...", 27, 62, COLOR_BLACK, 1),
+      infoLabel2("...", 27, 80, COLOR_BLACK, 1),
+      currentTempLabel("", 200, 65, COLOR_BLACK, 1),
+      expectedTempLabel("", 200, 80, COLOR_BLACK, 1)
+
 {
     clickables.push_back(&okButton);
     clickables.push_back(&closeButton);
@@ -36,7 +36,7 @@ Modal::Modal()
 }
 void Modal::show(ModalMode mode, const String &extra, std::function<void()> confirmCallback)
 {
-    Serial.println("Modal::show() called with mode: " + String(static_cast<int>(mode)) + " extra: " + extra);
+ //   Serial.println("Modal::show() called with mode: " + String(static_cast<int>(mode)) + " extra: " + extra);
 
     visible = true;
     currentMode = mode;
@@ -73,9 +73,9 @@ void Modal::show(ModalMode mode, const String &extra, std::function<void()> conf
 void Modal::hide()
 {
     visible = false;
-    //Serial.println("Modal::hide() called");
-    // uiElements.clear();
-    // clickables.clear();
+    // Serial.println("Modal::hide() called");
+    //  uiElements.clear();
+    //  clickables.clear();
 }
 
 void Modal::render(TFT_eSprite &sprite)
@@ -87,15 +87,15 @@ void Modal::render(TFT_eSprite &sprite)
     sprite.drawRect(20, 20, 280, 200, COLOR_BLACK); // outline
     sprite.setTextDatum(MC_DATUM);
     sprite.drawString(title, 160, 40);
-    infoLabel1.setText(String(ProcessController::get().getP(),3)+ " " + String(ProcessController::get().getI(),3) );
-    infoLabel2.setText(String(ProcessController::get().getD(),3)+ " " + String(ProcessController::get().getRatio(),3) );
-    cjTempLabel.setText(String( ProcessController::get().getCJTemp()) + " " + String(tcVoltage));
+    infoLabel1.setText(String(ProcessController::get().getP(), 3) + " " + String(ProcessController::get().getI(), 3));
+    infoLabel2.setText(String(ProcessController::get().getD(), 3) + " " + String(ProcessController::get().getRatio(), 3));
+    cjTempLabel.setText(String(ProcessController::get().getCJTemp()) + " " + String(TCtemp));
     ipLabel.setText(WiFi.localIP().toString());
     expectedTempLabel.setText(String(ProcessController::get().getExpectedTemp()));
-    //currentTempLabel.setText(String(ProcessController::get().getCurrentTemp()));
+    // currentTempLabel.setText(String(ProcessController::get().getCurrentTemp()));
     currentTempLabel.setText(String(ProcessController::get().getCurrentTemp()));
 
-    Serial.println(String(ProcessController::get().getCurrentTemp() ) + " " +String(tcVoltage));
+    //Serial.println(String(ProcessController::get().getCurrentTemp()) + " " + String(tcVoltage));
 
     for (auto *el : uiElements)
     {
@@ -138,7 +138,7 @@ void Modal::buildSettings()
 {
     title = "Settings";
 
-    Serial.println("Building settings modal with " + String(cjTemp));
+  //  Serial.println("Building settings modal with " + String(cjTemp));
     updateFromCurrentEntry(); // Ustawia aktualną wartość i nazwę wpisu
     // Przyciski np. do zwiększania/zmniejszania wartości
     // lub np. delegacja do `SettingsManager`
@@ -188,10 +188,10 @@ void Modal::buildSettings()
     entryNameLabel.setVisible(true);
     infoLabel1.setVisible(true);
     infoLabel2.setVisible(true);
-     ipLabel.setVisible(true);
-     cjTempLabel.setVisible(true);
-     currentTempLabel.setVisible(true);
-     expectedTempLabel.setVisible(true);
+    ipLabel.setVisible(true);
+    cjTempLabel.setVisible(true);
+    currentTempLabel.setVisible(true);
+    expectedTempLabel.setVisible(true);
 }
 
 void Modal::buildError(const String &errorMessage)
@@ -266,10 +266,12 @@ void Modal::buildInfo()
         } });
 }
 
-void Modal::setTCVoltage(float voltage){
+void Modal::setTCVoltage(float voltage)
+{
     tcVoltage = voltage;
 }
 
-void Modal::setTCTemp(float temp){
+void Modal::setTCTemp(float temp)
+{
     TCtemp = temp;
 }

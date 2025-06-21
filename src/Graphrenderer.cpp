@@ -22,7 +22,7 @@ void GraphRenderer::render()
     break;
 
   case SystemMode::Firing:
-    drawCurve(curveManager.getAdjustedCurve(), curveManager.getSegmentIndex());
+    drawCurve(curveManager.getAdjustedCurve());
     // drawMeasurements(curveManager.getMeasurementManager());
     drawTempLabels();
     drawTimeLabels(totalTime);
@@ -145,7 +145,7 @@ void GraphRenderer::drawTimeLabels(unsigned long totalTime)
   }
 }
 
-void GraphRenderer::drawCurve(const Curve &curve, int selectedSegment)
+void GraphRenderer::drawCurve(const Curve &curve)
 {
   float totalTime = 0;
   float lastX = 0, lastY= 2;// = SystemState::get().getMode() == SystemMode::Firing ? (ProcessController::get().getProgramStartTemperature()) * tempRatio : 2;
@@ -170,7 +170,7 @@ void GraphRenderer::drawCurve(const Curve &curve, int selectedSegment)
     else
     {
       // sprite.drawLine((int)lastX, 240 - (int)lastY, (int)x, 240 - (int)y, TFT_BLACK);}
-      drawThickLine(sprite, (int)lastX, 240 - (int)lastY, (int)x, 240 - (int)y, COLOR_BLACK, 2);
+      drawThickLine(sprite, (int)lastX, 240 - (int)lastY, (int)x, 240 - (int)y, curveManager.isSkip(i)?COLOR_GRID : COLOR_BLACK, 2);
       sprite.fillCircle((int)x, 240 - (int)y, 3, COLOR_BLACK);
     }
     if (lastY != y)
@@ -188,7 +188,7 @@ void GraphRenderer::drawCurve(const Curve &curve, int selectedSegment)
   }
   sprite.drawLine((int)lastX, 240 - (int)lastY, (int)320, 240 - (int)(20 * tempRatio), COLOR_COOLING_LINE);
   sprite.setTextDatum(BL_DATUM);
-  if (SystemState::get().getMode()==SystemMode::Firing) sprite.drawFastVLine(ProcessController::get().getStartTimeOffset()*timeRatio, 0,TFT_WIDTH,COLOR_RED_DOT );
+  if (SystemState::get().getMode()==SystemMode::Firing) sprite.drawFastVLine((ProcessController::get().getStartTimeOffset() ) *timeRatio, 0,TFT_WIDTH,COLOR_RED_DOT );
 }
 
 void GraphRenderer::drawMeasurements(unsigned long totalTime)

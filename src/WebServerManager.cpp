@@ -78,7 +78,7 @@ String WebServerManager::generateSVG(const Curve &curIn)
       break;
     int X = (totalTime += curIn.elems[i].hTime) * timeRatio;
     int Y = curIn.elems[i].endTemp;
-    if ((curveManager.getAdjustedCurve().elems[i].hTime) == 60000)
+    if ((curveManager.isSkip(i)))
     {
       svg += "<line x1=\"" + String(lastX) + "\" y1=\"" + String(1300 - lastY) + "\" x2=\"" + String(X) + "\" y2=\"" + String(1300 - Y) + "\" style=\"stroke:black;stroke-width:4; stroke-dasharray:10,5\" />";
     }

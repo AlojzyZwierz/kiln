@@ -85,7 +85,7 @@ GUIRenderer::GUIRenderer(
     uiElements.push_back(&costLabel);
     uiElements.push_back(&errorLabel);
 
-    Serial.println("Clickables in list in constructor: " + String(clickables.size()));
+    //  Serial.println("Clickables in list in constructor: " + String(clickables.size()));
     sprite.setFreeFont(FONT_SMALL);
 
     modal.onClose = [this]()
@@ -166,9 +166,9 @@ void GUIRenderer::drawHeader()
     expectedTempLabel.setText("e:" + String(ProcessController::get().getExpectedTemp(), 1) + "'C"); // potrzebujesz takiej metody
     // timeLabel.setText("Time: " + String(curveManager.getTotalTime()) + "s"); // potrzebujesz takiej metody
     segmentIndexLabel.setText(String(curveManager.getSegmentIndex() + 1));                                                                                                                                                 // potrzebujesz takiej metody,
-    timeLabel.setText(((curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex()].hTime) == 60000) ? "skip" : Utils::millisToHM(curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex()].hTime)); // potrzebujesz takiej metody
+    timeLabel.setText((curveManager.isSkip()) ? "skip" : Utils::millisToHM(curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex()].hTime)); // potrzebujesz takiej metody
     float cost = energyMeter.getCost();                                                                                                                                                                                    // potrzebujesz takiej metody
-    if (cost > 0)
+    if (cost > 0.01f)
         costLabel.setText(String(cost, 2) + " zl"); // potrzebujesz takiej metody
     else
         costLabel.setText(" ");
@@ -203,21 +203,21 @@ void GUIRenderer::drawHeader()
 
 void GUIRenderer::handleTouch(int x, int y)
 {
-    //Serial.println("Clickables on list: " + String(clickables.size()));
+    // Serial.println("Clickables on list: " + String(clickables.size()));
     if (modal.isVisible())
     {
         if (modal.handleClick(x, y))
         {
-            //Serial.println("Modal clicked at: " + String(x) + ", " + String(y));
+            // Serial.println("Modal clicked at: " + String(x) + ", " + String(y));
             return; // Kliknięcie obsłużone przez modal
         }
     }
     for (const auto &clickable : clickables)
     {
-        Serial.println("visible-" + String(clickable->isVisible()) + " active-" + String(clickable->isActive()));
+        // Serial.println("visible-" + String(clickable->isVisible()) + " active-" + String(clickable->isActive()));
         if (clickable->isVisible())
         { // dodać sprawdzenie aktywności
-            Serial.println("Checking clickable at: " + String(x) + ", " + String(y));
+          // Serial.println("Checking clickable at: " + String(x) + ", " + String(y));
             if (clickable->handleClick(x, y))
                 break;
         }
@@ -239,7 +239,7 @@ void GUIRenderer::setupUIFormodes(SystemMode mode)
     switch (mode)
     {
     case SystemMode::Idle:
-        //infoButton.setVisible(true);
+        // infoButton.setVisible(true);
         errorLabel.setVisible(true);
         startButton.setVisible(true);
         editButton.setVisible(true);
@@ -285,6 +285,7 @@ void GUIRenderer::setupUIFormodes(SystemMode mode)
                  //   curveManager.getOriginalCurve().elems[0].hTime = 0;
                 }
                 StorageManager::saveCurve(curveManager, curveSelector.getSelectedIndex());
+                Serial.println(curveManager.getOriginalCurve().toString());
                 SystemState::get().setMode(SystemMode::Idle); });
         /*            saveButton.setCallback([&]() {
             StorageManager::saveCurve(curveManager, curveSelector.getSelectedIndex());
@@ -318,7 +319,8 @@ void GUIRenderer::setupUIFormodes(SystemMode mode)
                                   {
                                       if (curveManager.getSegmentIndex() + 1 < curveElemsNo)
                                           curveManager.updateTime(curveManager.getSegmentIndex() + 1, 0);
-                                      Serial.println("End here pressed " + curveManager.getOriginalCurve().toString()); });
+                                      //                    Serial.println("End here pressed " + curveManager.getOriginalCurve().toString());
+                                  });
 
         holdButton.setCallback([&]()
                                {
@@ -333,7 +335,7 @@ void GUIRenderer::setupUIFormodes(SystemMode mode)
             } });
         break;
     case SystemMode::Firing:
-        //infoButton.setVisible(true);
+        // infoButton.setVisible(true);
         errorLabel.setVisible(true);
         costLabel.setVisible(true);
         stopButton.setVisible(true);
@@ -344,13 +346,12 @@ void GUIRenderer::setupUIFormodes(SystemMode mode)
                                { modal.show(ModalMode::Confirmation, "Stop firing?", []()
                                             { ProcessController::get().abort("Aborted by user"); }); });
 
-        
-               //     ProcessController::get().abort("Aborted by user");
-             //       SystemState::get().setMode(SystemMode::Idle); });
-                settingsButton.setVisible(true);
-                settingsButton.setCallback([&]()
-                                           { modal.show(ModalMode::Settings); });
-        
+        //     ProcessController::get().abort("Aborted by user");
+        //       SystemState::get().setMode(SystemMode::Idle); });
+        settingsButton.setVisible(true);
+        settingsButton.setCallback([&]()
+                                   { modal.show(ModalMode::Settings); });
+
         break;
     }
 }

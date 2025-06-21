@@ -58,9 +58,9 @@ bool EditCircle::handleClick(int x, int y)
             newTime = ((curveManager.getSegmentTime() + sign * (int)factor));
             // newTime = (newTime /100)*1000;
 
-            Serial.println("newTime1: " + String(newTime) + " factor: " + String((int)factor) + " oldtime: " + String(curveManager.getSegmentTime()));
+           // Serial.println("newTime1: " + String(newTime) + " factor: " + String((int)factor) + " oldtime: " + String(curveManager.getSegmentTime()));
 
-            Serial.println("newTime2: " + String(newTime));
+            //Serial.println("newTime2: " + String(newTime));
 
             newTime = std::max(newTime - (newTime % 60000), (long)60000); // Ensure minimum time is 60 seconds
         }

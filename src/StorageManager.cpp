@@ -2,13 +2,13 @@
 
 bool StorageManager::begin()
 {
-    Serial.println("Mounting SPIFFS...");
+  //  Serial.println("Mounting SPIFFS...");
     if (!SPIFFS.begin(true))
     {
         Serial.println("SPIFFS Mount Failed");
         return false;
     }
-    Serial.println("SPIFFS mounted!");
+   // Serial.println("SPIFFS mounted!");
 
     File root = SPIFFS.open("/");
     if (!root)
@@ -21,7 +21,7 @@ bool StorageManager::begin()
         Serial.println(" - not a directory");
         return false;
     }
-    Serial.println("SPIFFS root directory OK.");
+  //  Serial.println("SPIFFS root directory OK.");
     return true;
 }
 
@@ -89,7 +89,7 @@ void StorageManager::appendErrorLog(const String &message)
     File file = SPIFFS.open("/error.log", "a");
     if (!file)
     {
-        Serial.println("Nie udało się otworzyć error.log do dopisania.");
+        Serial.println("Failed to open error.log");
         return;
     }
 

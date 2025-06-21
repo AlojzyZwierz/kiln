@@ -58,7 +58,7 @@ public:
 
     file.read((uint8_t *)&data, sizeof(T));
     file.close();
-    Serial.println("Dane wczytane!");
+    Serial.println("Data read!");
     return true;
   }
 

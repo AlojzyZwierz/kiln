@@ -72,7 +72,7 @@ void SettingsManager::increase()
         float stepValue = entry.stepMode == FIXED ? entry.step : (*ptr) * (entry.percentStep / 100.0f);
         long newValue = std::min((long)*ptr + static_cast<long>(stepValue), static_cast<long>(entry.maxValue));
         *ptr = std::max(newValue, 0L); // Ensure it doesn't go below minValue
-        Serial.println("New value: " + String(*ptr) + " Max: " + String(entry.maxValue) + " newvalue: " + String(newValue));
+     //   Serial.println("New value: " + String(*ptr) + " Max: " + String(entry.maxValue) + " newvalue: " + String(newValue));
         break;
     }
     }
@@ -97,7 +97,7 @@ void SettingsManager::decrease()
         float stepValue = entry.stepMode == FIXED ? entry.step : (*ptr) * (entry.percentStep / 100.0f);
         long newValue = std::min((long)*ptr - static_cast<long>(stepValue), static_cast<long>(entry.maxValue));
         *ptr = std::max(newValue, 0L); // Ensure it doesn't go below minValue
-        Serial.println("New value: " + String(*ptr) + " Max: " + String(entry.maxValue) + " newvalue: " + String(newValue));
+      //  Serial.println("New value: " + String(*ptr) + " Max: " + String(entry.maxValue) + " newvalue: " + String(newValue));
         break;
     }
     }

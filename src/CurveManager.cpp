@@ -2,8 +2,24 @@
 
 CurveManager::CurveManager() {}
 
+bool CurveManager::isSkip(int index)
+{
+    if (index < 0 || index >= curveElemsNo)
+    {
+        Serial.println("isSkip wrong index");
+        return false;
+    }
+    return originalCurve.elems[index].hTime == 60000;
+}
+
+bool CurveManager::isSkip()
+{
+    return isSkip(currentSegmentIndex);
+}
+
 void CurveManager::loadOriginalCurve(const Curve &inputCurve)
 {
+    Serial.println("load org cur");
     if (SystemState::get().isLocked())
     {
         Serial.println("Cannot load curve while firing");
@@ -25,7 +41,6 @@ void CurveManager::loadOriginalCurve(const Curve &inputCurve)
     }
 
     adjustedCurve = genCurveWithFakeSkips(originalCurve);
-    
 }
 
 void CurveManager::resetAdjustedCurve()
@@ -93,9 +108,11 @@ Curve CurveManager::genCurveWithFakeSkips(Curve &curve)
             zeroReached = true;
         if (!zeroReached)
         {
+            float temperatureSpan = curve.elems[i].endTemp - (i == 0 ? 20.0f : curve.elems[i - 1].endTemp);
             modified.elems[i].hTime = (curve.elems[i].hTime == 60000)
-                                          ? 4000 * curve.elems[i].endTemp
+                                          ? (unsigned long)(temperatureSpan * curve.elems[i].endTemp * 5)
                                           : curve.elems[i].hTime;
+                                          Serial.println(String(temperatureSpan)+ " skiptime: " + String(modified.elems[i].hTime));
             modified.elems[i].endTemp = curve.elems[i].endTemp;
         }
         else
@@ -153,8 +170,8 @@ void CurveManager::updateTime(char index, unsigned long newDurationMs)
     {
         originalCurve.elems[index].hTime = newDurationMs;
         adjustedCurve = genCurveWithFakeSkips(originalCurve); // Update adjusted curve after changing time
-        Serial.println("Adjusted curve: " + adjustedCurve.toString());
-        Serial.println("Original curve: " + originalCurve.toString());
+                                                              // Serial.println("Adjusted curve: " + adjustedCurve.toString());
+        // Serial.println("Original curve: " + originalCurve.toString());
     }
 }
 void CurveManager::updateAdjustedCurve(char index, unsigned long newDurationMs)
@@ -165,3 +182,12 @@ void CurveManager::updateAdjustedCurve(char index, unsigned long newDurationMs)
         // Update adjusted curve after changing time
     }
 }
+
+void CurveManager::adjustSkipTime(float deltaTemp, float deltaTime, int index){
+    float newTime = deltaTime* originalCurve.elems[index].endTemp/ deltaTemp;
+    updateAdjustedCurve(index, newTime );
+}
+void CurveManager::adjustSkipTime(float deltaTemp, float deltaTime){
+    adjustSkipTime(deltaTemp, deltaTime, currentCurveIndex);
+}
+

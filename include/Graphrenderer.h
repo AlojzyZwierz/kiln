@@ -36,7 +36,7 @@ private:
 
   unsigned long calculateTotalTime(const Curve &curve);
   void drawGrid(unsigned long totalTime);
-  void drawCurve(const Curve &curve, int selectedSegment = -1);
+  void drawCurve(const Curve &curve);
   void drawTimeLabels(unsigned long totalTime);
   void drawTempLabels();
   void drawCurrentTempDot(float temp, unsigned long totalTime);
