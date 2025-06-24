@@ -4,7 +4,7 @@ CurveManager::CurveManager() {}
 
 bool CurveManager::isSkip(int index)
 {
-    if (index < 0 || index >= curveElemsNo)
+    if (!isValidIndex(index))
     {
         Serial.println("isSkip wrong index");
         return false;

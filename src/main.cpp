@@ -3,6 +3,7 @@
 #include <TFT_eSPI.h>
 #include <XPT2046_Touchscreen.h>
 #include <Arduino.h>
+#include <esp_heap_caps.h>
 
 #include "GraphRenderer.h"
 #include "CurveManager.h"
@@ -49,6 +50,18 @@ unsigned long lastTouchTime = 0;
 // MeasurementManager measurementManager;
 unsigned long nextMeasurementTime = 0;
 unsigned long measurementInterval = 60000;
+
+void printMemoryInfo() {
+  Serial.printf("Free heap: %d bytes\n", ESP.getFreeHeap());
+  Serial.printf("Min free heap: %d bytes\n", ESP.getMinFreeHeap());
+  Serial.printf("Max alloc heap: %d bytes\n", ESP.getMaxAllocHeap());
+  
+  // Bardziej szczegółowe dane
+  Serial.printf("DRAM free: %d bytes\n", heap_caps_get_free_size(MALLOC_CAP_8BIT));
+  Serial.printf("PSRAM free: %d bytes (jeśli dostępne)\n", heap_caps_get_free_size(MALLOC_CAP_SPIRAM));
+}
+
+
 void setup()
 {
 #ifdef NO_THERMOCOUPLE
@@ -66,7 +79,7 @@ void setup()
   }
   curveSelector.selectByIndex(1);
   curveSelector.selectNext();
-  ProcessController::get().begin(curveManager, temperatureSensor, heatingController);
+  ProcessController::get().begin(curveManager, temperatureSensor, heatingController, energyMeter);
   // StorageManager::saveSettings();
   StorageManager::loadSettings();
   
@@ -111,7 +124,9 @@ void setup()
   SoundManager::chiptuneIntro();
  // int ffff = curveManager.getcurrentCurveIndex();
   //Serial.println("cur " + String(ffff) + " " ) ;
+  printMemoryInfo();
 }
+
 TS_Point lastP;
 void loop()
 {
@@ -122,7 +137,8 @@ void loop()
     {
       // Serial.println("Adding measurement at: " + String(millis()) + " furnace temp: " + String(furnace.getTemperature()));
       nextMeasurementTime = millis() + measurementInterval;
-      MeasurementManager::get().addMeasurement(millis() - ProcessController::get().getProgramStartTime(), temperatureSensor.getTemperature());
+      //MeasurementManager::get().addMeasurement(millis() - ProcessController::get().getProgramStartTime(), temperatureSensor.getTemperature());
+      MeasurementManager::get().addMeasurement();
       // Serial.println("Measurements no: " + String(MeasurementManager::get().getMeasurements().size()));
     }
 
@@ -143,7 +159,7 @@ void loop()
       ProcessController::get().checkForErrors();
       ProcessController::get().adjustSkipTime();
     }
-
+//printMemoryInfo();
     temperatureSensor.update();
   }
   bool isTouched = touchscreen.tirqTouched() && touchscreen.touched();
@@ -169,3 +185,6 @@ void loop()
     wasTouched = isTouched;
   }
 }
+
+
+

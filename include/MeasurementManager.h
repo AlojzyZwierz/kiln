@@ -4,6 +4,7 @@
 #include <vector>
 
 #include <cstdint>
+#include "ProcessController.h"
 
 struct Measurement
 {
@@ -23,7 +24,7 @@ public:
     static MeasurementManager instance;
     return instance;
   }
-  void addMeasurement(unsigned long t, float tmp);
+  void addMeasurement();
   const std::vector<Measurement> &getMeasurements() const;
   void clear();
   MeasurementManager(const MeasurementManager &) = delete;

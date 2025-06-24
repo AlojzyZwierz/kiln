@@ -1,6 +1,5 @@
 #include "WebServerManager.h"
 
-
 // server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
 //   request->send(200, "text/plain", "Hello World");
 // });
@@ -69,7 +68,7 @@ String WebServerManager::generateSVG(const Curve &curIn)
   int i = 0;
   int lastX = 0;
   // int lastY = SystemState::get().getMode()==SystemMode::Firing ? (programStartTemp ) : 20;
-  //int lastY = SystemState::get().getMode() == SystemMode::Firing ? (ProcessController::get().getProgramStartTemperature()) : 20;
+  // int lastY = SystemState::get().getMode() == SystemMode::Firing ? (ProcessController::get().getProgramStartTemperature()) : 20;
   int lastY = 20;
   totalTime = 0;
   while (i < curveElemsNo)
@@ -95,7 +94,7 @@ String WebServerManager::generateSVG(const Curve &curIn)
   }
   svg += "<line x1=\"" + String(lastX) + "\" y1=\"" + String(1300 - lastY) + "\" x2=\"1600\" y2=\"1280\" style=\"stroke:blue;stroke-width:2; stroke-dasharray:10,5\" />";
 
-  svg += "<text x=\"" + String((SystemState::get().getMode() == SystemMode::Firing) ? ((millis() - ProcessController::get().getProgramStartTime()+ProcessController::get().getStartTimeOffset()) * timeRatio + 5) : 10) + "\" y=\"" + String((1300 - currentTemp) + 20) + "\" fill=\"black\" font-size=\"30\">" + String((float)currentTemp, 1) + "</text>";
+  svg += "<text x=\"" + String((SystemState::get().getMode() == SystemMode::Firing) ? ((millis() - ProcessController::get().getProgramStartTime() + ProcessController::get().getStartTimeOffset()) * timeRatio + 5) : 10) + "\" y=\"" + String((1300 - currentTemp) + 20) + "\" fill=\"black\" font-size=\"30\">" + String((float)currentTemp, 1) + "</text>";
 
   // The HTTP response ends with another blank line
   i = 0;
@@ -105,10 +104,10 @@ String WebServerManager::generateSVG(const Curve &curIn)
 
     if (i != 0)
     {
-      svg += "<line x1=\"" + String((last.time+ProcessController::get().getStartTimeOffset()/1000) * timeRatio * 1000) + "\" y1=\"" + String(1300 - last.temp) + "\" x2=\"" + String((m.time + ProcessController::get().getStartTimeOffset()/1000)* timeRatio * 1000) + "\" y2=\"" + String(1300 - m.temp) + "\" style=\"stroke:orange;stroke-width:2;\"></line>";
+      svg += "<line x1=\"" + String((last.time + ProcessController::get().getStartTimeOffset() / 1000) * timeRatio * 1000) + "\" y1=\"" + String(1300 - last.temp) + "\" x2=\"" + String((m.time + ProcessController::get().getStartTimeOffset() / 1000) * timeRatio * 1000) + "\" y2=\"" + String(1300 - m.temp) + "\" style=\"stroke:orange;stroke-width:2;\"></line>";
       // svg += "<line x1=\"100\" y1=\"100\" x2=\"" + String(m.time * timeRatio) + "\" y2=\"" + String(1300 - m.temp / 100) + "\" style=\"stroke:\"orange\";stroke-width:2\" stroke-linecap=\"round\"/>";
 
-      svg += "<circle r=\"2\" cx=\"" + String((m.time + ProcessController::get().getStartTimeOffset()/1000)* timeRatio * 1000) + "\" cy=\"" + String(1300 - m.temp) + "\" fill=\"red\"></circle>";
+      svg += "<circle r=\"2\" cx=\"" + String((m.time + ProcessController::get().getStartTimeOffset() / 1000) * timeRatio * 1000) + "\" cy=\"" + String(1300 - m.temp) + "\" fill=\"red\"></circle>";
     }
     last = m;
     i++;
@@ -116,12 +115,12 @@ String WebServerManager::generateSVG(const Curve &curIn)
   }
   if (SystemState::get().getMode() == SystemMode::Firing)
   {
-    svg += "<line x1=\"" + String((last.time+ProcessController::get().getStartTimeOffset()/1000 )* timeRatio * 1000) + "\" y1=\"" + String(1300 - last.temp) + "\" x2=\"" + String((millis() - ProcessController::get().getProgramStartTime()+ProcessController::get().getStartTimeOffset()) * timeRatio) + "\" y2=\"" + String(1300 - currentTemp) + "\" style=\"stroke:orange;stroke-width:2;\"></line>";
+    svg += "<line x1=\"" + String((last.time + ProcessController::get().getStartTimeOffset() / 1000) * timeRatio * 1000) + "\" y1=\"" + String(1300 - last.temp) + "\" x2=\"" + String((millis() - ProcessController::get().getProgramStartTime() + ProcessController::get().getStartTimeOffset()) * timeRatio) + "\" y2=\"" + String(1300 - currentTemp) + "\" style=\"stroke:orange;stroke-width:2;\"></line>";
     // svg += "<text x=\"100\" y=\"100\" fill=\"black\" font-size=\"30\">" + String(ratio, 2) + "</text>";
   }
-  svg += "<circle r=\"5\" cx=\"" + String((SystemState::get().getMode() == SystemMode::Firing && (MeasurementManager::get().getMeasurements().size() != 0)) ? ((millis() - ProcessController::get().getProgramStartTime()+ProcessController::get().getStartTimeOffset()) * timeRatio) : 5) + "\" cy=\"" + String(1300 - currentTemp) + "\" fill=\"red\"></circle>";
-  svg += "<text x=\" 200\" y=\"80\" fill=\"black\" font-size=\"70\">" + String((float)currentTemp, 1) + "</text>";
-  svg += "<text x=\" 240\" y=\"110\" fill=\"black\" font-size=\"40\">" + String(curveManager.getcurrentCurveIndex()) + " " + String(curveManager.getSegmentIndex()+1) + "</text>";
+  svg += "<circle r=\"5\" cx=\"" + String((SystemState::get().getMode() == SystemMode::Firing && (MeasurementManager::get().getMeasurements().size() != 0)) ? ((millis() - ProcessController::get().getProgramStartTime() + ProcessController::get().getStartTimeOffset()) * timeRatio) : 5) + "\" cy=\"" + String(1300 - currentTemp) + "\" fill=\"red\"></circle>";
+  svg += "<text x=\"40\" y=\"80\" fill=\"black\" font-size=\"70\">" + String((float)currentTemp, 1) + "</text>";
+  svg += "<text x=\"40\" y=\"125\" fill=\"black\" font-size=\"40\">" + String(curveManager.getcurrentCurveIndex()) + " " + String(curveManager.getSegmentIndex() + 1) + "</text>";
   svg += "</svg></div></body></html>";
 
   return svg;
@@ -181,8 +180,20 @@ void WebServerManager::StartWebServer()
     }
     #settingsBtn {
       position: absolute;
-      top: 10px;
-      right: 10px;
+      top: 20px;
+      right: 20px;
+      z-index: 10;
+      padding: 6px 10px;
+      font-size: 16px;
+      background-color: rgba(255, 255, 255, 0.8);
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+      #measurementsBtn {
+      position: absolute;
+      bottom: 50px;
+      left: 200px;
       z-index: 10;
       padding: 6px 10px;
       font-size: 16px;
@@ -207,6 +218,7 @@ void WebServerManager::StartWebServer()
   <div class="svg-container">
     <div id="chart"></div>
     <a id="settingsBtn" href="/settings">wifi password</a>
+    <a id="measurementsBtn" href="/getMeasurements">measurements</a>
   </div>
   <script> updateChart(); </script>
 </body>
@@ -218,6 +230,18 @@ void WebServerManager::StartWebServer()
               request->send(200, "image/svg+xml", generateSVG(curveManager.getAdjustedCurve()));
               // request->send(200, "image/svg+xml", generateSVG((ON || (cooling && measurements.size()!=0))? graphCurve : cur));
             });
+
+  server.on("/getMeasurements", HTTP_GET, [this](AsyncWebServerRequest *request)
+            {
+  String output = "Time[s]  Temp[°C]\n";
+  output += "--------\n";
+  
+  for (const auto& m : MeasurementManager::get().getMeasurements() ) {
+    output += String(m.time) + "\t" + String(m.temp) + "\n";
+  }
+  
+  output += "\nmeasurements count: " + String(MeasurementManager::get().getMeasurements().size());
+  request->send(200, "text/html", output); });
 
   server.on("/settings", HTTP_GET, [](AsyncWebServerRequest *request)
             {
@@ -249,6 +273,8 @@ void WebServerManager::StartWebServer()
 
     request->send(200, "text/html", "<p>data saved</p><a href='/'>Back</a>");
 
+
+    
     // Opcjonalnie: restart WiFi po zapisaniu
     WiFi.disconnect(true);
     delay(1000);

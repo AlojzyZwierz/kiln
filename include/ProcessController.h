@@ -21,7 +21,7 @@ public:
         static ProcessController instance;
         return instance;
     }
-    void begin(CurveManager &cm, TemperatureSensor &sensor, HeatingController &h);
+    void begin(CurveManager &cm, TemperatureSensor &sensor, HeatingController &h, EnergyUsageMeter &eMeter);
     void checkSegmentAdvance();
     // void updateHeating();
     void startFiring();
@@ -73,6 +73,7 @@ private:
     // CurveManager* sourceCurveManager ;
     TemperatureSensor *temperatureSensor; // = nullptr;
     HeatingController *heating;
+    EnergyUsageMeter *euMeter;
     // MeasurementManager* measurementManager;
 
     // uint8_t currentSegmentIndex = 0;

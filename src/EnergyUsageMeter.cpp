@@ -18,6 +18,7 @@ void EnergyUsageMeter::stopMeasurement()
         heatingStartTime = 0;
         isCounting = false;
     }
+    isCounting = false;
     // Serial.println("Stopping energy measurement at: " + String(now) + ", total heating time: " + String(totalHeatingTimeMs) + " ms");
 }
 
@@ -41,7 +42,7 @@ void EnergyUsageMeter::reset()
 float EnergyUsageMeter::calculateEnergyKWh() const
 {
     float powerkWatts = SettingsManager::get().getSettings().kilnPower; // np. 1500
-    float hours = (totalHeatingTimeMs +isCounting?(millis()-heatingStartTime):0 ) / 3600000.0f;
+    float hours = (totalHeatingTimeMs +(isCounting?(millis()-heatingStartTime):0) ) / 3600000.0f;
     return powerkWatts * hours; // kWh
     // Serial.println("Total heating time in ms: " + String(totalHeatingTimeMs));
 }

@@ -2,17 +2,19 @@
 
 // extern FakeFurnace furnace;
 
-void ProcessController::begin(CurveManager &cm, TemperatureSensor &sensor, HeatingController &h)
+void ProcessController::begin(CurveManager &cm, TemperatureSensor &sensor, HeatingController &h, EnergyUsageMeter &eMeter)
 {
     curveManager = &cm;
     temperatureSensor = &sensor;
     // measurementManager = &mm;
     heating = &h;
+    euMeter = &eMeter;
 }
 
 void ProcessController::startFiring()
 {
     Serial.println("Starting firing process...");
+    euMeter->reset();
     if (SystemState::get().getMode() == SystemMode::Firing)
         return; // Jeśli już działa, nie rób nic
     SystemState::get().setMode(SystemMode::Firing);
@@ -31,7 +33,7 @@ void ProcessController::startFiring()
     // currentSegmentIndex =  determineStartSegment(curve, getCurrentTemp());
     curveManager->setSegmentIndex(determineStartSegment());
     //  Serial.println("__segIndex: " + String(curveManager->getSegmentIndex()));
-    ratio = 0.1f;
+    ratio = 0.18f;
     integral = 0;
     lastError = 0;
     heating->setCycleTime(SettingsManager::get().getSettings().heatingCycleMs);
@@ -41,6 +43,7 @@ void ProcessController::startFiring()
     // Serial.println("Starting process with curve index: " + String(curveManager->getcurrentCurveIndex()));
     useSegment();
     MeasurementManager::get().clear();
+    
 
     // Serial.println("Process started with segment index: " + String(curveManager->getSegmentIndex()));
 }
@@ -81,6 +84,7 @@ void ProcessController::checkSegmentAdvance()
 
 void ProcessController::useSegment()
 {
+    MeasurementManager::get().addMeasurement();
     Serial.println("Using segment: " + String(curveManager->getSegmentIndex()) + " " + String(segmentEndTime));
     // const auto &curve = curveManager->getOriginalCurve();
     // const auto &segment = curve.elems[curveManager->getSegmentIndex()];
@@ -133,7 +137,7 @@ void ProcessController::nextSegment()
     curveManager->nextSegment();
     useSegment();
     if (lastA > segmentLine.a )
-        ratio = ratio * getCurrentTemp()/1300;
+        ratio = ratio * getCurrentTemp()/1300.0f;
     SoundManager::beep(1000, 100);
 }
 
@@ -218,6 +222,7 @@ void ProcessController::setHeaterPower(float ratio)
 }
 void ProcessController::finishFiring()
 {
+    MeasurementManager::get().addMeasurement();
     // heating->setEnabled(false);
     setHeaterPower(0);
     SystemState::get().setMode(SystemMode::Idle);
@@ -229,6 +234,7 @@ void ProcessController::finishFiring()
 
 void ProcessController::abort(const char *reason)
 {
+    MeasurementManager::get().addMeasurement();
     // heating->setEnabled(false);
     setHeaterPower(0);
     String errorMessage = reason ? String(reason) : "Aborted";
