@@ -110,7 +110,7 @@ Curve CurveManager::genCurveWithFakeSkips(Curve &curve)
         {
             float temperatureSpan = curve.elems[i].endTemp - (i == 0 ? 20.0f : curve.elems[i - 1].endTemp);
             modified.elems[i].hTime = (curve.elems[i].hTime == 60000)
-                                          ? (unsigned long)(temperatureSpan * curve.elems[i].endTemp * 5)
+                                          ? (unsigned long)(temperatureSpan * curve.elems[i].endTemp * 4.2f)
                                           : curve.elems[i].hTime;
                                           Serial.println(String(temperatureSpan)+ " skiptime: " + String(modified.elems[i].hTime));
             modified.elems[i].endTemp = curve.elems[i].endTemp;

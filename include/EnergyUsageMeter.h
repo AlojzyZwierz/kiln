@@ -23,4 +23,5 @@ private:
 
     float calculateEnergyKWh() const;
     float calculateCost() const;
+    bool isCounting =false;
 };

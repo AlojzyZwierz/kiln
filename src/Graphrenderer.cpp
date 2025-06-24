@@ -19,6 +19,7 @@ void GraphRenderer::render()
   {
   case SystemMode::Idle:
     drawCurve(curveManager.getAdjustedCurve());
+    drawMeasurements(totalTime);
     break;
 
   case SystemMode::Firing:

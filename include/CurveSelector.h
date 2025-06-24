@@ -2,6 +2,8 @@
 #define CURVE_SELECTOR_H
 
 #include "CurveManager.h"
+#include "StorageManager.h"
+#include "MeasurementManager.h"
 
 class CurveSelector
 {
@@ -15,6 +17,7 @@ public:
 private:
     CurveManager &curveManager;
     int selectedIndex = 0;
+    void loadCurve(int index);
 };
 
 #endif

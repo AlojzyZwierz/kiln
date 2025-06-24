@@ -132,8 +132,8 @@ void ProcessController::nextSegment()
     // currentSegmentIndex++;
     curveManager->nextSegment();
     useSegment();
-    if (lastA > segmentLine.a)
-        ratio = 0;
+    if (lastA > segmentLine.a )
+        ratio = ratio * getCurrentTemp()/1300;
     SoundManager::beep(1000, 100);
 }
 
@@ -230,6 +230,7 @@ void ProcessController::finishFiring()
 void ProcessController::abort(const char *reason)
 {
     // heating->setEnabled(false);
+    setHeaterPower(0);
     String errorMessage = reason ? String(reason) : "Aborted";
     StorageManager::appendErrorLog(errorMessage);
     SystemState::get().setMode(SystemMode::Idle);
@@ -261,19 +262,19 @@ void ProcessController::checkForErrors()
     }
     else if (temperatureSensor->getCJTemperature() > 70)
     {
-        abort("controller box overheating");
+        abort("Controller box overheating");
     }
     else if (getCurrentTemp() > 1285)
     {
-        abort("Kiln temperature too high");
+        abort("Temperature too high");
     }
     else if (temperatureSensor->getErrorCount() > TemperatureSensor::MAX_ERRORS)
     {
-        abort("Temperature sensor \n error count exceeded");
+        abort("TC error count exceeded");
     }
     else if (IsHeatingStuckDuringSkipMode())
     {
-        abort("Heating stuck during skip mode");
+        abort("Stuck during skip mode");
     }
 }
 float ProcessController::getCJTemp()
