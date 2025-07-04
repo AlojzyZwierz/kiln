@@ -80,6 +80,7 @@ public:
     bool isSkip(int index);
     unsigned long getSegmentStartTemperature(){return getSegmentStartTemperature(currentSegmentIndex); }
     unsigned long getSegmentStartTemperature(int index){return index == 0?20:originalCurve.elems[index-1].endTemp;}
+    float getHeatingSpeed() const;
 private:
     int currentSegmentIndex = 0;
     Curve originalCurve;

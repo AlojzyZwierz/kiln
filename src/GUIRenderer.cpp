@@ -165,8 +165,8 @@ void GUIRenderer::drawHeader()
     curveIndexLabel.setText("prog #" + String(curveIndex) + segInd);
     expectedTempLabel.setText((!curveManager.isSkip() ? "e:" + String(ProcessController::get().getExpectedTemp(), 1) + "'C" : " ")); // potrzebujesz takiej metody
     // timeLabel.setText("Time: " + String(curveManager.getTotalTime()) + "s"); // potrzebujesz takiej metody
-    segmentIndexLabel.setText(String(curveManager.getSegmentIndex() + 1));                                                                                // potrzebujesz takiej metody,
-    timeLabel.setText((curveManager.isSkip()) ? "skip" : Utils::millisToHM(curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex()].hTime)); // potrzebujesz takiej metody
+    segmentIndexLabel.setText(String(curveManager.getSegmentIndex() + 1));
+    timeLabel.setText((curveManager.isSkip()) ? "skip" : (Utils::millisToHM(curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex()].hTime) + " (" + String(curveManager.getHeatingSpeed()) + "/h)")); // potrzebujesz takiej metody
     float cost = energyMeter.getCost();                                                                                                                   // potrzebujesz takiej metody
     if (cost > 0.01f)
         costLabel.setText(String(cost, 2) + " zl"); // potrzebujesz takiej metody
