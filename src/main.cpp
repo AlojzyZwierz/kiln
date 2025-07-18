@@ -115,7 +115,10 @@ void setup()
   SystemState::get().setMode(SystemMode::Idle);
   if (ResumeManager::hasResumeData())
   {
-    curveManager.setcurrentCurveIndex(ResumeManager::loadCurveIndex());
+    int cIndex = ResumeManager::loadCurveIndex();
+    Serial.print("resume ind: ");
+    Serial.println(cIndex);
+    StorageManager::loadCurve(curveManager, cIndex);
     ProcessController::get().startFiring();
   }
   tft.print(".");
