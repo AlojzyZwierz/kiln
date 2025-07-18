@@ -192,8 +192,8 @@ void WebServerManager::StartWebServer()
     }
       #measurementsBtn {
       position: absolute;
-      bottom: 50px;
-      left: 200px;
+      top: 45px;
+      right: 20px;
       z-index: 10;
       padding: 6px 10px;
       font-size: 16px;
