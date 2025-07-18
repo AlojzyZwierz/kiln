@@ -36,7 +36,7 @@ public:
     // constexpr static int curveElemsNo = curveElemsN;
     CurveManager();
     // int getCurveCount() const { return curveElemsNo; }
-    void loadOriginalCurve(const Curve &inputCurve);
+    void loadOriginalCurve(const Curve &inputCurve, int index);
     void resetAdjustedCurve();
 
     void updateTime(char index, unsigned long newDurationMs);
@@ -52,7 +52,7 @@ public:
 
     bool isValidIndex(char index) const;
     const int getcurrentCurveIndex() const;
-    const void setcurrentCurveIndex(unsigned int index);
+    //const void setcurrentCurveIndex(unsigned int index);
 
     static Curve getDefaultCurve();
     CurveManager clone() const;

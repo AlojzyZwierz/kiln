@@ -17,7 +17,7 @@ bool CurveManager::isSkip()
     return isSkip(currentSegmentIndex);
 }
 
-void CurveManager::loadOriginalCurve(const Curve &inputCurve)
+void CurveManager::loadOriginalCurve(const Curve &inputCurve, int index)
 {
     Serial.println("load org cur");
     if (SystemState::get().isLocked())
@@ -39,7 +39,7 @@ void CurveManager::loadOriginalCurve(const Curve &inputCurve)
             originalCurve.elems[i].endTemp = 100.0f;
         }
     }
-
+    currentCurveIndex = index;
     adjustedCurve = genCurveWithFakeSkips(originalCurve);
 }
 
@@ -67,10 +67,7 @@ const int CurveManager::getcurrentCurveIndex() const
 {
     return currentCurveIndex;
 }
-const void CurveManager::setcurrentCurveIndex(unsigned int index)
-{
-    currentCurveIndex = index;
-}
+
 
 Curve CurveManager::getDefaultCurve()
 {

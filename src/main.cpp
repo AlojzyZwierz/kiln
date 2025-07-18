@@ -118,7 +118,7 @@ void setup()
     int cIndex = ResumeManager::loadCurveIndex();
     Serial.print("resume ind: ");
     Serial.println(cIndex);
-    StorageManager::loadCurve(curveManager, cIndex);
+    curveSelector.selectByIndex(cIndex);
     ProcessController::get().startFiring();
   }
   tft.print(".");

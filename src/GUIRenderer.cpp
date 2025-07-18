@@ -142,7 +142,7 @@ void GUIRenderer::render()
     if (modal.isVisible())
     {
         modal.setCJTemp(temperatureSensor.getCJTemperature()); // Ustawiamy temperaturę cold junction w modalu
-        modal.setTCVoltage(temperatureSensor.getRawVoltage());
+        //modal.setTCVoltage(temperatureSensor.getRawVoltage());
         modal.setTCTemp(temperatureSensor.readThermocoupleTemperature());
         //  Serial.println("Rendering modal");
         modal.render(sprite); // Rysujemy modal, jeśli jest widoczny

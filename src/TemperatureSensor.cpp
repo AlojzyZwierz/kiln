@@ -1,5 +1,5 @@
 #include "TemperatureSensor.h"
-#ifndef NO_THERMOCOUPLE
+
 TemperatureSensor::TemperatureSensor()
     : thermocouple(MAX_CS, MAX_MOSI, MAX_MISO, MAX_CLK) // CS, DI, DO, CLK – zmień piny wg potrzeb
 {
@@ -13,15 +13,15 @@ float TemperatureSensor::getCJTemperature()
 void TemperatureSensor::begin()
 {
     thermocouple.begin();
-    //thermocouple.setThermocoupleType(MAX31856_TCTYPE_S);
+    thermocouple.setThermocoupleType(MAX31856_TCTYPE_S);
     //thermocouple.setThermocoupleType(MAX31856_TCTYPE_VOLTAGE_GAIN_8);
     //thermocouple.writeRegister8(0x01, 0x88);
     Serial.print(">>>");
-    thermocouple.writeRegister8(0x01, 0x03);
+    //thermocouple.writeRegister8(0x01, 0x03);
     delay(100); // Czekaj na zapis
-    uint8_t cr1 = thermocouple.readRegister8(0x01);
-    Serial.print("CR1 po zmianie: 0b" );
-    Serial.println(cr1, BIN);
+    //uint8_t cr1 = thermocouple.readRegister8(0x01);
+    //Serial.print("CR1 po zmianie: 0b" );
+    //Serial.println(cr1, BIN);
     Serial.println("<<<< " + String(thermocouple.getThermocoupleType()));
     
     float temp;
@@ -96,7 +96,7 @@ float TemperatureSensor::getRawVoltage(){
     float voltage_mV = raw_value * 0.0078125f; // MAX31856 ma rozdzielczość 7.8125 µV/LSB
     return voltage_mV;
 }*/
-
+/*
 float TemperatureSensor::getRawVoltage()
 {
     uint8_t byte0 = thermocouple.readRegister8(0x0C); // LTCBH (bity 23:16)
@@ -120,7 +120,7 @@ float TemperatureSensor::getRawVoltage()
     //Serial.println(cjt_temp);
     return cjt_temp;
 }
-
+*/
 /*
 float TemperatureSensor::getRawVoltage()
 {
@@ -143,7 +143,7 @@ float TemperatureSensor::getRawVoltage()
     Serial.println(voltage_mV);
     return voltage_mV;
 }
-*/
+
 float TemperatureSensor::getTemperatureFromRawVoltage(float rawVoltage)
 {
     // Przykładowa konwersja napięcia na temperaturę   y=\left(1.32023\times10^{-9}\right)x^{3}-0.0000254108x^{2}+0.268784x-114.39058
@@ -152,7 +152,8 @@ float TemperatureSensor::getTemperatureFromRawVoltage(float rawVoltage)
 float TemperatureSensor::readThermocoupleTemperature(){
     return thermocouple.readThermocoupleTemperature();
 }
-#else
+    */
+/*
 TemperatureSensor::TemperatureSensor()
 // CS, DI, DO, CLK – zmień piny wg potrzeb
 {
@@ -188,3 +189,4 @@ bool TemperatureSensor::hasError() const
     return false;
 }
 #endif
+*/

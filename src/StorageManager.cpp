@@ -78,8 +78,8 @@ void StorageManager::loadCurve(CurveManager &curveManager, int index)
         loadedCurve = CurveManager::getDefaultCurve();
         saveCurve(curveManager, index);
     }
-    curveManager.loadOriginalCurve(loadedCurve);
-    curveManager.setcurrentCurveIndex(index);
+    curveManager.loadOriginalCurve(loadedCurve, index);
+    //curveManager.setcurrentCurveIndex(index);
     //int iindex = curveManager.getcurrentCurveIndex();
     // Serial.println(String(iindex)+" LOAD: " + loadedCurve.toString());
 }
