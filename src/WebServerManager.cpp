@@ -241,7 +241,7 @@ void WebServerManager::StartWebServer()
   }
   
   output += "\nmeasurements count: " + String(MeasurementManager::get().getMeasurements().size());
-  request->send(200, "text/html", output); });
+  request->send(200, "text/plain", output); });
 
   server.on("/settings", HTTP_GET, [](AsyncWebServerRequest *request)
             {
