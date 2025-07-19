@@ -34,13 +34,7 @@ String WebServerManager::generateSVG(const Curve &curIn)
 
     if (curIn.elems[i].hTime == 0)
       break;
-    /*
-    if (curveManager.getAdjustedCurve().elems[i].hTime == 60000 && i == curveManager.getSegmentIndex()) {
-      unsigned long lastTemp = (i < 1) ? 2000 : curIn.elems[i - 1].endTemp;
-
-      curIn.elems[i].hTime = (((float)(curIn.elems[i].endTemp - lastTemp) / (float)(currentTemp - lastTemp))) * (millis() - ProcessController::get().getSegmentStartTime());
-      Serial.println(String(curIn.elems[i].endTemp - lastTemp) + "  " + String(millis() -  ProcessController::get().getSegmentStartTime()) + " " + String(currentTemp - lastTemp) + " " + String(curIn.elems[i].hTime));
-    }*/
+ 
     totalTime += curIn.elems[i].hTime;
   }
 
@@ -85,7 +79,7 @@ String WebServerManager::generateSVG(const Curve &curIn)
     {
       svg += "<line x1=\"" + String(lastX) + "\" y1=\"" + String(1300 - lastY) + "\" x2=\"" + String(X) + "\" y2=\"" + String(1300 - Y) + "\" style=\"stroke:black;stroke-width:4\" />";
     }
-    // svg += "<line x1=\"" + String(lastX) + "\" y1=\"" + String(1300 - lastY) + "\" x2=\"" + String(X) + "\" y2=\"" + String(1300 - Y) + "\" stroke:\"black\" stroke-width:\"4\" "+    String((curveManager.getAdjustedCurve()elems[i].hTime == 60000) ? "stroke-dasharray=\"10,5\"" : " ")+"/>";
+    
     if (lastY != Y)
       svg += "<text x=\"" + String(X - 50) + "\" y=\"" + String(1295 - Y) + "\" fill=\"black\" font-size=\"30\">" + String(Y) + "</text>";
     lastX = X;

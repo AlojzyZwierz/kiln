@@ -142,7 +142,7 @@ void GUIRenderer::render()
     if (modal.isVisible())
     {
         modal.setCJTemp(temperatureSensor.getCJTemperature()); // Ustawiamy temperaturę cold junction w modalu
-        //modal.setTCVoltage(temperatureSensor.getRawVoltage());
+        // modal.setTCVoltage(temperatureSensor.getRawVoltage());
         modal.setTCTemp(temperatureSensor.readThermocoupleTemperature());
         //  Serial.println("Rendering modal");
         modal.render(sprite); // Rysujemy modal, jeśli jest widoczny
@@ -167,7 +167,7 @@ void GUIRenderer::drawHeader()
     // timeLabel.setText("Time: " + String(curveManager.getTotalTime()) + "s"); // potrzebujesz takiej metody
     segmentIndexLabel.setText(String(curveManager.getSegmentIndex() + 1));
     timeLabel.setText((curveManager.isSkip()) ? "skip" : (Utils::millisToHM(curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex()].hTime) + " (" + String((int)curveManager.getHeatingSpeed()) + ")")); // potrzebujesz takiej metody
-    float cost = energyMeter.getCost();                                                                                                                   // potrzebujesz takiej metody
+    float cost = energyMeter.getCost();                                                                                                                                                                                // potrzebujesz takiej metody
     if (cost > 0.01f)
         costLabel.setText(String(cost, 2) + " zl"); // potrzebujesz takiej metody
     else
@@ -332,7 +332,15 @@ void GUIRenderer::setupUIFormodes(SystemMode mode)
                                {
             if (curveManager.getSegmentIndex() + 1 < curveElemsNo)
             {
-                curveManager.updateTime(curveManager.getSegmentIndex() , 60000);
+                if (curveManager.getSegmentIndex() == 0 || curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex() - 1].endTemp < curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex()].endTemp)
+                {
+                    curveManager.setSkip(curveManager.getSegmentIndex(), 1); 
+                }
+                    else
+                    {
+                        curveManager.setSkip(curveManager.getSegmentIndex(), 2); // Skip down
+                    }
+                
             } });
         break;
     case SystemMode::Firing:

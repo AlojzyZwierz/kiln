@@ -7,9 +7,11 @@ struct Seg
 {
     unsigned long hTime;
     float endTemp;
+    uint8_t skip = 0; // 0 - normal, 1 - skip up, 2 - skip down
+
     String toString() const
     {
-        return ("<" + String(hTime) + "::" + String(endTemp) + ">");
+        return ("<" + String(hTime) + "::" + String(endTemp) + "::" + String(skip) + ">");
     }
 };
 
@@ -33,6 +35,14 @@ struct Curve
 class CurveManager
 {
 public:
+    void setSkip(int index, uint8_t skip)
+    {
+        if (isValidIndex(index))
+        {
+            originalCurve.elems[index].skip = skip;
+            adjustedCurve = genCurveWithFakeSkips(originalCurve);
+        }
+    }
     // constexpr static int curveElemsNo = curveElemsN;
     CurveManager();
     // int getCurveCount() const { return curveElemsNo; }
@@ -52,7 +62,7 @@ public:
 
     bool isValidIndex(char index) const;
     const int getcurrentCurveIndex() const;
-    //const void setcurrentCurveIndex(unsigned int index);
+    // const void setcurrentCurveIndex(unsigned int index);
 
     static Curve getDefaultCurve();
     CurveManager clone() const;
@@ -76,11 +86,29 @@ public:
             Serial.println("No more segments available.");
         }
     }
-    bool isSkip();
-    bool isSkip(int index);
-    unsigned long getSegmentStartTemperature(){return getSegmentStartTemperature(currentSegmentIndex); }
-    unsigned long getSegmentStartTemperature(int index){return index == 0?20:originalCurve.elems[index-1].endTemp;}
+
+    bool isSkip(int index)
+    {
+        if (index < 0 || index >= curveElemsNo)
+            return false;
+        return originalCurve.elems[index].skip != 0;
+    }
+    bool isSkip()
+    {
+        return isSkip(currentSegmentIndex);
+    }
+    bool isSkipUp(int index) const
+    {
+        return originalCurve.elems[index].skip == 1;
+    }
+    bool isSkipDown(int index) const
+    {
+        return originalCurve.elems[index].skip == 2;
+    }
+    unsigned long getSegmentStartTemperature() { return getSegmentStartTemperature(currentSegmentIndex); }
+    unsigned long getSegmentStartTemperature(int index) { return index == 0 ? 20 : originalCurve.elems[index - 1].endTemp; }
     float getHeatingSpeed() const;
+
 private:
     int currentSegmentIndex = 0;
     Curve originalCurve;

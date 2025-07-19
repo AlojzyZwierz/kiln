@@ -2,20 +2,7 @@
 
 CurveManager::CurveManager() {}
 
-bool CurveManager::isSkip(int index)
-{
-    if (!isValidIndex(index))
-    {
-        Serial.println("isSkip wrong index");
-        return false;
-    }
-    return originalCurve.elems[index].hTime == 60000;
-}
 
-bool CurveManager::isSkip()
-{
-    return isSkip(currentSegmentIndex);
-}
 
 void CurveManager::loadOriginalCurve(const Curve &inputCurve, int index)
 {
@@ -106,7 +93,7 @@ Curve CurveManager::genCurveWithFakeSkips(Curve &curve)
         if (!zeroReached)
         {
             float temperatureSpan = curve.elems[i].endTemp - (i == 0 ? 20.0f : curve.elems[i - 1].endTemp);
-            modified.elems[i].hTime = (curve.elems[i].hTime == 60000)
+            modified.elems[i].hTime = (curve.elems[i].skip == 1 || curve.elems[i].skip == 2)
                                           ? (unsigned long)(temperatureSpan * curve.elems[i].endTemp * 4.2f)
                                           : curve.elems[i].hTime;
                                           Serial.println(String(temperatureSpan)+ " skiptime: " + String(modified.elems[i].hTime));

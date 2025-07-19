@@ -46,21 +46,38 @@ public:
     Serial.println("data written!");
   }
 
-  template <typename T>
-  static bool load(const char *path, T &data)
-  {
-    File file = SPIFFS.open(path, FILE_READ);
-    if (!file)
-    {
-      Serial.println("reading erroroarrrr!");
-      return false;
-    }
 
-    file.read((uint8_t *)&data, sizeof(T));
-    file.close();
-    Serial.println("Data read!");
-    return true;
+template<typename T>
+static bool load(const char *path, T &data)
+{
+  File file = SPIFFS.open(path, FILE_READ);
+  if (!file)
+  {
+    Serial.println("File not found: " + String(path));
+    return false;
   }
+
+  size_t fileSize = file.size();
+  if (fileSize != sizeof(T))
+  {
+    Serial.printf("Error: file size (%u bytes) does not match structure size (%u bytes)\n",
+                  fileSize, sizeof(T));
+    file.close();
+    return false;
+  }
+
+  size_t bytesRead = file.read((uint8_t *)&data, sizeof(T));
+  file.close();
+
+  if (bytesRead != sizeof(T))
+  {
+    Serial.printf("Error: only %u bytes read from %u\n", bytesRead, sizeof(T));
+    return false;
+  }
+
+  Serial.println("Data read!");
+  return true;
+}
 
 private:
 };

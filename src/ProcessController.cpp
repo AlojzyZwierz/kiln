@@ -264,7 +264,7 @@ void ProcessController::checkForErrors()
 {
     if (abs(lastError) > 100 && !curveManager->isSkip())
     {
-        abort(("Temp dev:" + String(curveManager->getOriginalCurve().elems[curveManager->getSegmentIndex()].hTime)).c_str());
+        abort("Temp dev too high");
     }
     else if (temperatureSensor->getCJTemperature() > 70)
     {
@@ -293,7 +293,7 @@ float ProcessController::getCurrentTemp()
 }
 bool ProcessController::IsHeatingStuckDuringSkipMode()
 {
-    if (curveManager->getSegmentTime() > 60000)
+    if (curveManager->isSkip() == false)
     {
         return false; // Nie jesteśmy w trybie skip, więc nie ma problemu
     }

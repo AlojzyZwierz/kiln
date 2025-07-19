@@ -62,6 +62,8 @@ void StorageManager::saveCurve(CurveManager &curveManager, int index)
 void StorageManager::loadCurve(CurveManager &curveManager, int index)
 {
     String path = "/prog" + String(index);
+   
+   
     Curve loadedCurve;
     if (!load(path.c_str(), loadedCurve))
     {
