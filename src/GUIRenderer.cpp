@@ -175,7 +175,8 @@ void GUIRenderer::drawHeader()
     int errorCount = temperatureSensor.getErrorCount();
     if (errorCount != 0)
     {
-        errorLabel.setText("Error:" + String(temperatureSensor.GetLastErrorCode()) + " : " + String(errorCount));
+        sprite.setTextSize(1);
+        errorLabel.setText("Err:" + String(temperatureSensor.GetLastErrorCode()) + " - " + String(errorCount));
     }
     else
         errorLabel.setText(" ");
