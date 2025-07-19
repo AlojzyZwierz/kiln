@@ -94,8 +94,11 @@ void setup()
   tft.setRotation(1);
   tft.fillScreen(COLOR_BG);
   tft.setTextColor(COLOR_BLACK);
+  tft.setTextSize(1);
+  tft.setCursor(3, 200);
+  tft.print(BUILD_TIME);
   tft.setTextSize(2);
-  tft.setCursor(24, 50);
+  tft.setCursor(16, 50);
   tft.print("Initializing.");
   temperatureSensor.begin();
   Serial.println("tft done...");
