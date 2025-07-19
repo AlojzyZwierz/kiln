@@ -49,6 +49,7 @@ bool EditCircle::handleClick(int x, int y)
     // y = 88.4 - 8.4*x + 0.204*x^2
     if (absDx > absDy)
     {
+        if(curveManager.isSkip()) curveManager.setSkip(curveManager.getSegmentIndex(), 0);
         int sign = dx > 0 ? 1 : -1;
         long newTime;
         if (factor != 1)

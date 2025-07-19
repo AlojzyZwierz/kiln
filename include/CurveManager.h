@@ -105,6 +105,14 @@ public:
     {
         return originalCurve.elems[index].skip == 2;
     }
+    bool isSkipUp() const
+    {
+        return isSkipUp(currentSegmentIndex);
+    }
+    bool isSkipDown() const
+    {
+        return isSkipDown(currentSegmentIndex);
+    }
     unsigned long getSegmentStartTemperature() { return getSegmentStartTemperature(currentSegmentIndex); }
     unsigned long getSegmentStartTemperature(int index) { return index == 0 ? 20 : originalCurve.elems[index - 1].endTemp; }
     float getHeatingSpeed() const;

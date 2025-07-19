@@ -55,29 +55,17 @@ void ProcessController::checkSegmentAdvance()
     //  Serial.println("Checking segment advance: " + String(curveManager.getSegmentIndex()) + " " + String(segment.hTime) + " " + String(segment.endTemp));
     float currentTemp = getCurrentTemp();
     float targetTemp = curveManager->getSegmentTemp();
-    bool skipUp = false;
-    bool skipDown = false;
-    if (curveManager->isSkip())
-    {
-        if (curveManager->getSegmentIndex() > 0 && (curveManager->getOriginalCurve().elems[curveManager->getSegmentIndex()].endTemp < curveManager->getOriginalCurve().elems[curveManager->getSegmentIndex() - 1].endTemp))
-        {
-            skipDown = true;
-            // Serial.println("KURWA: " + String( curveManager->getOriginalCurve().elems[curveManager->getSegmentIndex()].endTemp < curveManager->getOriginalCurve().elems[curveManager->getSegmentIndex() - 1].endTemp) + " "+ String(curveManager->getOriginalCurve().elems[curveManager->getSegmentIndex()].endTemp) + "  " +String(curveManager->getOriginalCurve().elems[curveManager->getSegmentIndex() - 1].endTemp));
-        }
-        else
-        {
-            skipUp = true;
-        }
-    }
-
-    bool reachedTempIncreasing = (segmentLine.a > epsilon || skipUp) && currentTemp >= targetTemp;
-    bool reachedTempDecreasing = (segmentLine.a < -epsilon || (skipDown)) && currentTemp <= targetTemp;
+    //bool skipUp = false;
+    //bool skipDown = false;
+ 
+    bool reachedTempIncreasing = (segmentLine.a > epsilon || curveManager->isSkipUp()) && currentTemp >= targetTemp;
+    bool reachedTempDecreasing = (segmentLine.a < -epsilon || (curveManager->isSkipDown())) && currentTemp <= targetTemp;
     bool flatSegmentTimeOver = (std::abs(segmentLine.a) <= epsilon) && (millis() >= segmentEndTime);
     //  Serial.println("epsilon: " + String(epsilon) + " segmentLine.a: " + String(segmentLine.a) + " currentTemp: " + String(currentTemp) + " targetTemp: " + String(targetTemp) + " skip: " + String(skip));
     // Serial.println("Checking segment advance: " + String(curveManager.getSegmentIndex()) + " " + String(currentTemp) + " " + String(targetTemp) + " rTi " + String(reachedTempIncreasing) + " rTd " + String(reachedTempDecreasing) + " skipReached " + String(flatSegmentTimeOver));
     if (reachedTempIncreasing || reachedTempDecreasing || flatSegmentTimeOver)
     {
-        Serial.println(String(reachedTempIncreasing) + " " + String(reachedTempDecreasing) + " " + String(flatSegmentTimeOver) + " " + String(targetTemp) + " " + String(skipUp) + " " + String(skipDown));
+        Serial.println(String(reachedTempIncreasing) + " " + String(reachedTempDecreasing) + " " + String(flatSegmentTimeOver) + " " + String(targetTemp) + " " + String(curveManager->isSkipUp()) + " " + String(curveManager->isSkipDown()));
         nextSegment();
     }
 }
