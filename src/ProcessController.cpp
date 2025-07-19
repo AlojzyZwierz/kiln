@@ -262,7 +262,7 @@ float ProcessController::getMaxTemp(Curve c)
 }
 void ProcessController::checkForErrors()
 {
-    if (abs(lastError) > 100 && curveManager->getOriginalCurve().elems[curveManager->getSegmentIndex()].hTime > 60000)
+    if (abs(lastError) > 100 && !curveManager->isSkip())
     {
         abort(("Temp dev:" + String(curveManager->getOriginalCurve().elems[curveManager->getSegmentIndex()].hTime)).c_str());
     }
