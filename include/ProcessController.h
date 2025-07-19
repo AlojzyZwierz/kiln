@@ -35,7 +35,11 @@ public:
     {
         if (SystemState::get().getMode() != SystemMode::Firing)
             return 0;
-        float exp = segmentLine.y(millis());
+        float exp;
+        if (segmentLine.a > 0)
+            exp = min(segmentLine.y(millis()), curveManager->getSegmentTemp());
+            else
+            exp = max(segmentLine.y(millis()), curveManager->getSegmentTemp());
         // Serial.println("Expected temp: " + String(exp) );
         return exp;
     }

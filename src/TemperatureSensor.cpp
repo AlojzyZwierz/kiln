@@ -63,7 +63,10 @@ float TemperatureSensor::calcCorrectedTemp(float wrongTemp){
     //y=0.00004237x^{3}-0.0217994x^{2}+7.40482x-0.043407
     
     float temp = wrongTemp - thermocouple.readCJTemperature();
-    return  0.00004237 * pow(temp,3) -0.0217994*temp*temp+7.40482*temp-0.043407 + thermocouple.readCJTemperature();
+    //return  0.00004237 * pow(temp,3) -0.0217994*temp*temp+7.40482*temp-0.043407 + thermocouple.readCJTemperature();
+    // y=0.800846x+0.838077
+    return 0.800846 * temp + 0.838077 + thermocouple.readCJTemperature() ;
+
 }
 
 void TemperatureSensor::handleError()

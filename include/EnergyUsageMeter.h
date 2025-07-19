@@ -9,6 +9,10 @@ public:
     float getEnergyKWh() const;
     float getCost() const;
 
+    bool isMeasuring() const
+    {
+        return isCounting;
+    }
     String getCostString() const
     {
         float cost = calculateCost();

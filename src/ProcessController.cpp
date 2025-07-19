@@ -224,7 +224,7 @@ void ProcessController::finishFiring()
 {
     MeasurementManager::get().addMeasurement();
     // heating->setEnabled(false);
-    setHeaterPower(0);
+    heating->stopHeating();
     SystemState::get().setMode(SystemMode::Idle);
     SoundManager::playFanfare();
     ResumeManager::clear();
@@ -236,7 +236,7 @@ void ProcessController::abort(const char *reason)
 {
     MeasurementManager::get().addMeasurement();
     // heating->setEnabled(false);
-    setHeaterPower(0);
+    heating->stopHeating();
     String errorMessage = reason ? String(reason) : "Aborted";
     StorageManager::appendErrorLog(errorMessage);
     SystemState::get().setMode(SystemMode::Idle);

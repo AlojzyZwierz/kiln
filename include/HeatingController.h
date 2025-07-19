@@ -14,6 +14,13 @@ public:
     void setCycleTime(unsigned long t); // czas cyklu grzania (config.hc)
 
     bool isHeating() const; // czy SSR jest aktualnie załączony
+    void stopHeating()
+    {
+        setRatio(0.0f);
+        digitalWrite(SSR_PIN, LOW);
+        hON = false;
+        energyMeter.stopMeasurement(); // Stop measuring energy usage
+    }
 
 private:
     EnergyUsageMeter &energyMeter; // obiekt do pomiaru zużycia energii
