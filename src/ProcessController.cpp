@@ -210,30 +210,35 @@ void ProcessController::setHeaterPower(float ratio)
 }
 void ProcessController::finishFiring()
 {
-    MeasurementManager::get().addMeasurement();
-    // heating->setEnabled(false);
-    heating->stopHeating();
-    SystemState::get().setMode(SystemMode::Idle);
+    stopFiring();
     SoundManager::playFanfare();
-    ResumeManager::clear();
     if (onError)
         onError("finished successfully");
 }
 
 void ProcessController::abort(const char *reason)
 {
-    MeasurementManager::get().addMeasurement();
-    // heating->setEnabled(false);
-    heating->stopHeating();
+    stopFiring();
     String errorMessage = reason ? String(reason) : "Aborted";
     StorageManager::appendErrorLog(errorMessage);
-    SystemState::get().setMode(SystemMode::Idle);
     SoundManager::beep(700, 400);
-    ResumeManager::clear();
     if (onError)
         onError(reason);
     Serial.println("Process aborted: " + errorMessage);
 }
+
+void ProcessController::stopFiring()
+{
+    MeasurementManager::get().addMeasurement();
+    heating->stopHeating();
+    SystemState::get().setMode(SystemMode::Idle);
+    ResumeManager::clear();
+    if (getCurrentTemp() > 100)
+    {
+        SystemState::get().setCooling(true);
+    }
+}
+
 float ProcessController::getMaxTemp(Curve c)
 {
     long maxT = 0;
@@ -295,6 +300,7 @@ bool ProcessController::IsHeatingStuckDuringSkipMode()
     // Czy minęło 200 sekund (3 min 20 s) bez wzrostu temperatury?
     return ((millis() - maxSkipTime) > 200000);
 }
+/*/
 void ProcessController::adjustSkipTime()
 {
     if (!curveManager->isSkip())
@@ -309,3 +315,4 @@ void ProcessController::adjustSkipTime()
         initialSkipTime = (millis() - segmentStartTime / getCurrentTemp() - programStartTemperature) * curveManager->getSegmentStartTemperature();
     }
 }
+    */

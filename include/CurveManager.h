@@ -52,8 +52,8 @@ public:
     void updateTime(char index, unsigned long newDurationMs);
     void updateTemperature(char index, float newTemperature);
     void updateAdjustedCurve(char index, unsigned long newDurationMs);
-    void adjustSkipTime(float deltaTemp, float deltaTime);
-    void adjustSkipTime(float deltaTemp, float deltaTime, int index);
+    //void adjustSkipTime(float deltaTemp, float deltaTime);
+    //void adjustSkipTime(float deltaTemp, float deltaTime, int index);
 
     const Curve &getOriginalCurve() const;
     const Curve &getAdjustedCurve() const;

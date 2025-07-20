@@ -51,16 +51,16 @@ unsigned long lastTouchTime = 0;
 unsigned long nextMeasurementTime = 0;
 unsigned long measurementInterval = 60000;
 
-void printMemoryInfo() {
+void printMemoryInfo()
+{
   Serial.printf("Free heap: %d bytes\n", ESP.getFreeHeap());
   Serial.printf("Min free heap: %d bytes\n", ESP.getMinFreeHeap());
   Serial.printf("Max alloc heap: %d bytes\n", ESP.getMaxAllocHeap());
-  
+
   // Bardziej szczegółowe dane
   Serial.printf("DRAM free: %d bytes\n", heap_caps_get_free_size(MALLOC_CAP_8BIT));
   Serial.printf("PSRAM free: %d bytes (jeśli dostępne)\n", heap_caps_get_free_size(MALLOC_CAP_SPIRAM));
 }
-
 
 void setup()
 {
@@ -82,15 +82,15 @@ void setup()
   ProcessController::get().begin(curveManager, temperatureSensor, heatingController, energyMeter);
   // StorageManager::saveSettings();
   StorageManager::loadSettings();
-  
+
   // Serial.println("Settings loaded: " + String(SettingsManager::get().getSettings().pid_kp) + ", " + String(SettingsManager::get().getSettings().pid_ki) + ", " + String(SettingsManager::get().getSettings().pid_kd));
   // Serial.println("Settings loaded: " + String(SettingsManager::get().getSettings().heatingCycleMs) + ", " + String(SettingsManager::get().getSettings().kilnPower) + ", " + String(SettingsManager::get().getSettings().unitCost));
   temperatureSensor.begin();
   Serial.println("Temperature sensor initialized.");
   tft.init();
   Serial.println("TFT initialized.");
-  //buildCustomPalette();
-//  Serial.println("Custom palette built.");
+  // buildCustomPalette();
+  //  Serial.println("Custom palette built.");
   tft.setRotation(1);
   tft.fillScreen(COLOR_BG);
   tft.setTextColor(COLOR_BLACK);
@@ -102,7 +102,6 @@ void setup()
   tft.print("Initializing.");
   temperatureSensor.begin();
   Serial.println("tft done...");
-  
 
   // controller.begin(curveManager, temperatureSensor);
   touchscreenSPI.begin(XPT2046_CLK, XPT2046_MISO, XPT2046_MOSI, XPT2046_CS);
@@ -125,48 +124,44 @@ void setup()
     ProcessController::get().startFiring();
   }
   tft.print(".");
-  
+
   guiRenderer.render();
   SoundManager::chiptuneIntro();
- // int ffff = curveManager.getcurrentCurveIndex();
-  //Serial.println("cur " + String(ffff) + " " ) ;
   printMemoryInfo();
 }
 
 TS_Point lastP;
 void loop()
 {
-
+  if (millis() > nextMeasurementTime && (SystemState::get().getMode() == SystemMode::Firing || SystemState::get().isCooling()))
+  {
+    nextMeasurementTime = millis() + measurementInterval;
+    MeasurementManager::get().addMeasurement();
+  }
   if (SystemState::get().getMode() == SystemMode::Firing)
   {
-    if (millis() > nextMeasurementTime)
-    {
-      // Serial.println("Adding measurement at: " + String(millis()) + " furnace temp: " + String(furnace.getTemperature()));
-      nextMeasurementTime = millis() + measurementInterval;
-      //MeasurementManager::get().addMeasurement(millis() - ProcessController::get().getProgramStartTime(), temperatureSensor.getTemperature());
-      MeasurementManager::get().addMeasurement();
-      // Serial.println("Measurements no: " + String(MeasurementManager::get().getMeasurements().size()));
-    }
-
     ProcessController::get().applyPID();
     heatingController.update();
     // furnace.update();
   }
   if (lastUpdateTime + 1001 < millis())
   {
-    // Serial.println(" : " + String(millis()));
     lastUpdateTime = millis();
+    temperatureSensor.update();
     guiRenderer.render();
+    if (SystemState::get().isCooling() && temperatureSensor.getTemperature() < 100)
+    {
+      SystemState::get().setCooling(false);
+    }
     // Serial.println("GUI rendered at: " + String(millis()));
     // Serial.println("seg htime: " + String(curveManager.getOriginalCurve().elems[0].hTime) + " current segment index: " + String(curveManager.getSegmentIndex()) + " current temp: " + String(furnace.getTemperature()));
     if (SystemState::get().getMode() == SystemMode::Firing)
     {
       ProcessController::get().checkSegmentAdvance();
       ProcessController::get().checkForErrors();
-      ProcessController::get().adjustSkipTime();
+      // ProcessController::get().adjustSkipTime();
     }
-//printMemoryInfo();
-    temperatureSensor.update();
+    // printMemoryInfo();
   }
   bool isTouched = touchscreen.tirqTouched() && touchscreen.touched();
   if (isTouched)
@@ -191,6 +186,3 @@ void loop()
     wasTouched = isTouched;
   }
 }
-
-
-

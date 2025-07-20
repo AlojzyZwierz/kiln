@@ -2,8 +2,6 @@
 
 CurveManager::CurveManager() {}
 
-
-
 void CurveManager::loadOriginalCurve(const Curve &inputCurve, int index)
 {
     Serial.println("load org cur");
@@ -55,7 +53,6 @@ const int CurveManager::getcurrentCurveIndex() const
     return currentCurveIndex;
 }
 
-
 Curve CurveManager::getDefaultCurve()
 {
     Curve defaultCurve;
@@ -93,10 +90,25 @@ Curve CurveManager::genCurveWithFakeSkips(Curve &curve)
         if (!zeroReached)
         {
             float temperatureSpan = curve.elems[i].endTemp - (i == 0 ? 20.0f : curve.elems[i - 1].endTemp);
-            modified.elems[i].hTime = (curve.elems[i].skip == 1 || curve.elems[i].skip == 2)
-                                          ? (unsigned long)(temperatureSpan * curve.elems[i].endTemp * 4.2f)
-                                          : curve.elems[i].hTime;
-                                          Serial.println(String(temperatureSpan)+ " skiptime: " + String(modified.elems[i].hTime));
+            if (curve.elems[i].skip == 1)
+            {
+                // y=0.045977x
+                modified.elems[i].hTime = (unsigned long)(0.045977f * temperatureSpan * curve.elems[i].endTemp);
+            }
+            else if (curve.elems[i].skip == 2)
+            {
+                // y=(716*x -423)/(1.4x + 250)
+                float t1 = (850.0f * temperatureSpan * curve.elems[i - 1].endTemp ) /
+                           (1.3f * temperatureSpan * curve.elems[i - 1].endTemp + 500.0f);
+                float t2 = (850.0f * temperatureSpan * curve.elems[i].endTemp) /
+                           (1.3f * temperatureSpan * curve.elems[i].endTemp + 500.0f);
+
+                modified.elems[i].hTime = (unsigned long)((t1 - t2) * 60000);
+            }
+            else
+            {
+                modified.elems[i].hTime = curve.elems[i].hTime;
+            }
             modified.elems[i].endTemp = curve.elems[i].endTemp;
         }
         else
@@ -166,20 +178,23 @@ void CurveManager::updateAdjustedCurve(char index, unsigned long newDurationMs)
         // Update adjusted curve after changing time
     }
 }
-
-void CurveManager::adjustSkipTime(float deltaTemp, float deltaTime, int index){
-    float newTime = deltaTime* originalCurve.elems[index].endTemp/ deltaTemp;
-    updateAdjustedCurve(index, newTime );
+/*
+void CurveManager::adjustSkipTime(float deltaTemp, float deltaTime, int index)
+{
+    float newTime = deltaTime * originalCurve.elems[index].endTemp / deltaTemp;
+    updateAdjustedCurve(index, newTime);
 }
-void CurveManager::adjustSkipTime(float deltaTemp, float deltaTime){
+void CurveManager::adjustSkipTime(float deltaTemp, float deltaTime)
+{
     adjustSkipTime(deltaTemp, deltaTime, currentCurveIndex);
 }
+    */
 float CurveManager::getHeatingSpeed() const
 {
     float deltaTemp = originalCurve.elems[currentSegmentIndex].endTemp - (currentSegmentIndex == 0 ? 20.0f : originalCurve.elems[currentSegmentIndex - 1].endTemp);
 
     unsigned long deltaTime = originalCurve.elems[currentSegmentIndex].hTime - originalCurve.elems[currentSegmentIndex - 1].hTime;
     if (deltaTime == 0)
-        return 0.0f; // Avoid division by zero
+        return 0.0f;                             // Avoid division by zero
     return deltaTemp / (deltaTime / 3600000.0f); // Convert milliseconds to hours
 }

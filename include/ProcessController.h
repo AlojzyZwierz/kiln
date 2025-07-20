@@ -38,7 +38,7 @@ public:
         float exp;
         if (segmentLine.a > 0)
             exp = min(segmentLine.y(millis()), curveManager->getSegmentTemp());
-            else
+        else
             exp = max(segmentLine.y(millis()), curveManager->getSegmentTemp());
         // Serial.println("Expected temp: " + String(exp) );
         return exp;
@@ -63,10 +63,11 @@ public:
         // Serial.println("startTimeOffset: " + String(startTimeOffset));
         return startTimeOffset + ProcessController::get().getInitialSkipTime();
     }
-    void adjustSkipTime();
+    // void adjustSkipTime();
     unsigned long getInitialSkipTime() { return initialSkipTime; }
 
 private:
+    void stopFiring();
     std::function<void(const String &)> onError;
     void useSegment();
     void nextSegment();

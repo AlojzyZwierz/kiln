@@ -72,10 +72,15 @@ float TemperatureSensor::calcCorrectedTemp(float wrongTemp){
 void TemperatureSensor::handleError()
 {
     errorCount++;
-    if (errorCount >= MAX_ERRORS)
+    if (errorCount == 15)
     {
-        // Tu można dodać np. flagę krytycznego błędu
+        softResetMAX31856();
+        delay(1000); // Czekaj na reset
     }
+}
+void TemperatureSensor::softResetMAX31856() {
+  thermocouple.begin();  // Inicjalizacja SPI + konfiguracja CR0, CR1 itd.
+  thermocouple.setThermocoupleType(MAX31856_TCTYPE_S);
 }
 
 float TemperatureSensor::getTemperature() const

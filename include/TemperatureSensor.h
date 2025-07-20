@@ -17,14 +17,14 @@ public:
     uint8_t GetLastErrorCode() { return lastErrorCode; }; // zwraca kod ostatniego błędu
     float getCJTemperature();
     static constexpr int MAX_ERRORS = 30;
-    //float getRawVoltage();
-    //float getTemperatureFromRawVoltage(float rawVoltage);
-    float readThermocoupleTemperature(){return thermocouple.readThermocoupleTemperature();};
+    // float getRawVoltage();
+    // float getTemperatureFromRawVoltage(float rawVoltage);
+    float readThermocoupleTemperature() { return thermocouple.readThermocoupleTemperature(); };
     float calcCorrectedTemp(float wrongTemp);
 
 private:
     Adafruit_MAX31856 thermocouple;
-
+    void softResetMAX31856();
     float lastValidTemperature = 0.0f;
     int errorCount = 0;
     uint8_t lastErrorCode = 0; // kod ostatniego błędu, np. z MAX31856

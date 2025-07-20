@@ -37,8 +37,16 @@ public:
 
     bool isLocked() const { return mode == SystemMode::Firing; }
     std::function<void(SystemMode)> onModeChange;
+    void setCooling(bool isCooling)
+    {
+        cooling = isCooling;
+    }
+    bool isCooling() const
+    {
+        return cooling;
+    }   
 private:
     SystemState() = default;
     SystemMode mode = SystemMode::Idle;
-    
+    bool cooling = false; // czy jest gorący i chłodzi się po wypale
 };
