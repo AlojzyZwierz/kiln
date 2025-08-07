@@ -174,7 +174,7 @@ void WebServerManager::StartWebServer()
     }
     #settingsBtn {
       position: absolute;
-      top: 20px;
+      bottom: 20px;
       right: 20px;
       z-index: 10;
       padding: 6px 10px;
@@ -186,7 +186,7 @@ void WebServerManager::StartWebServer()
     }
       #measurementsBtn {
       position: absolute;
-      top: 45px;
+      bottom: 45px;
       right: 20px;
       z-index: 10;
       padding: 6px 10px;

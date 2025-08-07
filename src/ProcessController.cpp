@@ -85,6 +85,7 @@ void ProcessController::useSegment()
     {
         maxSkipTime = 0;
         maxSkipTemp = 0;
+        ratio = 1.0f;
         return;
     }
     segmentLine = Line(segmentStartTime, startTemp, segmentEndTime, curveManager->getSegmentTemp());
