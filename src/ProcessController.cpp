@@ -124,7 +124,7 @@ void ProcessController::nextSegment()
     // currentSegmentIndex++;
     curveManager->nextSegment();
     useSegment();
-    if (lastA > segmentLine.a )
+    if (lastA > segmentLine.a ||  curveManager->getOriginalCurve().elems[curveManager->getSegmentIndex() -1].skip == 1 )
         ratio = ratio * getCurrentTemp()/1300.0f;
     SoundManager::beep(1000, 100);
 }
