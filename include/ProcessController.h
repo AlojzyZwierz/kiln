@@ -10,6 +10,7 @@
 #include "StorageManager.h"
 #include "FakeFurnace.h"
 #include "MeasurementManager.h"
+#include "Utils.h"
 
 // #define SSR 9 // pin przekaźnika – ustaw wg własnych potrzeb
 
