@@ -126,7 +126,7 @@ void ProcessController::nextSegment()
     curveManager->nextSegment(); //
     useSegment();
         //if (lastA > segmentLine.a ||  curveManager->getOriginalCurve().elems[curveManager->getSegmentIndex() -1].skip == 1 )
-    ratio *=  getCurrentTemp()/1300.0f;
+    ratio =  getCurrentTemp()/1300.0f;
     lastPidCheckTime = millis() -  SettingsManager::get().getSettings().pidIntervalMs + 5000; // szybka reakcja PID po zmianie segmentu
     SoundManager::beep(1000, 100); // sygnał zmiany segmentu
 }
