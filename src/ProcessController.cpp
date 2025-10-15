@@ -15,6 +15,7 @@ void ProcessController::startFiring()
 {
     Serial.println("Starting firing process...");
     euMeter->reset();
+
     if (SystemState::get().getMode() == SystemMode::Firing)
         return; // Jeśli już działa, nie rób nic
     SystemState::get().setMode(SystemMode::Firing);
@@ -42,6 +43,8 @@ void ProcessController::startFiring()
     ResumeManager::saveCurveIndex(curveManager->getcurrentCurveIndex());
     // Serial.println("Starting process with curve index: " + String(curveManager->getcurrentCurveIndex()));    
     MeasurementManager::get().clear();
+    MeasurementManager::get().addMeasurement();
+    MeasurementManager::get().setMeasurementInterval(150000);
     useSegment();
     
 
@@ -214,6 +217,7 @@ void ProcessController::finishFiring()
 {
     stopFiring();
     SoundManager::playFanfare();
+    MeasurementManager::get().setMeasurementInterval(300000); // co 5 min podczas chłodzenia
     if (onError)
         onError("finished successfully");
 }
