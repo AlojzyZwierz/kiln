@@ -40,9 +40,9 @@ void ProcessController::startFiring()
     // heating->setEnabled(true);
     heating->setRatio(ratio);
     ResumeManager::saveCurveIndex(curveManager->getcurrentCurveIndex());
-    // Serial.println("Starting process with curve index: " + String(curveManager->getcurrentCurveIndex()));
-    useSegment();
+    // Serial.println("Starting process with curve index: " + String(curveManager->getcurrentCurveIndex()));    
     MeasurementManager::get().clear();
+    useSegment();
     
 
     // Serial.println("Process started with segment index: " + String(curveManager->getSegmentIndex()));
@@ -123,11 +123,12 @@ void ProcessController::nextSegment()
     }
 
     // currentSegmentIndex++;
-    curveManager->nextSegment();
+    curveManager->nextSegment(); //
     useSegment();
-    //if (lastA > segmentLine.a ||  curveManager->getOriginalCurve().elems[curveManager->getSegmentIndex() -1].skip == 1 )
-        ratio = ratio * getCurrentTemp()/1300.0f;
-    SoundManager::beep(1000, 100);
+        //if (lastA > segmentLine.a ||  curveManager->getOriginalCurve().elems[curveManager->getSegmentIndex() -1].skip == 1 )
+    ratio *=  getCurrentTemp()/1300.0f;
+    lastPidCheckTime = millis() -  SettingsManager::get().getSettings().pidIntervalMs + 5000; // szybka reakcja PID po zmianie segmentu
+    SoundManager::beep(1000, 100); // sygnał zmiany segmentu
 }
 
 uint8_t ProcessController::determineStartSegment()
@@ -148,7 +149,7 @@ uint8_t ProcessController::determineStartSegment()
         }
         if (curveManager->getOriginalCurve().elems[i].hTime == 0)
         {
-            abort("start temp. too high");
+            abort("start temp. too high"); // jeśli nie znaleźliśmy segmentu z temp. wyższą niż aktualna, a segmenty się skończyły
         }
     }
     abort("cant determine start temp");
