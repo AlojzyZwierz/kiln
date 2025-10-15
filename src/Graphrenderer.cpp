@@ -219,7 +219,7 @@ void GraphRenderer::drawMeasurements(unsigned long totalTime)
     // sprite.fillCircle(x1, y1, 3, TFT_RED);
     // sprite.fillCircle(x2, y2, 3, TFT_RED);
   }
-  if (x2 != 0)
+  if (x2 != 0 && SystemState::get().getMode() == SystemMode::Firing)
     sprite.drawLine(currentTempPosX, currentTempPosY, x2, y2, COLOR_RED_DOT);
 
   // Serial.println("_Measurements drawn: " + String(MeasurementManager::get().getMeasurements().size()));

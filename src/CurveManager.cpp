@@ -93,7 +93,7 @@ Curve CurveManager::genCurveWithFakeSkips(Curve &curve)
             if (curve.elems[i].skip == 1)
             {
                 // y=0.045977x
-                modified.elems[i].hTime = (unsigned long)(0.045977f * temperatureSpan * curve.elems[i].endTemp);
+                modified.elems[i].hTime = (unsigned long)(0.065f * temperatureSpan  ) * 60000;
             }
             else if (curve.elems[i].skip == 2)
             {
@@ -193,7 +193,7 @@ float CurveManager::getHeatingSpeed() const
 {
     float deltaTemp = originalCurve.elems[currentSegmentIndex].endTemp - (currentSegmentIndex == 0 ? 20.0f : originalCurve.elems[currentSegmentIndex - 1].endTemp);
 
-    unsigned long deltaTime = originalCurve.elems[currentSegmentIndex].hTime - originalCurve.elems[currentSegmentIndex - 1].hTime;
+    unsigned long deltaTime = originalCurve.elems[currentSegmentIndex].hTime;// - originalCurve.elems[currentSegmentIndex - 1].hTime;
     if (deltaTime == 0)
         return 0.0f;                             // Avoid division by zero
     return deltaTemp / (deltaTime / 3600000.0f); // Convert milliseconds to hours

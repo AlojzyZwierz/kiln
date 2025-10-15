@@ -49,18 +49,7 @@ bool wasTouched = false;
 unsigned long lastTouchTime = 0;
 // MeasurementManager measurementManager;
 unsigned long nextMeasurementTime = 0;
-unsigned long measurementInterval = 60000;
-
-void printMemoryInfo()
-{
-  Serial.printf("Free heap: %d bytes\n", ESP.getFreeHeap());
-  Serial.printf("Min free heap: %d bytes\n", ESP.getMinFreeHeap());
-  Serial.printf("Max alloc heap: %d bytes\n", ESP.getMaxAllocHeap());
-
-  // Bardziej szczegółowe dane
-  Serial.printf("DRAM free: %d bytes\n", heap_caps_get_free_size(MALLOC_CAP_8BIT));
-  Serial.printf("PSRAM free: %d bytes (jeśli dostępne)\n", heap_caps_get_free_size(MALLOC_CAP_SPIRAM));
-}
+unsigned long measurementInterval = 150000;
 
 void setup()
 {
@@ -127,7 +116,7 @@ void setup()
 
   guiRenderer.render();
   SoundManager::chiptuneIntro();
-  printMemoryInfo();
+  Utils::printMemoryInfo();
 }
 
 TS_Point lastP;

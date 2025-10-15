@@ -10,6 +10,7 @@ public:
     static String millisToHMS(long t);
     static String millisToHM(long t);
     static String leadingZero(int num, int width = 2);
+    static void printMemoryInfo();
 };
 
 #endif
