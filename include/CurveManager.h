@@ -120,7 +120,10 @@ public:
     unsigned long getSegmentStartTemperature() { return getSegmentStartTemperature(currentSegmentIndex); }
     unsigned long getSegmentStartTemperature(int index) { return index == 0 ? 20 : originalCurve.elems[index - 1].endTemp; }
     float getHeatingSpeed() const;
-
+    float getDeltaTemp() const
+    {
+        return originalCurve.elems[currentSegmentIndex].endTemp - (currentSegmentIndex == 0 ? 20.0f : originalCurve.elems[currentSegmentIndex - 1].endTemp);
+    }
 private:
     int currentSegmentIndex = 0;
     Curve originalCurve;

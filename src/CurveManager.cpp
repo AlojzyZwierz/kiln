@@ -191,10 +191,10 @@ void CurveManager::adjustSkipTime(float deltaTemp, float deltaTime)
     */
 float CurveManager::getHeatingSpeed() const
 {
-    float deltaTemp = originalCurve.elems[currentSegmentIndex].endTemp - (currentSegmentIndex == 0 ? 20.0f : originalCurve.elems[currentSegmentIndex - 1].endTemp);
+    //float deltaTemp = originalCurve.elems[currentSegmentIndex].endTemp - (currentSegmentIndex == 0 ? 20.0f : originalCurve.elems[currentSegmentIndex - 1].endTemp);
 
     unsigned long deltaTime = originalCurve.elems[currentSegmentIndex].hTime;// - originalCurve.elems[currentSegmentIndex - 1].hTime;
     if (deltaTime == 0)
         return 0.0f;                             // Avoid division by zero
-    return deltaTemp / (deltaTime / 3600000.0f); // Convert milliseconds to hours
+    return getDeltaTemp() / (deltaTime / 3600000.0f); // Convert milliseconds to hours
 }

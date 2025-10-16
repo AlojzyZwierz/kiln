@@ -107,7 +107,7 @@ void ProcessController::useSegment()
 void ProcessController::nextSegment()
 {   
   Utils::printMemoryInfo();
-    float lastA = segmentLine.a;
+    //float lastA = segmentLine.a;
     // Serial.println("current segment end time: " + String(curveManager->getAdjustedCurve().elems[curveManager->getSegmentIndex()].hTime) + " current time: " + String(millis()) + " segment index: " + String(curveManager->getSegmentIndex()) + " lastA: " + String(lastA) );
     if (!initialSegment || curveManager->isSkip())
         curveManager->updateAdjustedCurve(curveManager->getSegmentIndex(), millis() - segmentStartTime);
@@ -125,12 +125,14 @@ void ProcessController::nextSegment()
         ResumeManager::clear();
     }
 
+    float previousA = curveManager->isSkipUp() == false ? segmentLine.a : curveManager->getDeltaTemp() / (millis() - segmentStartTime);
     // currentSegmentIndex++;
     curveManager->nextSegment(); //
     useSegment();
         //if (lastA > segmentLine.a ||  curveManager->getOriginalCurve().elems[curveManager->getSegmentIndex() -1].skip == 1 )
-    ratio =  getCurrentTemp()/1300.0f;
-    lastPidCheckTime = millis() -  SettingsManager::get().getSettings().pidIntervalMs + 5000; // szybka reakcja PID po zmianie segmentu
+    float kt = 0.0002f;
+    ratio *=  (segmentLine.a + kt) /( (previousA + kt) <= 0 ? 0.00001f : (previousA + kt)) ; // korekta mocy grzania przy zmianie nachylenia
+    //lastPidCheckTime = millis() -  SettingsManager::get().getSettings().pidIntervalMs + 5000; // szybka reakcja PID po zmianie segmentu
     SoundManager::beep(1000, 100); // sygnał zmiany segmentu
 }
 
@@ -292,9 +294,9 @@ float ProcessController::getCurrentTemp()
 }
 bool ProcessController::IsHeatingStuckDuringSkipMode()
 {
-    if (curveManager->isSkip() == false)
+    if (curveManager->isSkipUp() == false)
     {
-        return false; // Nie jesteśmy w trybie skip, więc nie ma problemu
+        return false; // Nie jest w trybie skip up, więc nie ma ryzyka utknięcia
     }
 
     if (temperatureSensor->getTemperature() > maxSkipTemp)
