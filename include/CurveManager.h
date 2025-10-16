@@ -75,6 +75,10 @@ public:
     {
         return currentSegmentIndex + 1 < curveElemsNo && originalCurve.elems[currentSegmentIndex + 1].hTime != 0;
     }
+    bool hasPreviousSegment() const
+    {
+        return currentSegmentIndex > 0;
+    }
     void nextSegment()
     {
         if (hasNextSegment())

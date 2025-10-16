@@ -43,7 +43,7 @@ void ProcessController::startFiring()
     ResumeManager::saveCurveIndex(curveManager->getcurrentCurveIndex());
     // Serial.println("Starting process with curve index: " + String(curveManager->getcurrentCurveIndex()));    
     MeasurementManager::get().clear();
-    MeasurementManager::get().addMeasurement();
+    //MeasurementManager::get().addMeasurement();
     MeasurementManager::get().setMeasurementInterval(150000);
     useSegment();
     
