@@ -325,23 +325,24 @@ void GUIRenderer::setupUIFormodes(SystemMode mode)
 
         holdButton.setCallback([&]()
                                {
-                                      if(curveManager.getSegmentIndex() >0){
+                                      if(curveManager.getSegmentIndex() >0 && !curveManager.isSkip()) {
+                                          curveManager.setSkip( curveManager.getSegmentIndex(), 0);
                                         curveManager.updateTemperature(curveManager.getSegmentIndex(), curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex() - 1].endTemp);
                                       } });
         skipButton.setCallback([&]()
                                {
-            if (curveManager.getSegmentIndex() + 1 < curveElemsNo)
+            if (curveManager.getSegmentIndex() + 1 < curveElemsNo && curveManager.hasPreviousSegment() && curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex() - 1].endTemp != curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex() ].endTemp)
             {
                 if (curveManager.getSegmentIndex() == 0 || curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex() - 1].endTemp < curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex()].endTemp)
                 {
                     curveManager.setSkip(curveManager.getSegmentIndex(), 1); 
                 }
-                    else
+                else
                     {
                         curveManager.setSkip(curveManager.getSegmentIndex(), 2); // Skip down
-                    }
-                
-            } });
+                    }               
+            } 
+        });
         break;
     case SystemMode::Firing:
         // infoButton.setVisible(true);

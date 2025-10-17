@@ -75,6 +75,10 @@ public:
     {
         return currentSegmentIndex + 1 < curveElemsNo && originalCurve.elems[currentSegmentIndex + 1].hTime != 0;
     }
+    bool hasPreviousSegment() const
+    {
+        return currentSegmentIndex > 0;
+    }
     void nextSegment()
     {
         if (hasNextSegment())
@@ -116,7 +120,10 @@ public:
     unsigned long getSegmentStartTemperature() { return getSegmentStartTemperature(currentSegmentIndex); }
     unsigned long getSegmentStartTemperature(int index) { return index == 0 ? 20 : originalCurve.elems[index - 1].endTemp; }
     float getHeatingSpeed() const;
-
+    float getDeltaTemp() const
+    {
+        return originalCurve.elems[currentSegmentIndex].endTemp - (currentSegmentIndex == 0 ? 20.0f : originalCurve.elems[currentSegmentIndex - 1].endTemp);
+    }
 private:
     int currentSegmentIndex = 0;
     Curve originalCurve;
