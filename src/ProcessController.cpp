@@ -219,7 +219,7 @@ void ProcessController::finishFiring()
 {
     stopFiring();
     SoundManager::playFanfare();
-    MeasurementManager::get().setMeasurementInterval(300000); // co 5 min podczas chłodzenia
+    MeasurementManager::get().setMeasurementInterval(400000); // co 5 min podczas chłodzenia
     if (onError)
         onError("finished successfully");
 }
