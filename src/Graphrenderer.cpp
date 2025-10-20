@@ -1,6 +1,7 @@
 #include "GraphRenderer.h"
 
-GraphRenderer::GraphRenderer(TFT_eSprite &tftSprite, CurveManager &cm, TemperatureSensor &ts) : sprite(tftSprite), curveManager(cm), temperatureSensor(ts) {}
+GraphRenderer::GraphRenderer(TFT_eSprite &tftSprite, CurveManager &cm, TemperatureSensor &ts) : sprite(tftSprite), curveManager(cm), temperatureSensor(ts), 
+      currentTempPosX(0), currentTempPosY(0) {}
 
 void GraphRenderer::render()
 {
@@ -149,7 +150,7 @@ void GraphRenderer::drawTimeLabels(unsigned long totalTime)
 void GraphRenderer::drawCurve(const Curve &curve)
 {
   float totalTime = 0;
-  float lastX = 0, lastY= 2;// = SystemState::get().getMode() == SystemMode::Firing ? (ProcessController::get().getProgramStartTemperature()) * tempRatio : 2;
+  float lastX = 0, lastY= 20 * tempRatio;// = SystemState::get().getMode() == SystemMode::Firing ? (ProcessController::get().getProgramStartTemperature()) * tempRatio : 2;
 
   for (int i = 0; i < 25; i++)
   {

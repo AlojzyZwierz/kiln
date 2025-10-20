@@ -125,7 +125,7 @@ void ProcessController::nextSegment()
         ResumeManager::clear();
     }
 
-    float previousA = curveManager->isSkipUp() == false ? segmentLine.a : curveManager->getDeltaTemp() / (millis() - segmentStartTime);
+    float previousA = curveManager->isSkip() == false ? segmentLine.a : curveManager->getDeltaTemp() / (millis() - segmentStartTime);
     // currentSegmentIndex++;
     curveManager->nextSegment(); //
     useSegment();
