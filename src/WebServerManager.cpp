@@ -111,6 +111,7 @@ String WebServerManager::generateSVG(const Curve &curIn)
   {
     svg += "<line x1=\"" + String((last.time + ProcessController::get().getStartTimeOffset() / 1000) * timeRatio * 1000) + "\" y1=\"" + String(1300 - last.temp) + "\" x2=\"" + String((millis() - ProcessController::get().getProgramStartTime() + ProcessController::get().getStartTimeOffset()) * timeRatio) + "\" y2=\"" + String(1300 - currentTemp) + "\" style=\"stroke:orange;stroke-width:2;\"></line>";
     // svg += "<text x=\"100\" y=\"100\" fill=\"black\" font-size=\"30\">" + String(ratio, 2) + "</text>";
+    svg += "<circle r=\"10\" cx=\"20\" cy=\"20\" fill=\"red\"></circle>";
   }
   svg += "<circle r=\"5\" cx=\"" + String((SystemState::get().getMode() == SystemMode::Firing && (MeasurementManager::get().getMeasurements().size() != 0)) ? ((millis() - ProcessController::get().getProgramStartTime() + ProcessController::get().getStartTimeOffset()) * timeRatio) : 5) + "\" cy=\"" + String(1300 - currentTemp) + "\" fill=\"red\"></circle>";
   svg += "<text x=\"40\" y=\"80\" fill=\"black\" font-size=\"70\">" + String((float)currentTemp, 1) + "</text>";

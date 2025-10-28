@@ -44,8 +44,8 @@ void TemperatureSensor::update()
     // Serial.print(">> tempProstoZMaxa: " + String(temp));
     lastErrorCode = thermocouple.readFault();
 
-    if (lastErrorCode == 0 && !isnan(temp) && 
-    ( abs(lastValidTemperature - temp) < 30.0f || lastValidTemperature == 0))
+    if (lastErrorCode == 0 && !isnan(temp) )//&& 
+   // ( abs(lastValidTemperature - temp) < 30.0f || lastValidTemperature == 0))
     {
         //lastValidTemperature = getTemperatureFromRawVoltage(getRawVoltage());
         lastValidTemperature=calcCorrectedTemp(temp);
