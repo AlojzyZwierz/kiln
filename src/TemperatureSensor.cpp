@@ -34,8 +34,8 @@ void TemperatureSensor::begin()
     } while (lastErrorCode != 0 || isnan(temp) || temp == 0.0f);
     //lastValidTemperature = temp;
     Serial.println("zzzz");
-    //lastValidTemperature = calcCorrectedTemp(thermocouple.readThermocoupleTemperature()); // Ustawiamy ostatnią poprawną temperaturę na temperaturę zimnego złącza
-    lastValidTemperature = temp;
+    lastValidTemperature = calcCorrectedTemp(temp); // Ustawiamy ostatnią poprawną temperaturę na temperaturę zimnego złącza
+    //lastValidTemperature = temp;
 }
 
 void TemperatureSensor::update()
@@ -48,8 +48,8 @@ void TemperatureSensor::update()
     ( abs(lastValidTemperature - temp) < 30.0f || lastValidTemperature == 0))
     {
         //lastValidTemperature = getTemperatureFromRawVoltage(getRawVoltage());
-        //lastValidTemperature=calcCorrectedTemp(temp);
-        lastValidTemperature = temp;
+        lastValidTemperature=calcCorrectedTemp(temp);
+        //lastValidTemperature = temp;
         errorCount = 0;
     }
     else
