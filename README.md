@@ -66,6 +66,8 @@ XPT2046_IRQ=36, XPT2046_MOSI=32, XPT2046_MISO=39, XPT2046_CLK=25, XPT2046_CS=33
 
 // Other
 SSR_PIN=16, BUZZERPIN=22
+```
+
 📋 Software Requirements
 Visual Studio Code with PlatformIO extension
 
