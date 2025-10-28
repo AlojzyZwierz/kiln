@@ -7,6 +7,8 @@
 
 An advanced, feature-rich controller for ceramic kilns built on ESP32-WROOM with touchscreen interface and web monitoring capabilities.
 
+example video: https://youtu.be/h-yMbZ_rmcI
+
 ## ⚠️ Safety Warning
 **This is a DIY project. Use at your own risk!** 
 Ceramic kilns can be dangerous and may cause fire, electric shock, or property damage. Always implement external safety measures and never leave the kiln unattended during operation. The author takes no responsibility for any damages or injuries.
