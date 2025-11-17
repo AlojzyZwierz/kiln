@@ -190,7 +190,7 @@ void GraphRenderer::drawCurve(const Curve &curve)
   }
   sprite.drawLine((int)lastX, 240 - (int)lastY, (int)320, 240 - (int)(20 * tempRatio), COLOR_COOLING_LINE);
   sprite.setTextDatum(BL_DATUM);
-  if (SystemState::get().getMode()==SystemMode::Firing) sprite.drawFastVLine((ProcessController::get().getStartTimeOffset() ) *timeRatio, 0,TFT_WIDTH,COLOR_RED_DOT );
+  //if (SystemState::get().getMode()==SystemMode::Firing) sprite.drawFastVLine((ProcessController::get().getStartTimeOffset() ) *timeRatio, 0,TFT_WIDTH,COLOR_RED_DOT );
 }
 
 void GraphRenderer::drawMeasurements(unsigned long totalTime)

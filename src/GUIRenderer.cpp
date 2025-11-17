@@ -20,10 +20,10 @@ GUIRenderer::GUIRenderer(
                             editButton("Edit", 220, 200, 60, 25, COLOR_BUTTON, COLOR_BLACK),
                             stopButton("Stop", 170, 200, 90, 25, COLOR_BUTTON, COLOR_BLACK),
                             graphRenderer(sprite, cm, temperatureSensor),
-                            temperatureLabel("Temperature", 25, 40, COLOR_BLACK, 2),
-                            curveIndexLabel("Curve Index", 25, 56, COLOR_BLACK, 1),
-                            expectedTempLabel("Expected Temp", 25, 75, COLOR_BLACK, 1),
-                            timeLabel("Time", 25, 70, COLOR_BLACK, 2),
+                            temperatureLabel("Temperature", 22, 40, COLOR_BLACK, 2),
+                            curveIndexLabel("Curve Index", 23, 56, COLOR_BLACK, 1),
+                            expectedTempLabel("Expected Temp", 23, 75, COLOR_BLACK, 1),
+                            timeLabel("Time", 23, 70, COLOR_BLACK, 2),
                             segmentIndexLabel("Segment Index", 5, 40, COLOR_BLACK, 1), // Dodajemy etykietę dla segmentu
                             editCircle(110, 90, 70, cm),                               // Dodajemy okrąg edycyjny
                             closeButton("X", 290, 13, 17, 20, COLOR_BUTTON, COLOR_BLACK),
@@ -159,11 +159,11 @@ void GUIRenderer::drawHeader()
     float temperature = SystemState::get().getMode() != SystemMode::Edit ? temperatureSensor.getTemperature() : curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex()].endTemp; // potrzebujesz takiej metody
     int curveIndex = curveSelector.getSelectedIndex();                                                                                                                                         // potrzebujesz takiej metody
 
-    temperatureLabel.setText(String(temperature, 1) + "'C");
+    temperatureLabel.setText(String((int)temperature) );
     String segInd = (SystemState::get().getMode() == SystemMode::Idle) ? " " : ("." + String(curveManager.getSegmentIndex() + 1));
     // Serial.println(curveManager.getSegmentIndex());
     curveIndexLabel.setText("prog #" + String(curveIndex) + segInd);
-    expectedTempLabel.setText((!curveManager.isSkip() ? "e:" + String(ProcessController::get().getExpectedTemp(), 1) + "'C" : " ")); // potrzebujesz takiej metody
+    expectedTempLabel.setText((!curveManager.isSkip() ? "e:" + String((int)ProcessController::get().getExpectedTemp())  : " ")); // potrzebujesz takiej metody
     // timeLabel.setText("Time: " + String(curveManager.getTotalTime()) + "s"); // potrzebujesz takiej metody
     segmentIndexLabel.setText(String(curveManager.getSegmentIndex() + 1));
     timeLabel.setText((curveManager.isSkip()) ? "skip" : (Utils::millisToHM(curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex()].hTime) + " (" + String((int)curveManager.getHeatingSpeed()) + ")")); // potrzebujesz takiej metody
