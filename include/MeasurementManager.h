@@ -31,11 +31,14 @@ public:
   void operator=(const MeasurementManager &) = delete;
   unsigned long getMeasurementInterval() const { return measurementInterval; }
   void setMeasurementInterval(unsigned long interval) { measurementInterval = interval; }
+  unsigned long getNextMeasurementTime() const { return nextMeasurementTime; }
+  void setNextMeasurementTime(unsigned long time) { nextMeasurementTime = time; }
 
 private:
   MeasurementManager() {}
   std::vector<Measurement> measurements;
   unsigned long measurementInterval = 150000;// 2.5 min
+  unsigned long nextMeasurementTime = 0;
 };
 
 #endif // MEASUREMENTMANAGER_H

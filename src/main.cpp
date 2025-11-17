@@ -48,7 +48,7 @@ unsigned long lastUpdateTime = 0;
 bool wasTouched = false;
 unsigned long lastTouchTime = 0;
 // MeasurementManager measurementManager;
-unsigned long nextMeasurementTime = 0;
+
 //unsigned long measurementInterval = 150000;//
 
 void setup()
@@ -122,9 +122,9 @@ void setup()
 TS_Point lastP;
 void loop()
 {
-  if (millis() > nextMeasurementTime && (SystemState::get().getMode() == SystemMode::Firing || SystemState::get().isCooling()))
+  if (millis() > MeasurementManager::get().getNextMeasurementTime() && (SystemState::get().getMode() == SystemMode::Firing || SystemState::get().isCooling()))
   {
-    nextMeasurementTime = millis() + MeasurementManager::get().getMeasurementInterval();
+    MeasurementManager::get().setNextMeasurementTime( millis() + MeasurementManager::get().getMeasurementInterval());
     MeasurementManager::get().addMeasurement();
   }
   if (SystemState::get().getMode() == SystemMode::Firing)
