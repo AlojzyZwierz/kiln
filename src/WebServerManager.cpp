@@ -71,15 +71,11 @@ String WebServerManager::generateSVG(const Curve &curIn)
       break;
     int X = (totalTime += curIn.elems[i].hTime) * timeRatio;
     int Y = curIn.elems[i].endTemp;
-    if ((curveManager.isSkip(i)))
-    {
-      svg += "<line x1=\"" + String(lastX) + "\" y1=\"" + String(1300 - lastY) + "\" x2=\"" + String(X) + "\" y2=\"" + String(1300 - Y) + "\" style=\"stroke:black;stroke-width:4; stroke-dasharray:10,5\" />";
-    }
-    else
-    {
-      svg += "<line x1=\"" + String(lastX) + "\" y1=\"" + String(1300 - lastY) + "\" x2=\"" + String(X) + "\" y2=\"" + String(1300 - Y) + "\" style=\"stroke:black;stroke-width:4\" />";
-    }
-    
+    bool prevIsDescending = i >0 && curIn.elems[i - 1].endTemp > Y ;
+   svg += "<text x=\"" + String(X - 50) + "\" y=\"" + String(1295 - Y) + "\" fill=\"black\" font-size=\"30\" " + 
+       (prevIsDescending ? "text-anchor=\"end\" dominant-baseline=\"text-before-edge\" " : "") +
+       (curveManager.isSkip(i) ? "stroke-dasharray=\"10,5\" " : "") + ">" + 
+       String(Y) + "</text>";
     if (lastY != Y)
       svg += "<text x=\"" + String(X - 50) + "\" y=\"" + String(1295 - Y) + "\" fill=\"black\" font-size=\"30\">" + String(Y) + "</text>";
     lastX = X;
@@ -111,7 +107,7 @@ String WebServerManager::generateSVG(const Curve &curIn)
   {
     svg += "<line x1=\"" + String((last.time + ProcessController::get().getStartTimeOffset() / 1000) * timeRatio * 1000) + "\" y1=\"" + String(1300 - last.temp) + "\" x2=\"" + String((millis() - ProcessController::get().getProgramStartTime() + ProcessController::get().getStartTimeOffset()) * timeRatio) + "\" y2=\"" + String(1300 - currentTemp) + "\" style=\"stroke:orange;stroke-width:2;\"></line>";
     // svg += "<text x=\"100\" y=\"100\" fill=\"black\" font-size=\"30\">" + String(ratio, 2) + "</text>";
-    svg += "<circle r=\"10\" cx=\"20\" cy=\"20\" fill=\"red\"></circle>";
+    svg += "<circle r=\"15\" cx=\"25\" cy=\"25\" fill=\"red\"></circle>"; // wskaźnik, że piec jest w trybie grzania
   }
   svg += "<circle r=\"5\" cx=\"" + String((SystemState::get().getMode() == SystemMode::Firing && (MeasurementManager::get().getMeasurements().size() != 0)) ? ((millis() - ProcessController::get().getProgramStartTime() + ProcessController::get().getStartTimeOffset()) * timeRatio) : 5) + "\" cy=\"" + String(1300 - currentTemp) + "\" fill=\"red\"></circle>";
   svg += "<text x=\"40\" y=\"80\" fill=\"black\" font-size=\"70\">" + String((float)currentTemp, 1) + "</text>";

@@ -43,7 +43,6 @@ void ProcessController::startFiring()
     ResumeManager::saveCurveIndex(curveManager->getcurrentCurveIndex());
     // Serial.println("Starting process with curve index: " + String(curveManager->getcurrentCurveIndex()));    
     MeasurementManager::get().clear();
-    MeasurementManager::get().setNextMeasurementTime( millis() + MeasurementManager::get().getMeasurementInterval());
     //MeasurementManager::get().addMeasurement();
     MeasurementManager::get().setMeasurementInterval(150000);
     useSegment();
@@ -132,7 +131,7 @@ void ProcessController::nextSegment()
     useSegment();
         //if (lastA > segmentLine.a ||  curveManager->getOriginalCurve().elems[curveManager->getSegmentIndex() -1].skip == 1 )
     float kt = 0.0002f;
-    ratio *=  1.36f * (segmentLine.a + kt) /max((previousA + kt), 0.00022f); // korekta mocy grzania przy zmianie nachylenia
+    ratio *=  1.35f * (segmentLine.a + kt) /max((previousA + kt), 0.00022f); // korekta mocy grzania przy zmianie nachylenia
     //lastPidCheckTime = millis() -  SettingsManager::get().getSettings().pidIntervalMs + 5000; // szybka reakcja PID po zmianie segmentu
     SoundManager::beep(1000, 100); // sygnał zmiany segmentu
 }
@@ -172,7 +171,7 @@ void ProcessController::applyPID()
     if (curveManager->isSkip())
     {
         // Serial.println("Segment time is 0, skipping PID application.");
-        if (curveManager->getSegmentTemp() < getCurrentTemp())
+        if (curveManager->isSkipDown())
         {
             setHeaterPower(0);
         }
