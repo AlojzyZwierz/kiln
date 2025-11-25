@@ -72,12 +72,15 @@ String WebServerManager::generateSVG(const Curve &curIn)
     int X = (totalTime += curIn.elems[i].hTime) * timeRatio;
     int Y = curIn.elems[i].endTemp;
     bool prevIsDescending = i >0 && curIn.elems[i - 1].endTemp > Y ;
-   svg += "<text x=\"" + String(X - 50) + "\" y=\"" + String(1295 - Y) + "\" fill=\"black\" font-size=\"30\" " + 
+
+    svg += "<line x1=\"" + String(lastX) + "\" y1=\"" + String(1300 - lastY) + "\" x2=\"" + String(X) + "\" y2=\"" + String(1300 - Y) + "\" style=\"stroke:black;stroke-width:4;" + curveManager.isSkip(i) ? "stroke-dasharray:10,5\"/>":"\"/>";
+
+   if (lastY != Y) svg += "<text x=\"" + String(X - 50) + "\" y=\"" + String(1295 - Y) + "\" fill=\"black\" font-size=\"30\" " + 
        (prevIsDescending ? "text-anchor=\"end\" dominant-baseline=\"text-before-edge\" " : "") +
        (curveManager.isSkip(i) ? "stroke-dasharray=\"10,5\" " : "") + ">" + 
        String(Y) + "</text>";
-    if (lastY != Y)
-      svg += "<text x=\"" + String(X - 50) + "\" y=\"" + String(1295 - Y) + "\" fill=\"black\" font-size=\"30\">" + String(Y) + "</text>";
+    
+     // svg += "<text x=\"" + String(X - 50) + "\" y=\"" + String(1295 - Y) + "\" fill=\"black\" font-size=\"30\">" + String(Y) + "</text>";
     lastX = X;
     lastY = Y;
     i++;
