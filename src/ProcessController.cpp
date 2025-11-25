@@ -131,7 +131,7 @@ void ProcessController::nextSegment()
     useSegment();
         //if (lastA > segmentLine.a ||  curveManager->getOriginalCurve().elems[curveManager->getSegmentIndex() -1].skip == 1 )
     float kt = 0.0002f;
-    ratio *=  1.35f * (segmentLine.a + kt) /max((previousA + kt), 0.00022f); // korekta mocy grzania przy zmianie nachylenia
+    ratio *=  1.45f * (segmentLine.a + kt) /max((previousA + kt), 0.00022f); // korekta mocy grzania przy zmianie nachylenia
     //lastPidCheckTime = millis() -  SettingsManager::get().getSettings().pidIntervalMs + 5000; // szybka reakcja PID po zmianie segmentu
     SoundManager::beep(1000, 100); // sygnał zmiany segmentu
 }

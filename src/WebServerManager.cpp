@@ -34,7 +34,7 @@ String WebServerManager::generateSVG(const Curve &curIn)
 
     if (curIn.elems[i].hTime == 0)
       break;
- 
+
     totalTime += curIn.elems[i].hTime;
   }
 
@@ -71,16 +71,16 @@ String WebServerManager::generateSVG(const Curve &curIn)
       break;
     int X = (totalTime += curIn.elems[i].hTime) * timeRatio;
     int Y = curIn.elems[i].endTemp;
-    bool prevIsDescending = i >0 && curIn.elems[i - 1].endTemp > Y ;
+    bool prevIsDescending = i > 0 && curIn.elems[i - 1].endTemp > Y;
 
-    svg += "<line x1=\"" + String(lastX) + "\" y1=\"" + String(1300 - lastY) + "\" x2=\"" + String(X) + "\" y2=\"" + String(1300 - Y) + "\" style=\"stroke:black;stroke-width:4;" + curveManager.isSkip(i) ? "stroke-dasharray:10,5\"/>":"\"/>";
+    svg += "<line x1=\"" + String(lastX) + "\" y1=\"" + String(1300 - lastY) + "\" x2=\"" + String(X) + "\" y2=\"" + String(1300 - Y) + "\" style=\"stroke:black;stroke-width:4;" + curveManager.isSkip(i) ? "stroke-dasharray:10,5\"/>" : "\"/>";
 
-   if (lastY != Y) svg += "<text x=\"" + String(X - 50) + "\" y=\"" + String(1295 - Y) + "\" fill=\"black\" font-size=\"30\" " + 
-       (prevIsDescending ? "text-anchor=\"end\" dominant-baseline=\"text-before-edge\" " : "") +
-       (curveManager.isSkip(i) ? "stroke-dasharray=\"10,5\" " : "") + ">" + 
-       String(Y) + "</text>";
-    
-     // svg += "<text x=\"" + String(X - 50) + "\" y=\"" + String(1295 - Y) + "\" fill=\"black\" font-size=\"30\">" + String(Y) + "</text>";
+    if (lastY != Y)
+      svg += "<text x=\"" + String(X - 50) + "\" y=\"" + String(1295 - Y) + "\" fill=\"black\" font-size=\"30\" " +
+             (prevIsDescending ? "text-anchor=\"end\" dominant-baseline=\"text-before-edge\" " : "") + ">" +
+             String(Y) + "</text>";
+
+    // svg += "<text x=\"" + String(X - 50) + "\" y=\"" + String(1295 - Y) + "\" fill=\"black\" font-size=\"30\">" + String(Y) + "</text>";
     lastX = X;
     lastY = Y;
     i++;
@@ -90,29 +90,33 @@ String WebServerManager::generateSVG(const Curve &curIn)
   svg += "<text x=\"" + String((SystemState::get().getMode() == SystemMode::Firing) ? ((millis() - ProcessController::get().getProgramStartTime() + ProcessController::get().getStartTimeOffset()) * timeRatio + 5) : 10) + "\" y=\"" + String((1300 - currentTemp) + 20) + "\" fill=\"black\" font-size=\"30\">" + String((float)currentTemp, 1) + "</text>";
 
   // The HTTP response ends with another blank line
-  i = 0;
-  Measurement last(ProcessController::get().getStartTimeOffset(), ProcessController::get().getProgramStartTemperature());
-  for (const Measurement &m : MeasurementManager::get().getMeasurements())
+  if (MeasurementManager::get().getMeasurements().size() > 0)
   {
 
-    if (i != 0)
+    i = 0;
+    Measurement last(ProcessController::get().getStartTimeOffset(), ProcessController::get().getProgramStartTemperature());
+    for (const Measurement &m : MeasurementManager::get().getMeasurements())
     {
-      svg += "<line x1=\"" + String((last.time + ProcessController::get().getStartTimeOffset() / 1000) * timeRatio * 1000) + "\" y1=\"" + String(1300 - last.temp) + "\" x2=\"" + String((m.time + ProcessController::get().getStartTimeOffset() / 1000) * timeRatio * 1000) + "\" y2=\"" + String(1300 - m.temp) + "\" style=\"stroke:orange;stroke-width:2;\"></line>";
-      // svg += "<line x1=\"100\" y1=\"100\" x2=\"" + String(m.time * timeRatio) + "\" y2=\"" + String(1300 - m.temp / 100) + "\" style=\"stroke:\"orange\";stroke-width:2\" stroke-linecap=\"round\"/>";
 
-      svg += "<circle r=\"2\" cx=\"" + String((m.time + ProcessController::get().getStartTimeOffset() / 1000) * timeRatio * 1000) + "\" cy=\"" + String(1300 - m.temp) + "\" fill=\"red\"></circle>";
+      if (i != 0)
+      {
+        svg += "<line x1=\"" + String((last.time + ProcessController::get().getStartTimeOffset() / 1000) * timeRatio * 1000) + "\" y1=\"" + String(1300 - last.temp) + "\" x2=\"" + String((m.time + ProcessController::get().getStartTimeOffset() / 1000) * timeRatio * 1000) + "\" y2=\"" + String(1300 - m.temp) + "\" style=\"stroke:orange;stroke-width:2;\"></line>";
+        // svg += "<line x1=\"100\" y1=\"100\" x2=\"" + String(m.time * timeRatio) + "\" y2=\"" + String(1300 - m.temp / 100) + "\" style=\"stroke:\"orange\";stroke-width:2\" stroke-linecap=\"round\"/>";
+
+        svg += "<circle r=\"2\" cx=\"" + String((m.time + ProcessController::get().getStartTimeOffset() / 1000) * timeRatio * 1000) + "\" cy=\"" + String(1300 - m.temp) + "\" fill=\"red\"></circle>";
+      }
+      last = m;
+      i++;
+      // svg += "<circle r=\"4\" cx=\""+ String((totalTime + millis() - startTime)/timeRatio)+ "\" cy=\""+ String(1300 - currentTemp/100)+ "\" fill=\"yellow\" />";
     }
-    last = m;
-    i++;
-    // svg += "<circle r=\"4\" cx=\""+ String((totalTime + millis() - startTime)/timeRatio)+ "\" cy=\""+ String(1300 - currentTemp/100)+ "\" fill=\"yellow\" />";
+    if (SystemState::get().getMode() == SystemMode::Firing)
+    {
+      svg += "<line x1=\"" + String((last.time + ProcessController::get().getStartTimeOffset() / 1000) * timeRatio * 1000) + "\" y1=\"" + String(1300 - last.temp) + "\" x2=\"" + String((millis() - ProcessController::get().getProgramStartTime() + ProcessController::get().getStartTimeOffset()) * timeRatio) + "\" y2=\"" + String(1300 - currentTemp) + "\" style=\"stroke:orange;stroke-width:2;\"></line>";
+      // svg += "<text x=\"100\" y=\"100\" fill=\"black\" font-size=\"30\">" + String(ratio, 2) + "</text>";
+      svg += "<circle r=\"15\" cx=\"25\" cy=\"25\" fill=\"red\"></circle>"; // wskaźnik, że piec jest w trybie grzania
+    }
+    svg += "<circle r=\"5\" cx=\"" + String((SystemState::get().getMode() == SystemMode::Firing && (MeasurementManager::get().getMeasurements().size() != 0)) ? ((millis() - ProcessController::get().getProgramStartTime() + ProcessController::get().getStartTimeOffset()) * timeRatio) : 5) + "\" cy=\"" + String(1300 - currentTemp) + "\" fill=\"red\"></circle>";
   }
-  if (SystemState::get().getMode() == SystemMode::Firing)
-  {
-    svg += "<line x1=\"" + String((last.time + ProcessController::get().getStartTimeOffset() / 1000) * timeRatio * 1000) + "\" y1=\"" + String(1300 - last.temp) + "\" x2=\"" + String((millis() - ProcessController::get().getProgramStartTime() + ProcessController::get().getStartTimeOffset()) * timeRatio) + "\" y2=\"" + String(1300 - currentTemp) + "\" style=\"stroke:orange;stroke-width:2;\"></line>";
-    // svg += "<text x=\"100\" y=\"100\" fill=\"black\" font-size=\"30\">" + String(ratio, 2) + "</text>";
-    svg += "<circle r=\"15\" cx=\"25\" cy=\"25\" fill=\"red\"></circle>"; // wskaźnik, że piec jest w trybie grzania
-  }
-  svg += "<circle r=\"5\" cx=\"" + String((SystemState::get().getMode() == SystemMode::Firing && (MeasurementManager::get().getMeasurements().size() != 0)) ? ((millis() - ProcessController::get().getProgramStartTime() + ProcessController::get().getStartTimeOffset()) * timeRatio) : 5) + "\" cy=\"" + String(1300 - currentTemp) + "\" fill=\"red\"></circle>";
   svg += "<text x=\"40\" y=\"80\" fill=\"black\" font-size=\"70\">" + String((float)currentTemp, 1) + "</text>";
   svg += "<text x=\"40\" y=\"125\" fill=\"black\" font-size=\"40\">" + String(curveManager.getcurrentCurveIndex()) + " " + String(curveManager.getSegmentIndex() + 1) + "</text>";
   svg += "</svg></div></body></html>";
