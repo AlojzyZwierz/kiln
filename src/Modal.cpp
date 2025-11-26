@@ -7,7 +7,7 @@ Modal::Modal()
       plusButton("+", 140, 60, 40, 40),
       minusButton("-", 140, 170, 40, 40),
       valueLabel("0", 110, 135, COLOR_BLACK, 2),
-      entryNameLabel("XXX", 125, 165, COLOR_BLACK, 1),
+      entryNameLabel("XXX", 80, 165, COLOR_BLACK, 1),
       ipLabel("IP:", 180, 210, COLOR_BLACK, 1),
       cjTempLabel("CJ:", 190, 190, COLOR_BLACK, 1),
       cancelButton("Cancel", 140, 180, 65, 30),

@@ -33,11 +33,19 @@ public:
   void setMeasurementInterval(unsigned long interval) { measurementInterval = interval; }
   unsigned long getNextMeasurementTime() const { return nextMeasurementTime; }
   void setNextMeasurementTime(unsigned long time) { nextMeasurementTime = time; }
+  void addScheduledMeasurement()
+  {
+    if (millis() > nextMeasurementTime && (SystemState::get().getMode() == SystemMode::Firing || SystemState::get().isCooling()))
+    {
+      // MeasurementManager::get().setNextMeasurementTime( millis() + MeasurementManager::get().getMeasurementInterval());
+      MeasurementManager::get().addMeasurement();
+    }
+  }
 
 private:
   MeasurementManager() {}
   std::vector<Measurement> measurements;
-  unsigned long measurementInterval = 150000;// 2.5 min
+  unsigned long measurementInterval = 150000; // 2.5 min
   unsigned long nextMeasurementTime = 0;
 };
 

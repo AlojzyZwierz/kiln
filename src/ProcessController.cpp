@@ -45,6 +45,7 @@ void ProcessController::startFiring()
     MeasurementManager::get().clear();
     //MeasurementManager::get().addMeasurement();
     MeasurementManager::get().setMeasurementInterval(150000);
+    MeasurementManager::get().setNextMeasurementTime(millis() + MeasurementManager::get().getMeasurementInterval());
     useSegment();
     
 

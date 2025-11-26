@@ -122,11 +122,13 @@ void setup()
 TS_Point lastP;
 void loop()
 {
+  MeasurementManager::get().addScheduledMeasurement();
+  /*
   if (millis() > MeasurementManager::get().getNextMeasurementTime() && (SystemState::get().getMode() == SystemMode::Firing || SystemState::get().isCooling()))
   {
-    MeasurementManager::get().setNextMeasurementTime( millis() + MeasurementManager::get().getMeasurementInterval());
+    //MeasurementManager::get().setNextMeasurementTime( millis() + MeasurementManager::get().getMeasurementInterval());
     MeasurementManager::get().addMeasurement();
-  }
+  }*/
   if (SystemState::get().getMode() == SystemMode::Firing)
   {
     ProcessController::get().applyPID();
