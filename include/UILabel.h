@@ -24,6 +24,11 @@ public:
         tft.setCursor(posX, posY);
         tft.print(text);
     }
+    int getWidth(TFT_eSprite &tft)
+    {
+        tft.setTextSize(textSize);
+        return tft.textWidth(text);
+    }
 
 private:
     String text;
