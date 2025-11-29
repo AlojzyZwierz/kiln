@@ -124,6 +124,8 @@ public:
     {
         return originalCurve.elems[currentSegmentIndex].endTemp - (currentSegmentIndex == 0 ? 20.0f : originalCurve.elems[currentSegmentIndex - 1].endTemp);
     }
+    int getcurveElemsNo() const { return curveElemsNo; }
+
 private:
     int currentSegmentIndex = 0;
     Curve originalCurve;

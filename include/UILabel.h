@@ -27,7 +27,9 @@ public:
     int getWidth(TFT_eSprite &tft)
     {
         tft.setTextSize(textSize);
-        return tft.textWidth(text);
+        int width = tft.textWidth(text);
+        Serial.println("UILabel::getWidth() called: " + String(width));
+        return width;
     }
 
 private:

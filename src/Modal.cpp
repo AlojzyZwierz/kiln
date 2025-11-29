@@ -94,7 +94,7 @@ void Modal::render(TFT_eSprite &sprite)
     expectedTempLabel.setText(String(ProcessController::get().getExpectedTemp()));
     // currentTempLabel.setText(String(ProcessController::get().getCurrentTemp()));
     currentTempLabel.setText(String(ProcessController::get().getCurrentTemp()));
-    entryNameLabel.setPosition(sprite.width()/2 - entryNameLabel.getWidth(sprite)/2, 80);
+    entryNameLabel.setPosition(sprite.width()/2 - entryNameLabel.getWidth(sprite)/2, 165);
     
     //Serial.println(String(ProcessController::get().getCurrentTemp()) + " " + String(tcVoltage));
 

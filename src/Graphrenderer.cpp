@@ -72,28 +72,7 @@ void GraphRenderer::drawThickLine(TFT_eSprite &tft, int x0, int y0, int x1, int 
   sprite.fillTriangle(x0a, y0a, x0b, y0b, x1b, y1b, color);
 }
 
-void GraphRenderer::drawLineWithThickness(TFT_eSprite &tftSprite, int x0, int y0, int x1, int y1, uint16_t color, int thickness)
-{
-  // Oblicz różnice
-  float dx = x1 - x0;
-  float dy = y1 - y0;
-  float length = sqrt(dx * dx + dy * dy);
 
-  if (length == 0)
-    return; // punkt, nie linia
-
-  // Oblicz wektor normalny (prostopadły)
-  float nx = -dy / length;
-  float ny = dx / length;
-
-  // Rysuj linie równoległe do oryginału, przesunięte wzdłuż normalnej
-  for (int i = -thickness / 2; i <= thickness / 2; ++i)
-  {
-    int ox = round(nx * i);
-    int oy = round(ny * i);
-    sprite.drawLine(x0 + ox, y0 + oy, x1 + ox, y1 + oy, color);
-  }
-}
 
 unsigned long GraphRenderer::calculateTotalTime(const Curve &curve)
 {
@@ -152,7 +131,7 @@ void GraphRenderer::drawCurve(const Curve &curve)
   float totalTime = 0;
   float lastX = 0, lastY= 20 * tempRatio;// = SystemState::get().getMode() == SystemMode::Firing ? (ProcessController::get().getProgramStartTemperature()) * tempRatio : 2;
 
-  for (int i = 0; i < 25; i++)
+  for (int i = 0; i < curveManager.getcurveElemsNo(); i++)
   {
     if (curve.elems[i].hTime == 0)
       break;
@@ -181,7 +160,23 @@ void GraphRenderer::drawCurve(const Curve &curve)
         sprite.setTextColor(color);
       sprite.setFreeFont(FONT_SMALL);
       sprite.setTextSize(0.4);
-      sprite.setTextDatum(TL_DATUM);
+      bool isDescending = (i>0 && curve.elems[i].endTemp < curve.elems[i-1].endTemp);
+      bool isLabelTooCloseToLast = (abs(y - lastY) < 15 && abs(x - lastX) < 30);
+      if (isDescending )
+      {
+        sprite.setTextDatum(BL_DATUM);
+        if(isLabelTooCloseToLast){
+          sprite.setTextDatum(TR_DATUM);
+        }
+      }
+      else{
+        sprite.setTextDatum(BR_DATUM);
+        if(isLabelTooCloseToLast|| y>210){
+          sprite.setTextDatum(TL_DATUM);
+        }
+      }
+      
+      
       sprite.drawString(String(curve.elems[i].endTemp, 0), x + 3, 240 - y + 2);
     }
     sprite.setTextColor(COLOR_BLACK);
