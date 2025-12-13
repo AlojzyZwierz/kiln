@@ -40,14 +40,17 @@ void ProcessController::startFiring()
     heating->setCycleTime(SettingsManager::get().getSettings().heatingCycleMs);
     // heating->setEnabled(true);
     heating->setRatio(ratio);
+
+    
+
     ResumeManager::saveCurveIndex(curveManager->getcurrentCurveIndex());
     // Serial.println("Starting process with curve index: " + String(curveManager->getcurrentCurveIndex()));    
     MeasurementManager::get().clear();
     //MeasurementManager::get().addMeasurement();
     MeasurementManager::get().setMeasurementInterval(150000);
     MeasurementManager::get().setNextMeasurementTime(millis() + MeasurementManager::get().getMeasurementInterval());
-    useSegment();
     
+    useSegment();
 
     // Serial.println("Process started with segment index: " + String(curveManager->getSegmentIndex()));
 }

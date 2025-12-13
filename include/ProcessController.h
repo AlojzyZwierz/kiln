@@ -109,7 +109,7 @@ private:
     void finishFiring();
     uint8_t determineStartSegment();
     bool IsHeatingStuckDuringSkipMode();
-    unsigned long startTimeOffset;
-    bool initialSegment;
+    unsigned long startTimeOffset = 0;
+    bool initialSegment ;
     unsigned long initialSkipTime = 0;
 };
