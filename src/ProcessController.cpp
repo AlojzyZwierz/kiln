@@ -83,7 +83,7 @@ void ProcessController::useSegment()
     initialSkipTime = 0;
     segmentStartTime = millis();
     segmentEndTime = segmentStartTime + curveManager->getSegmentTime();
-
+    Serial.println("SsT: " + String(segmentStartTime) + " SeT: " + String(segmentEndTime) + " curT: " + String(getCurrentTemp()) + " segTime: " + String(curveManager->getSegmentTime()));
     startTemp = curveManager->getSegmentStartTemperature();
     if (curveManager->isSkip())
     {
@@ -93,14 +93,20 @@ void ProcessController::useSegment()
         return;
     }
     segmentLine = Line(segmentStartTime, startTemp, segmentEndTime, curveManager->getSegmentTemp());
+    Serial.println("Segment line: a=" + String(segmentLine.a) + " b=" + String(segmentLine.b));
     if (initialSegment && abs(segmentLine.a) > epsilon)
     {
         unsigned long remainingTime = (segmentEndTime - segmentLine.x(getCurrentTemp()));
+        Serial.println("Initial segment adjustment. Remaining time: " + String(remainingTime));
         segmentEndTime = remainingTime + millis();
+        Serial.println("Adjusted segment end time: " + String(segmentEndTime));
         startTemp = getCurrentTemp();
+        Serial.println("Adjusted start temp: " + String(startTemp));
         // curveManager->updateAdjustedCurve(curveManager->getSegmentIndex(),remainingTime);
         segmentLine = Line(segmentStartTime, startTemp, segmentEndTime, curveManager->getSegmentTemp());
+        Serial.println("Adjusted Segment line: a=" + String(segmentLine.a) + " b=" + String(segmentLine.b));
         startTimeOffset += curveManager->getSegmentTime() - remainingTime;
+        Serial.println("START TIME OFFSET: " + String(startTimeOffset));
         //  Serial.println(" use segment " + String(startTimeOffset) + " remainT " + String(remainingTime));
     }
 }
