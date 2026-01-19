@@ -16,7 +16,7 @@ void EnergyUsageMeter::stopMeasurement()
     {
         totalHeatingTimeMs += (now - heatingStartTime);
         heatingStartTime = 0;
-        isCounting = false;
+        //isCounting = false;
     }
     isCounting = false;
     // Serial.println("Stopping energy measurement at: " + String(now) + ", total heating time: " + String(totalHeatingTimeMs) + " ms");
