@@ -13,7 +13,7 @@ void ProcessController::begin(CurveManager &cm, TemperatureSensor &sensor, Heati
 
 void ProcessController::startFiring()
 {
-    Serial.println("Starting firing process...");
+    Serial.println("=== START FIRING - startTimeOffset BEFORE: " + String(startTimeOffset));    
     euMeter->reset();
 
     if (SystemState::get().getMode() == SystemMode::Firing)
@@ -22,7 +22,7 @@ void ProcessController::startFiring()
     // Serial.println("System mode set to: " + String(static_cast<int>(SystemState::get().getMode())));
     programStartTemperature = getCurrentTemp();
     programStartTime = millis();
-    startTimeOffset = 0;
+    //startTimeOffset = 0;
     // curveManager = sourceCurveManager->clone();
     const Curve &curve = curveManager->getOriginalCurve();
     initialSegment = true;
@@ -40,9 +40,6 @@ void ProcessController::startFiring()
     heating->setCycleTime(SettingsManager::get().getSettings().heatingCycleMs);
     // heating->setEnabled(true);
     heating->setRatio(ratio);
-
-    
-
     ResumeManager::saveCurveIndex(curveManager->getcurrentCurveIndex());
     // Serial.println("Starting process with curve index: " + String(curveManager->getcurrentCurveIndex()));    
     MeasurementManager::get().clear();
@@ -96,10 +93,10 @@ void ProcessController::useSegment()
         return;
     }
     segmentLine = Line(segmentStartTime, startTemp, segmentEndTime, curveManager->getSegmentTemp());
-    Serial.println("Segment line: a=" + String(segmentLine.a) + " b=" + String(segmentLine.b));
+    Serial.println("Segment line: a=" + String(segmentLine.a,6) + " b=" + String(segmentLine.b));
     if (initialSegment && abs(segmentLine.a) > epsilon)
     {
-        unsigned long remainingTime = (segmentEndTime - segmentLine.x(getCurrentTemp()));
+        unsigned long remainingTime = (segmentEndTime - segmentLine.x(getCurrentTemp()<20?20:getCurrentTemp()));
         Serial.println("Initial segment adjustment. Remaining time: " + String(remainingTime));
         segmentEndTime = remainingTime + millis();
         Serial.println("Adjusted segment end time: " + String(segmentEndTime));
@@ -107,8 +104,9 @@ void ProcessController::useSegment()
         Serial.println("Adjusted start temp: " + String(startTemp));
         // curveManager->updateAdjustedCurve(curveManager->getSegmentIndex(),remainingTime);
         segmentLine = Line(segmentStartTime, startTemp, segmentEndTime, curveManager->getSegmentTemp());
-        Serial.println("Adjusted Segment line: a=" + String(segmentLine.a) + " b=" + String(segmentLine.b));
-        startTimeOffset += curveManager->getSegmentTime() - remainingTime;
+        Serial.println("Adjusted Segment line: a=" + String(segmentLine.a,6) + " b=" + String(segmentLine.b));
+        startTimeOffset += max((unsigned long)0, curveManager->getSegmentTime() - remainingTime);
+        //startTimeOffset +=  curveManager->getSegmentTime() - remainingTime;
         Serial.println("START TIME OFFSET: " + String(startTimeOffset));
         //  Serial.println(" use segment " + String(startTimeOffset) + " remainT " + String(remainingTime));
     }
@@ -148,18 +146,23 @@ void ProcessController::nextSegment()
 
 uint8_t ProcessController::determineStartSegment()
 {
+     Serial.println("=== DETERMINE - startTimeOffset BEFORE zeroing: " + String(startTimeOffset));
     startTimeOffset = 0;
-    // uint8_t elemWithCurrentTemp = 0;
+    Serial.println("=== DETERMINE - startTimeOffset AFTER zeroing: " + String(startTimeOffset));
+    
     for (int i = 0; i < curveElemsNo; i++)
     {
         if (curveManager->getOriginalCurve().elems[i].endTemp > getCurrentTemp())
         {
+            Serial.println("Determined start segment: " + String(i) + " for current temp: " + String(getCurrentTemp()) + " startTimeOffset: " + String(startTimeOffset));
             return i;
+
             break;
         }
         else
         {
             startTimeOffset += curveManager->getAdjustedCurve().elems[i].hTime;
+            Serial.println("DetSS: adding " + String(curveManager->getAdjustedCurve().elems[i].hTime) + " for segment " + String(i) + " total sTO: " + String(startTimeOffset));
             //  Serial.println("DetSS: sTO " + String(startTimeOffset));
         }
         if (curveManager->getOriginalCurve().elems[i].hTime == 0)

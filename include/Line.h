@@ -45,6 +45,6 @@ struct Line
     // Zwróć x dla podanego y
     unsigned long x(float y) const
     {
-        return (y - b) / a;
+        return a == 0 ? 0 : (y - b) / a;
     }
 };

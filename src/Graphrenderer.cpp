@@ -197,7 +197,7 @@ void GraphRenderer::drawMeasurements(unsigned long totalTime)
 
   // Przykład uproszczonego rysowania
 
-  float xScale = TFT_HEIGHT * activeGraphArea * 1000.0f / (totalTime);
+  float xScale = TFT_HEIGHT * activeGraphArea * 1000.0f / (totalTime + 1);
   float yScale = TFT_WIDTH / 1300.0f;
 
   // sprite.setFreeFont(FONT_SMALL);
@@ -211,7 +211,7 @@ void GraphRenderer::drawMeasurements(unsigned long totalTime)
     y2 = TFT_WIDTH - MeasurementManager::get().getMeasurements()[i].temp * yScale;
 
     sprite.drawLine(x1, y1, x2, y2, COLOR_RED_DOT);
-    // Serial.println("x1: " + String(x1) + " y1: " + String(y1) + " x2: " + String(x2) + " y2: " + String(y2) );
+   // Serial.println("x1: " + String(x1) + " y1: " + String(y1) + " x2: " + String(x2) + " y2: " + String(y2) + " time1: " + String(MeasurementManager::get().getMeasurements()[i - 1].time) + " time2: " + String(MeasurementManager::get().getMeasurements()[i].time) + " xscale: " + String(xScale) + " yscale: " + String(yScale) + " totalTime: " + String(totalTime));
     // sprite.fillCircle(x1, y1, 3, TFT_RED);
     // sprite.fillCircle(x2, y2, 3, TFT_RED);
   }
