@@ -93,7 +93,7 @@ Curve CurveManager::genCurveWithFakeSkips(Curve &curve)
             if (curve.elems[i].skip == 1)
             {
                 // y=0.045977x
-                modified.elems[i].hTime = (unsigned long)(0.065f * temperatureSpan  ) * 60000;
+                modified.elems[i].hTime = (unsigned long)(0.075f * temperatureSpan  ) * 60000;
             }
             else if (curve.elems[i].skip == 2)
             {
