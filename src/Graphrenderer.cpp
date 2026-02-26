@@ -6,7 +6,7 @@ GraphRenderer::GraphRenderer(TFT_eSprite &tftSprite, CurveManager &cm, Temperatu
 void GraphRenderer::render()
 {
 
-  unsigned long totalTime = calculateTotalTime(curveManager.getAdjustedCurve());
+  long totalTime = calculateTotalTime(curveManager.getAdjustedCurve());
   timeRatio = TFT_HEIGHT * activeGraphArea / totalTime;
   tempRatio = TFT_WIDTH / 1300.0f;
 
@@ -74,9 +74,9 @@ void GraphRenderer::drawThickLine(TFT_eSprite &tft, int x0, int y0, int x1, int 
 
 
 
-unsigned long GraphRenderer::calculateTotalTime(const Curve &curve)
+ long GraphRenderer::calculateTotalTime(const Curve &curve)
 {
-  unsigned long total = 0;
+   long total = 0;
   for (int i = 0; i < 25; i++)
   {
     if (curve.elems[i].hTime == 0)
@@ -86,7 +86,7 @@ unsigned long GraphRenderer::calculateTotalTime(const Curve &curve)
   return total;
 }
 
-void GraphRenderer::drawGrid(unsigned long totalTime)
+void GraphRenderer::drawGrid( long totalTime)
 {
   for (int i = 1; i <= 13; i++)
   {
@@ -113,7 +113,7 @@ void GraphRenderer::drawTempLabels()
   }
 }
 
-void GraphRenderer::drawTimeLabels(unsigned long totalTime)
+void GraphRenderer::drawTimeLabels( long totalTime)
 {
   for (int i = 1; i < (totalTime / 3600000) + 4; i++)
   {
@@ -188,7 +188,7 @@ void GraphRenderer::drawCurve(const Curve &curve)
   //if (SystemState::get().getMode()==SystemMode::Firing) sprite.drawFastVLine((ProcessController::get().getStartTimeOffset() ) *timeRatio, 0,TFT_WIDTH,COLOR_RED_DOT );
 }
 
-void GraphRenderer::drawMeasurements(unsigned long totalTime)
+void GraphRenderer::drawMeasurements( long totalTime)
 {
   // const auto& data = MeasurementManager::get().getMeasurements();
   // Serial.println("Measurements no: " + String(MeasurementManager::get().getMeasurements().size()));
@@ -204,14 +204,15 @@ void GraphRenderer::drawMeasurements(unsigned long totalTime)
   int x2 = 0;
   int y2 = 0;
   for (size_t i = 1; i < MeasurementManager::get().getMeasurements().size(); ++i)
-  {
-    int x1 = (MeasurementManager::get().getMeasurements()[i - 1].time +ProcessController::get().getStartTimeOffset()/1000)* xScale;
+  { 
+    long offset = max(ProcessController::get().getStartTimeOffset(),0L)/1000;
+    int x1 = (MeasurementManager::get().getMeasurements()[i - 1].time +offset)* xScale;
     int y1 = TFT_WIDTH - MeasurementManager::get().getMeasurements()[i - 1].temp * yScale;
-    x2 = (MeasurementManager::get().getMeasurements()[i].time + ProcessController::get().getStartTimeOffset()/1000)* xScale;
+    x2 = (MeasurementManager::get().getMeasurements()[i].time + offset)* xScale;
     y2 = TFT_WIDTH - MeasurementManager::get().getMeasurements()[i].temp * yScale;
 
     sprite.drawLine(x1, y1, x2, y2, COLOR_RED_DOT);
-    // Serial.println("x1: " + String(x1) + " y1: " + String(y1) + " x2: " + String(x2) + " y2: " + String(y2) );
+    //Serial.println("x1: " + String(x1) + " y1: " + String(y1) + " x2: " + String(x2) + " y2: " + String(y2) );
     // sprite.fillCircle(x1, y1, 3, TFT_RED);
     // sprite.fillCircle(x2, y2, 3, TFT_RED);
   }
@@ -221,7 +222,7 @@ void GraphRenderer::drawMeasurements(unsigned long totalTime)
   // Serial.println("_Measurements drawn: " + String(MeasurementManager::get().getMeasurements().size()));
 }
 
-void GraphRenderer::drawCurrentTempDot(float temp, unsigned long totalTime)
+void GraphRenderer::drawCurrentTempDot(float temp, long totalTime)
 {
   float xScale = TFT_HEIGHT * activeGraphArea / (totalTime);
   float yScale = TFT_WIDTH / 1300.0f;

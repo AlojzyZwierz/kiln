@@ -16,7 +16,7 @@ class GraphRenderer
 {
 public:
   GraphRenderer(TFT_eSprite &tftSprite, CurveManager &cm, TemperatureSensor &ts);
-  void drawMeasurements(unsigned long totalTime);
+  void drawMeasurements(long totalTime);
   // void render(const Curve& curve);
   void render();
   // void render(TFT_eSPI& display);
@@ -34,12 +34,12 @@ private:
   int currentTempPosX = 0;
   int currentTempPosY = 0;
 
-  unsigned long calculateTotalTime(const Curve &curve);
-  void drawGrid(unsigned long totalTime);
+  long calculateTotalTime(const Curve &curve);
+  void drawGrid( long totalTime);
   void drawCurve(const Curve &curve);
-  void drawTimeLabels(unsigned long totalTime);
+  void drawTimeLabels( long totalTime);
   void drawTempLabels();
-  void drawCurrentTempDot(float temp, unsigned long totalTime);
+  void drawCurrentTempDot(float temp,  long totalTime);
   void drawThickLine(TFT_eSprite &tft, int x0, int y0, int x1, int y1, uint16_t color, int thickness);
 };
 
