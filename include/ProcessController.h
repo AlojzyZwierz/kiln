@@ -59,7 +59,7 @@ public:
     float getRatio() { return ratio; }
     float getCurrentTemp();
     float getCJTemp();
-    unsigned long getStartTimeOffset()
+    long getStartTimeOffset()
     {
         // Serial.println("startTimeOffset: " + String(startTimeOffset));
         return startTimeOffset + ProcessController::get().getInitialSkipTime();
@@ -111,5 +111,5 @@ private:
     bool IsHeatingStuckDuringSkipMode();
     long startTimeOffset = 0;
     bool initialSegment ;
-    unsigned long initialSkipTime = 0;
+    long initialSkipTime = 0;
 };

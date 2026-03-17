@@ -98,13 +98,13 @@ void ProcessController::useSegment()
     segmentLine = Line(segmentStartTime, startTemp, segmentEndTime, curveManager->getSegmentTemp());
     if (initialSegment && abs(segmentLine.a) > epsilon)
     {
-        unsigned long remainingTime = (segmentEndTime - segmentLine.x(getCurrentTemp()));
+        long remainingTime = (segmentEndTime - segmentLine.x(getCurrentTemp()));
         segmentEndTime = remainingTime + millis();
         startTemp = getCurrentTemp();
         // curveManager->updateAdjustedCurve(curveManager->getSegmentIndex(),remainingTime);
         segmentLine = Line(segmentStartTime, startTemp, segmentEndTime, curveManager->getSegmentTemp());
         startTimeOffset += curveManager->getSegmentTime() - remainingTime;
-        //  Serial.println(" use segment " + String(startTimeOffset) + " remainT " + String(remainingTime));
+      Serial.println(" use segment " + String(startTimeOffset) + " remainT " + String(remainingTime));
     }
 }
 
