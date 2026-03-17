@@ -20,10 +20,10 @@ void TextButton::render(TFT_eSprite &tft)
 
 bool TextButton::wasClicked(int tx, int ty)
 {
-    // Serial.println("Button clicked: " + text + "  " + String (posX) + " " + String(posY) + " " + String(width + posX) + " " + String(height + posY));
+    //Serial.println("Button clicked: " + text + "  " + String (posX) + " " + String(posY) + " " + String(width + posX) + " " + String(height + posY));
     if (tx >= posX && tx <= (posX + width) && ty >= posY && ty <= (posY + height))
     {
-        // Serial.println("DONW");
+        //Serial.println("Button down: " + text);
         return true;
     }
     return false;

@@ -37,7 +37,12 @@ void StorageManager::saveSettings()
 void StorageManager::loadSettings()
 {
     Settings settings;
-    load("/settings.bin", settings);
+    if (!load("/settings.bin", settings))
+    {
+        Serial.println("Settings not found, saving defaults...");
+        saveSettings();
+        return;
+    }
     SettingsManager::get().setSettings(settings);
 }
 void StorageManager::saveWiFiCredentials(WiFiCredentials &creds)
@@ -68,7 +73,7 @@ void StorageManager::loadCurve(CurveManager &curveManager, int index)
     if (!load(path.c_str(), loadedCurve))
     {
 
-        Serial.println("Nie udalo sie wczytac krzywej, wczytano domyslna.");
+        Serial.println("failed to load curve at index " + String(index) + ", loading default curve");
 
         loadedCurve = CurveManager::getDefaultCurve();
         saveCurve(curveManager, index);
@@ -76,7 +81,7 @@ void StorageManager::loadCurve(CurveManager &curveManager, int index)
     int maxtemp = CurveManager::getMaxTemp(loadedCurve);
     if (maxtemp > 1300 || maxtemp < 30)
     {
-        Serial.println("Niepoprawna krzywa, max temp > 1300. Ustawiono domyślną.");
+        Serial.println("faulty curve at index " + String(index) + ", loading default curve");
         loadedCurve = CurveManager::getDefaultCurve();
         saveCurve(curveManager, index);
     }

@@ -204,21 +204,23 @@ void GUIRenderer::drawHeader()
 
 void GUIRenderer::handleTouch(int x, int y)
 {
+    //Serial.println("Handling touch at: " + String(x) + ", " + String(y));
     // Serial.println("Clickables on list: " + String(clickables.size()));
     if (modal.isVisible())
     {
+        
         if (modal.handleClick(x, y))
         {
-            // Serial.println("Modal clicked at: " + String(x) + ", " + String(y));
+             //Serial.println("Modal clicked at: " + String(x) + ", " + String(y));
             return; // Kliknięcie obsłużone przez modal
         }
     }
     for (const auto &clickable : clickables)
     {
-        // Serial.println("visible-" + String(clickable->isVisible()) + " active-" + String(clickable->isActive()));
+         //Serial.println("visible-" + String(clickable->isVisible()) + " active-" + String(clickable->isActive()));
         if (clickable->isVisible())
         { // dodać sprawdzenie aktywności
-          // Serial.println("Checking clickable at: " + String(x) + ", " + String(y));
+         // Serial.println("Checking clickable at: " + String(x) + ", " + String(y));
             if (clickable->handleClick(x, y))
                 break;
         }

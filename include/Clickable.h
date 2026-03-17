@@ -22,10 +22,13 @@ public:
     virtual bool wasClicked(int touchX, int touchY) = 0;
     virtual bool handleClick(int x, int y)
     {
+        //Serial.println("Clickable clicked at: " + String(x) + ", " + String(y));
         if (wasClicked(x, y))
         {
+            
+            //Serial.println("-Clickable clicked at: " + String(x) + ", " + String(y));
             onClick();
-            //Serial.println("Clickable clicked at: " + String(x) + ", " + String(y));
+            //Serial.println("--Clickable clicked at: " + String(x) + ", " + String(y));
             SoundManager::click(); // Dźwięk kliknięcia
             return true;
         }

@@ -10,13 +10,15 @@ float TemperatureSensor::getCJTemperature()
     // Serial.println("cjtemp: " + String(cjTemp));
     return cjTemp;
 }
-void TemperatureSensor::begin()
-{
-    thermocouple.begin();
+bool TemperatureSensor::begin()
+{   
+    if (!thermocouple.begin())
+    {
+        return false;
+    }
     thermocouple.setThermocoupleType(MAX31856_TCTYPE_S);
     //thermocouple.setThermocoupleType(MAX31856_TCTYPE_VOLTAGE_GAIN_8);
     //thermocouple.writeRegister8(0x01, 0x88);
-    Serial.print(">>>");
     //thermocouple.writeRegister8(0x01, 0x03);
     delay(100); // Czekaj na zapis
     //uint8_t cr1 = thermocouple.readRegister8(0x01);
@@ -25,17 +27,14 @@ void TemperatureSensor::begin()
     Serial.println("<<<< " + String(thermocouple.getThermocoupleType()));
     
     float temp;
-    do
-    {
-        delay(400);
+    
         temp = thermocouple.readThermocoupleTemperature();
         lastErrorCode = thermocouple.readFault();
         Serial.println(String(lastErrorCode) + " " + String(temp) );
-    } while (lastErrorCode != 0 || isnan(temp) || temp == 0.0f);
-    //lastValidTemperature = temp;
-    Serial.println("zzzz");
+     if (lastErrorCode != 0 || isnan(temp) || temp == 0.0f){return false;}     
     lastValidTemperature = calcCorrectedTemp(temp); // Ustawiamy ostatnią poprawną temperaturę na temperaturę zimnego złącza
     //lastValidTemperature = temp;
+    return true;
 }
 
 void TemperatureSensor::update()

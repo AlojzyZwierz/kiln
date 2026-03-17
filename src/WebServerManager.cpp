@@ -143,15 +143,15 @@ void WebServerManager::StartWebServer()
 
   if (WiFi.status() == WL_CONNECTED)
   {
-    Serial.println("\nPołączono z WiFi");
-    Serial.print("Adres IP: ");
+    Serial.println("\n WiFi connected!");
+    Serial.print(" IP : ");
     Serial.println(WiFi.localIP());
   }
   else
   {
-    Serial.println("\nNie udało się połączyć, uruchamiam tryb AP...");
+    Serial.println("\n Failed to connect to WiFi. Starting AP mode.");
     WiFi.softAP(apSSID, apPassword);
-    Serial.print("Adres IP AP: ");
+    Serial.print("AP IP : ");
     Serial.println(WiFi.softAPIP());
   }
 

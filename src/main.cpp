@@ -21,9 +21,9 @@
 TFT_eSPI tft = TFT_eSPI();
 
 // Touchscreen pins
-#define XPT2046_IRQ 36  // T_IRQ
+#define XPT2046_IRQ 36  // T_IRQ    wcześniej 36
 #define XPT2046_MOSI 32 // T_DIN
-#define XPT2046_MISO 39 // T_OUT
+#define XPT2046_MISO 39 // T_OUT     wcześniej 39
 #define XPT2046_CLK 25  // T_CLK
 #define XPT2046_CS 33   // T_CS
 // #define BUZZERPIN 22
@@ -74,19 +74,31 @@ void setup()
 
   // Serial.println("Settings loaded: " + String(SettingsManager::get().getSettings().pid_kp) + ", " + String(SettingsManager::get().getSettings().pid_ki) + ", " + String(SettingsManager::get().getSettings().pid_kd));
   // Serial.println("Settings loaded: " + String(SettingsManager::get().getSettings().heatingCycleMs) + ", " + String(SettingsManager::get().getSettings().kilnPower) + ", " + String(SettingsManager::get().getSettings().unitCost));
-  temperatureSensor.begin();
-  Serial.println("Temperature sensor initialized.");
+  
+  
   tft.init();
   Serial.println("TFT initialized.");
   // buildCustomPalette();
   //  Serial.println("Custom palette built.");
   tft.setRotation(1);
   tft.fillScreen(COLOR_BG);
-  tft.setTextColor(COLOR_BLACK);
+  
   tft.setTextSize(1);
   tft.setCursor(3, 200);
   tft.print(BUILD_TIME);
   tft.setTextSize(2);
+  
+  while (!temperatureSensor.begin())
+  {
+    Serial.println("Failed to initialize temperature sensor!");
+    tft.setCursor(16, 100);
+    tft.setTextColor(COLOR_RED_DOT);
+    tft.print("Temp sensor error!");
+    delay(1200);
+  }
+  Serial.println("Temperature sensor initialized.");
+  tft.setTextColor(COLOR_BLACK);
+  tft.fillScreen(COLOR_BG);
   tft.setCursor(16, 50);
   tft.print("Initializing.");
   temperatureSensor.begin();
@@ -166,9 +178,11 @@ void loop()
     {
 
       TS_Point p = touchscreen.getPoint();
-      int y = map(p.x, 400, 3800, 0, 240);
-      int x = map(p.y, 3800, 300, 0, 320);
-      // Serial.println("Klik " + String(x) + " " + String(y));
+      //int y = map(p.x, 400, 3800, 0, 240);
+      //int x = map(p.y, 3800, 300, 0, 320);
+      int y = map(p.y, 3800, 300, 0, 240);
+      int x = map(p.x, 3800, 500, 0, 320);
+      Serial.println("Klik " + String(x) + " " + String(y) + "  raw: " + String(p.x) + " " + String(p.y) );
 
       guiRenderer.handleTouch(x, y);
       guiRenderer.render();

@@ -21,8 +21,7 @@ class WebServerManager
 private:
     // WiFiServer server;
     AsyncWebServer server;
-    // char* ssid = "T-Mobile_Swiatlowod_2822";
-    // char* password = "52963065802928863554";
+ 
 
     const char *apSSID = "kiln";
     const char *apPassword = "abcd1234";

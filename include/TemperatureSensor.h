@@ -9,7 +9,7 @@ class TemperatureSensor
 {
 public:
     TemperatureSensor(); //
-    void begin();
+    bool begin();
     void update(); // próbuje odczytać nową temperaturę
     float getTemperature() const;
     int getErrorCount() const;

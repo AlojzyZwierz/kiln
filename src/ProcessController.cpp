@@ -195,7 +195,8 @@ void ProcessController::applyPID()
     // Serial.println("5 " +  String(currentTemp));
     float error = setpoint - currentTemp;
     // Serial.println("6 " + String(error));
-    if ((lastError > 0 && error < 0) || (lastError < 0 && error > 0))
+    //if ((lastError > 0 && error < 0) || (lastError < 0 && error > 0))
+    if(lastError * error < 0) // jeśli nastąpiła zmiana znaku błędu, czyli minęliśmy punkt nastawczy, to zerujemy całkę, żeby nie było przeregulowania
     {
         integral = 0;
     }

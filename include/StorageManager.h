@@ -51,7 +51,7 @@ template<typename T>
 static bool load(const char *path, T &data)
 {
   File file = SPIFFS.open(path, FILE_READ);
-  if (!file)
+  if (!SPIFFS.exists(path))
   {
     Serial.println("File not found: " + String(path));
     return false;
@@ -63,6 +63,7 @@ static bool load(const char *path, T &data)
     Serial.printf("Error: file size (%u bytes) does not match structure size (%u bytes)\n",
                   fileSize, sizeof(T));
     file.close();
+    SPIFFS.remove(path);
     return false;
   }
 
