@@ -134,9 +134,12 @@ void ProcessController::nextSegment()
     curveManager->nextSegment(); //
     useSegment();
         //if (lastA > segmentLine.a ||  curveManager->getOriginalCurve().elems[curveManager->getSegmentIndex() -1].skip == 1 )
-    float kt = 0.0002f;
-    ratio *=  1.45f * (segmentLine.a + kt) /max((previousA + kt), 0.00022f); // korekta mocy grzania przy zmianie nachylenia
+    //float kt = 0.0002f;
+    //ratio *=  1.45f * (segmentLine.a + kt) /max((previousA + kt), 0.00022f); // korekta mocy grzania przy zmianie nachylenia
     //lastPidCheckTime = millis() -  SettingsManager::get().getSettings().pidIntervalMs + 5000; // szybka reakcja PID po zmianie segmentu
+    float angle1 = M_PI - atan2f(1.0f, previousA);
+    float angle2 = M_PI - atan2f(1.0f, segmentLine.a);
+    ratio *= angle2 / angle1;
     SoundManager::beep(1000, 100); // sygnał zmiany segmentu
 }
 
@@ -212,6 +215,11 @@ void ProcessController::applyPID()
     lastError = error;
 
     setHeaterPower(ratio);
+    Serial.println("PID|" + String(millis()) + "|sp:" + String(setpoint) 
+    + "|t:" + String(currentTemp) + "|err:" + String(error) 
+    + "|ratio:" + String(ratio) + "|p:" + String(prop) 
+    + "|i:" + String(integ) + "|d:" + String(deriv)
+    + "|seg:" + String(curveManager->getSegmentIndex()));
 }
 
 void ProcessController::setHeaterPower(float ratio)
@@ -268,7 +276,7 @@ float ProcessController::getMaxTemp(Curve c)
 }
 void ProcessController::checkForErrors()
 {
-    if (abs(lastError) > 100 && !curveManager->isSkip())
+    if (abs(lastError) > 100 && !curveManager->isSkip() && segmentLine.a > 0)
     {
         abort("Temp dev too high");
     }

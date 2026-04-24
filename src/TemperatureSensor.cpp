@@ -24,14 +24,14 @@ bool TemperatureSensor::begin()
     //uint8_t cr1 = thermocouple.readRegister8(0x01);
     //Serial.print("CR1 po zmianie: 0b" );
     //Serial.println(cr1, BIN);
-    Serial.println("<<<< " + String(thermocouple.getThermocoupleType()));
+    Serial.println("thermocouple type: " + String(thermocouple.getThermocoupleType()));
     
     float temp;
     
-        temp = thermocouple.readThermocoupleTemperature();
-        lastErrorCode = thermocouple.readFault();
-        Serial.println(String(lastErrorCode) + " " + String(temp) );
-     if (lastErrorCode != 0 || isnan(temp) || temp == 0.0f){return false;}     
+    temp = thermocouple.readThermocoupleTemperature();
+    lastErrorCode = thermocouple.readFault();
+    Serial.println(String(lastErrorCode) + " " + String(temp) );
+    if (lastErrorCode != 0 || isnan(temp) || temp == 0.0f){return false;}     
     lastValidTemperature = calcCorrectedTemp(temp); // Ustawiamy ostatnią poprawną temperaturę na temperaturę zimnego złącza
     //lastValidTemperature = temp;
     return true;
