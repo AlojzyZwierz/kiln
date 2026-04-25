@@ -93,17 +93,18 @@ Curve CurveManager::genCurveWithFakeSkips(Curve &curve)
             if (curve.elems[i].skip == 1)
             {
                 // y=0.045977x
-                modified.elems[i].hTime = (unsigned long)(0.075f * temperatureSpan  ) * 60000;
+                modified.elems[i].hTime = (unsigned long)abs((0.075f * temperatureSpan  ) * 60000);
             }
             else if (curve.elems[i].skip == 2)
             {
                 // y=(716*x -423)/(1.4x + 250)
-                float t1 = (850.0f * temperatureSpan * curve.elems[i - 1].endTemp ) /
+                /*float t1 = (850.0f * temperatureSpan * curve.elems[i - 1].endTemp ) /
                            (1.3f * temperatureSpan * curve.elems[i - 1].endTemp + 500.0f);
                 float t2 = (850.0f * temperatureSpan * curve.elems[i].endTemp) /
                            (1.3f * temperatureSpan * curve.elems[i].endTemp + 500.0f);
 
-                modified.elems[i].hTime = (unsigned long)((t1 - t2) * 60000);
+                modified.elems[i].hTime = (unsigned long)((t1 - t2) * 60000);*/
+                modified.elems[i].hTime = (unsigned long)abs((0.135f * temperatureSpan) * 60000);
             }
             else
             {
