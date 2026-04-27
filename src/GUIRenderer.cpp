@@ -160,7 +160,7 @@ void GUIRenderer::drawHeader()
     int curveIndex = curveSelector.getSelectedIndex();                                                                                                                                         // potrzebujesz takiej metody
 
     temperatureLabel.setText(String((int)temperature) );
-    String segInd = (SystemState::get().getMode() == SystemMode::Idle) ? " " : ("." + String(curveManager.getSegmentIndex() + 1));
+    String segInd = (SystemState::get().getMode() == SystemMode::Idle) ? " " : ("/" + String(curveManager.getSegmentIndex() + 1));
     // Serial.println(curveManager.getSegmentIndex());
     curveIndexLabel.setText("prog #" + String(curveIndex) + segInd);
     expectedTempLabel.setText((!curveManager.isSkip() ? "e:" + String((int)ProcessController::get().getExpectedTemp())  : " ")); // potrzebujesz takiej metody

@@ -121,7 +121,7 @@ svg += "<line x1=\"" + String(lastX) +
     svg += "<circle r=\"5\" cx=\"" + String((SystemState::get().getMode() == SystemMode::Firing && (MeasurementManager::get().getMeasurements().size() != 0)) ? ((millis() - ProcessController::get().getProgramStartTime() + ProcessController::get().getStartTimeOffset()) * timeRatio) : 5) + "\" cy=\"" + String(1300 - currentTemp) + "\" fill=\"red\"></circle>";
   }
   svg += "<text x=\"40\" y=\"80\" fill=\"black\" font-size=\"70\">" + String((float)currentTemp, 1) + "</text>";
-  svg += "<text x=\"40\" y=\"125\" fill=\"black\" font-size=\"40\">" + String(curveManager.getcurrentCurveIndex()) + " " + String(curveManager.getSegmentIndex() + 1) + "</text>";
+  svg += "<text x=\"40\" y=\"125\" fill=\"black\" font-size=\"40\">" + String(curveManager.getcurrentCurveIndex()) + "." + String(curveManager.getSegmentIndex() + 1) + "</text>";
   svg += "</svg></div></body></html>";
 
   return svg;

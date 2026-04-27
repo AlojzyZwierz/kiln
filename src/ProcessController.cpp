@@ -141,7 +141,7 @@ void ProcessController::nextSegment()
     const float kScale = 10000.0f;
     float angle1 = M_PI - atan2f(1.0f, previousA * kScale);
     float angle2 = M_PI - atan2f(1.0f, segmentLine.a * kScale);
-    ratio *= angle2 / angle1;
+    ratio *= (angle2 / angle1) - 0.3f*( getCurrentTemp()/1300); 
     integral = 0; // zerowanie całki przy zmianie segmentu, żeby nie było przeregulowania
     SoundManager::beep(1000, 100); // sygnał zmiany segmentu
 }
