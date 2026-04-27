@@ -93,6 +93,7 @@ void ProcessController::useSegment()
         maxSkipTime = 0;
         maxSkipTemp = 0;
         ratio = 1.0f;
+        segmentLine = Line(segmentStartTime, startTemp, curveManager->getAdjustedCurve().elems[curveManager->getSegmentIndex()].hTime + segmentStartTime, curveManager->getSegmentTemp());
         return;
     }
     segmentLine = Line(segmentStartTime, startTemp, segmentEndTime, curveManager->getSegmentTemp());
@@ -137,9 +138,11 @@ void ProcessController::nextSegment()
     //float kt = 0.0002f;
     //ratio *=  1.45f * (segmentLine.a + kt) /max((previousA + kt), 0.00022f); // korekta mocy grzania przy zmianie nachylenia
     //lastPidCheckTime = millis() -  SettingsManager::get().getSettings().pidIntervalMs + 5000; // szybka reakcja PID po zmianie segmentu
-    float angle1 = M_PI - atan2f(1.0f, previousA);
-    float angle2 = M_PI - atan2f(1.0f, segmentLine.a);
+    const float kScale = 10000.0f;
+    float angle1 = M_PI - atan2f(1.0f, previousA * kScale);
+    float angle2 = M_PI - atan2f(1.0f, segmentLine.a * kScale);
     ratio *= angle2 / angle1;
+    integral = 0; // zerowanie całki przy zmianie segmentu, żeby nie było przeregulowania
     SoundManager::beep(1000, 100); // sygnał zmiany segmentu
 }
 
@@ -276,7 +279,7 @@ float ProcessController::getMaxTemp(Curve c)
 }
 void ProcessController::checkForErrors()
 {
-    if (abs(lastError) > 100 && !curveManager->isSkip() && segmentLine.a > 0)
+    if (lastError > 100 && !curveManager->isSkip() )
     {
         abort("Temp dev too high");
     }
