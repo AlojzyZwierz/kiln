@@ -93,12 +93,12 @@ void setup()
     Serial.println("Failed to initialize temperature sensor!");
     tft.setCursor(16, 100);
     tft.setTextColor(COLOR_RED_DOT);
-    tft.print("Temperature sensor error!");
+    tft.print("Temperature sensor error! " + String(millis() / 1000));
     delay(1200);
   }
   Serial.println("Temperature sensor initialized.");
   tft.setTextColor(COLOR_BLACK);
-  tft.fillScreen(COLOR_BG);
+  //tft.fillScreen(COLOR_BG);
   tft.setCursor(16, 50);
   tft.print("Initializing.");
   temperatureSensor.begin();
