@@ -108,12 +108,11 @@ void ProcessController::useSegment()
 }
 
 void ProcessController::nextSegment()
-{
-    Utils::printMemoryInfo();
-    // float lastA = segmentLine.a;
-    //  Serial.println("current segment end time: " + String(curveManager->getAdjustedCurve().elems[curveManager->getSegmentIndex()].hTime) + " current time: " + String(millis()) + " segment index: " + String(curveManager->getSegmentIndex()) + " lastA: " + String(lastA) );
-    if (!initialSegment || curveManager->isSkip() || (initialSegment && curveManager->getSegmentIndex() == 0))
-    {
+{   
+  Utils::printMemoryInfo();
+    //float lastA = segmentLine.a;
+    // Serial.println("current segment end time: " + String(curveManager->getAdjustedCurve().elems[curveManager->getSegmentIndex()].hTime) + " current time: " + String(millis()) + " segment index: " + String(curveManager->getSegmentIndex()) + " lastA: " + String(lastA) );
+    if (!initialSegment  || curveManager->isSkip()){// || (initialSegment && curveManager->getSegmentIndex() == 0))
         curveManager->updateAdjustedCurve(curveManager->getSegmentIndex(), millis() - segmentStartTime);
     }
     else if (initialSegment && curveManager->getSegmentIndex() == 0)

@@ -107,7 +107,7 @@ void GraphRenderer::drawTempLabels()
   for (int i = 1; i < 13; i++)
   {
     int y = (int)(i * 100 * tempRatio);
-    sprite.setFreeFont(FONT_SMALL);
+    //sprite.setFreeFont(FONT_SMALL);
     sprite.setTextSize(0.2);
     sprite.drawString(String(13 - i * 1), 3, y + 2);
   }
@@ -120,8 +120,9 @@ void GraphRenderer::drawTimeLabels( long totalTime)
     int x = i * 3600000 * timeRatio;
     if (x > 320)
       break;
-    sprite.setFreeFont(FONT_SMALL);
-    sprite.setTextSize(0.5);
+    //sprite.setFreeFont(FONT_SMALL);
+    sprite.setTextSize(0.3);
+    
     sprite.drawString(String(i), x, 235);
   }
 }
