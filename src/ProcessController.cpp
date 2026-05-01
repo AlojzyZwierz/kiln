@@ -138,15 +138,15 @@ void ProcessController::nextSegment()
     // currentSegmentIndex++;
     curveManager->nextSegment(); //
     useSegment();
-    // if (lastA > segmentLine.a ||  curveManager->getOriginalCurve().elems[curveManager->getSegmentIndex() -1].skip == 1 )
-    // float kt = 0.0002f;
-    // ratio *=  1.45f * (segmentLine.a + kt) /max((previousA + kt), 0.00022f); // korekta mocy grzania przy zmianie nachylenia
-    // lastPidCheckTime = millis() -  SettingsManager::get().getSettings().pidIntervalMs + 5000; // szybka reakcja PID po zmianie segmentu
+        //if (lastA > segmentLine.a ||  curveManager->getOriginalCurve().elems[curveManager->getSegmentIndex() -1].skip == 1 )
+    //float kt = 0.0002f;
+    //ratio *=  1.45f * (segmentLine.a + kt) /max((previousA + kt), 0.00022f); // korekta mocy grzania przy zmianie nachylenia
+    //lastPidCheckTime = millis() -  SettingsManager::get().getSettings().pidIntervalMs + 5000; // szybka reakcja PID po zmianie segmentu
     const float kScale = 13000.0f;
     float angle1 = M_PI - atan2f(1.0f, previousA * kScale);
     float angle2 = M_PI - atan2f(1.0f, segmentLine.a * kScale);
-    ratio *= (angle2 / angle1) - 0.3f * (getCurrentTemp() / 1300);
-    integral = 0;                  // zerowanie całki przy zmianie segmentu, żeby nie było przeregulowania
+    ratio *= (angle2 / angle1) - 0.3f*( getCurrentTemp()/1300); 
+    integral = 0; // zerowanie całki przy zmianie segmentu, żeby nie było przeregulowania
     SoundManager::beep(1000, 100); // sygnał zmiany segmentu
 }
 
