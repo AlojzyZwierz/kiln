@@ -41,15 +41,13 @@ void ProcessController::startFiring()
     // heating->setEnabled(true);
     heating->setRatio(ratio);
 
-    
-
     ResumeManager::saveCurveIndex(curveManager->getcurrentCurveIndex());
-    // Serial.println("Starting process with curve index: " + String(curveManager->getcurrentCurveIndex()));    
+    // Serial.println("Starting process with curve index: " + String(curveManager->getcurrentCurveIndex()));
     MeasurementManager::get().clear();
-    //MeasurementManager::get().addMeasurement();
+    // MeasurementManager::get().addMeasurement();
     MeasurementManager::get().setMeasurementInterval(150000);
     MeasurementManager::get().setNextMeasurementTime(millis() + MeasurementManager::get().getMeasurementInterval());
-    
+
     useSegment();
 
     // Serial.println("Process started with segment index: " + String(curveManager->getSegmentIndex()));
@@ -62,9 +60,9 @@ void ProcessController::checkSegmentAdvance()
     //  Serial.println("Checking segment advance: " + String(curveManager.getSegmentIndex()) + " " + String(segment.hTime) + " " + String(segment.endTemp));
     float currentTemp = getCurrentTemp();
     float targetTemp = curveManager->getSegmentTemp();
-    //bool skipUp = false;
-    //bool skipDown = false;
- 
+    // bool skipUp = false;
+    // bool skipDown = false;
+
     bool reachedTempIncreasing = (segmentLine.a > epsilon || curveManager->isSkipUp()) && currentTemp >= targetTemp;
     bool reachedTempDecreasing = (segmentLine.a < -epsilon || (curveManager->isSkipDown())) && currentTemp <= targetTemp;
     bool flatSegmentTimeOver = (std::abs(segmentLine.a) <= epsilon) && (millis() >= segmentEndTime);
@@ -105,7 +103,7 @@ void ProcessController::useSegment()
         // curveManager->updateAdjustedCurve(curveManager->getSegmentIndex(),remainingTime);
         segmentLine = Line(segmentStartTime, startTemp, segmentEndTime, curveManager->getSegmentTemp());
         startTimeOffset += curveManager->getSegmentTime() - remainingTime;
-      Serial.println(" use segment " + String(startTimeOffset) + " remainT " + String(remainingTime));
+        Serial.println(" use segment " + String(startTimeOffset) + " remainT " + String(remainingTime));
     }
 }
 
@@ -114,8 +112,13 @@ void ProcessController::nextSegment()
   Utils::printMemoryInfo();
     //float lastA = segmentLine.a;
     // Serial.println("current segment end time: " + String(curveManager->getAdjustedCurve().elems[curveManager->getSegmentIndex()].hTime) + " current time: " + String(millis()) + " segment index: " + String(curveManager->getSegmentIndex()) + " lastA: " + String(lastA) );
-    if (!initialSegment  || curveManager->isSkip());// || (initialSegment && curveManager->getSegmentIndex() == 0))
+    if (!initialSegment  || curveManager->isSkip()){// || (initialSegment && curveManager->getSegmentIndex() == 0))
         curveManager->updateAdjustedCurve(curveManager->getSegmentIndex(), millis() - segmentStartTime);
+    }
+    else if (initialSegment && curveManager->getSegmentIndex() == 0)
+    {
+        curveManager->updateAdjustedCurve(curveManager->getSegmentIndex(), curveManager->getSegmentTime() - (segmentEndTime - millis()));
+    }
     // Serial.println("current segment end time: " + String(curveManager->getAdjustedCurve().elems[curveManager->getSegmentIndex()].hTime) + " current time: " + String(millis()) + " segment index: " + String(curveManager->getSegmentIndex()) + " lastA: " + String(lastA) );
     // const Curve& orig = curveManager->getOriginalCurve();
     initialSegment = false;
@@ -138,10 +141,10 @@ void ProcessController::nextSegment()
     //float kt = 0.0002f;
     //ratio *=  1.45f * (segmentLine.a + kt) /max((previousA + kt), 0.00022f); // korekta mocy grzania przy zmianie nachylenia
     //lastPidCheckTime = millis() -  SettingsManager::get().getSettings().pidIntervalMs + 5000; // szybka reakcja PID po zmianie segmentu
-    const float kScale = 7000.0f;
+    const float kScale = 13000.0f;
     float angle1 = M_PI - atan2f(1.0f, previousA * kScale);
     float angle2 = M_PI - atan2f(1.0f, segmentLine.a * kScale);
-    ratio *= (angle2 / angle1) ; 
+    ratio *= (angle2 / angle1); 
     integral = 0; // zerowanie całki przy zmianie segmentu, żeby nie było przeregulowania
     SoundManager::beep(1000, 100); // sygnał zmiany segmentu
 }
@@ -201,8 +204,8 @@ void ProcessController::applyPID()
     // Serial.println("5 " +  String(currentTemp));
     float error = setpoint - currentTemp;
     // Serial.println("6 " + String(error));
-    //if ((lastError > 0 && error < 0) || (lastError < 0 && error > 0))
-    if(lastError * error < 0) // jeśli nastąpiła zmiana znaku błędu, czyli minęliśmy punkt nastawczy, to zerujemy całkę, żeby nie było przeregulowania
+    // if ((lastError > 0 && error < 0) || (lastError < 0 && error > 0))
+    if (lastError * error < 0) // jeśli nastąpiła zmiana znaku błędu, czyli minęliśmy punkt nastawczy, to zerujemy całkę, żeby nie było przeregulowania
     {
         integral = 0;
     }
@@ -218,11 +221,7 @@ void ProcessController::applyPID()
     lastError = error;
 
     setHeaterPower(ratio);
-    Serial.println("PID|" + String(millis()) + "|sp:" + String(setpoint) 
-    + "|t:" + String(currentTemp) + "|err:" + String(error) 
-    + "|ratio:" + String(ratio) + "|p:" + String(prop) 
-    + "|i:" + String(integ) + "|d:" + String(deriv)
-    + "|seg:" + String(curveManager->getSegmentIndex()));
+    Serial.println("PID|" + String(millis()) + "|sp:" + String(setpoint) + "|t:" + String(currentTemp) + "|err:" + String(error) + "|ratio:" + String(ratio) + "|p:" + String(prop) + "|i:" + String(integ) + "|d:" + String(deriv) + "|seg:" + String(curveManager->getSegmentIndex()));
 }
 
 void ProcessController::setHeaterPower(float ratio)
@@ -279,7 +278,7 @@ float ProcessController::getMaxTemp(Curve c)
 }
 void ProcessController::checkForErrors()
 {
-    if (lastError > 100 && !curveManager->isSkip() )
+    if (lastError > 100 && !curveManager->isSkip())
     {
         abort("Temp dev too high");
     }
