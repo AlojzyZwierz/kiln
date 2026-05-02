@@ -34,7 +34,7 @@ void ProcessController::startFiring()
     // currentSegmentIndex =  determineStartSegment(curve, getCurrentTemp());
     curveManager->setSegmentIndex(determineStartSegment());
     //  Serial.println("__segIndex: " + String(curveManager->getSegmentIndex()));
-    ratio = 0.18f;
+    ratio = 0.1f;
     integral = 0;
     lastError = 0;
     heating->setCycleTime(SettingsManager::get().getSettings().heatingCycleMs);
@@ -144,7 +144,7 @@ void ProcessController::nextSegment()
     const float kScale = 13000.0f;
     float angle1 = M_PI - atan2f(1.0f, previousA * kScale);
     float angle2 = M_PI - atan2f(1.0f, segmentLine.a * kScale);
-    ratio *= (angle2 / angle1); 
+    ratio *= 1.2f*(angle2 / angle1); 
     integral = 0; // zerowanie całki przy zmianie segmentu, żeby nie było przeregulowania
     SoundManager::beep(1000, 100); // sygnał zmiany segmentu
 }
