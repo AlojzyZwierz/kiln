@@ -20,10 +20,10 @@ GUIRenderer::GUIRenderer(
                             editButton("Edit", 220, 200, 60, 25, COLOR_BUTTON, COLOR_BLACK),
                             stopButton("Stop", 170, 200, 90, 25, COLOR_BUTTON, COLOR_BLACK),
                             graphRenderer(sprite, cm, temperatureSensor),
-                            temperatureLabel("Temperature", 22, 40, COLOR_BLACK, 2),
-                            curveIndexLabel("Curve Index", 23, 56, COLOR_BLACK, 1),
-                            expectedTempLabel("Expected Temp", 23, 75, COLOR_BLACK, 1),
-                            timeLabel("Time", 23, 70, COLOR_BLACK, 2),
+                            temperatureLabel("Temperature", 15, 40, COLOR_BLACK, 2),
+                            curveIndexLabel("Curve Index", 16, 56, COLOR_BLACK, 1),
+                            expectedTempLabel("Expected Temp", 16, 75, COLOR_BLACK, 1),
+                            timeLabel("Time", 16, 70, COLOR_BLACK, 2),
                             segmentIndexLabel("Segment Index", 5, 40, COLOR_BLACK, 1), // Dodajemy etykietę dla segmentu
                             editCircle(110, 90, 70, cm),                               // Dodajemy okrąg edycyjny
                             closeButton("X", 290, 13, 17, 20, COLOR_BUTTON, COLOR_BLACK),

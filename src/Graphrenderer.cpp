@@ -107,8 +107,8 @@ void GraphRenderer::drawTempLabels()
   for (int i = 1; i < 13; i++)
   {
     int y = (int)(i * 100 * tempRatio);
-    //sprite.setFreeFont(FONT_SMALL);
-    sprite.setTextSize(0.2);
+    sprite.setTextFont(0);
+    //sprite.setTextSize(0.2);
     sprite.drawString(String(13 - i * 1), 3, y + 2);
   }
 }
@@ -125,6 +125,7 @@ void GraphRenderer::drawTimeLabels( long totalTime)
     
     sprite.drawString(String(i), x, 235);
   }
+  sprite.setFreeFont(FONT_SMALL);
 }
 
 void GraphRenderer::drawCurve(const Curve &curve)
@@ -158,9 +159,9 @@ void GraphRenderer::drawCurve(const Curve &curve)
     if (lastY != y)
     {
       if (mode == SystemMode::Edit && curveManager.getSegmentIndex() == i)
-        sprite.setTextColor(color);
+      sprite.setTextColor(color);
       sprite.setFreeFont(FONT_SMALL);
-      sprite.setTextSize(0.4);
+      //sprite.setTextSize(0.4);
       bool isDescending = (i>0 && curve.elems[i].endTemp < curve.elems[i-1].endTemp);
       bool isLabelTooCloseToLast = (abs(y - lastY) < 15 && abs(x - lastX) < 30);
       if (isDescending )
@@ -178,7 +179,7 @@ void GraphRenderer::drawCurve(const Curve &curve)
       }
       
       
-      sprite.drawString(String(curve.elems[i].endTemp, 0), x + 3, 240 - y + 2);
+      sprite.drawString(String(curve.elems[i].endTemp, 0), isDescending ? x + 3 : x - 3, 240 - y + 2);
     }
     sprite.setTextColor(COLOR_BLACK);
     lastX = x;

@@ -221,7 +221,7 @@ void ProcessController::applyPID()
     lastError = error;
 
     setHeaterPower(ratio);
-    Serial.println("PID|" + String(millis()) + "|sp:" + String(setpoint) + "|t:" + String(currentTemp) + "|err:" + String(error) + "|ratio:" + String(ratio) + "|p:" + String(prop) + "|i:" + String(integ) + "|d:" + String(deriv) + "|seg:" + String(curveManager->getSegmentIndex()));
+    //Serial.println("PID|" + String(millis()) + "|sp:" + String(setpoint) + "|t:" + String(currentTemp) + "|err:" + String(error) + "|ratio:" + String(ratio) + "|p:" + String(prop) + "|i:" + String(integ) + "|d:" + String(deriv) + "|seg:" + String(curveManager->getSegmentIndex()));
 }
 
 void ProcessController::setHeaterPower(float ratio)

@@ -28,7 +28,7 @@ public:
     {
         tft.setTextSize(textSize);
         int width = tft.textWidth(text);
-        Serial.println("UILabel::getWidth() called: " + String(width));
+        //Serial.println("UILabel::getWidth() called: " + String(width));
         return width;
     }
 
