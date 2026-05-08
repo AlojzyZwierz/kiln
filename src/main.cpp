@@ -127,7 +127,7 @@ void setup()
   tft.print(".");
 
   guiRenderer.render();
-  SoundManager::chiptuneIntro();
+  SoundManager::wobbleStartSound();
   Utils::printMemoryInfo();
 }
 
@@ -150,6 +150,7 @@ void loop()
   if (lastUpdateTime + 1001 < millis())
   {
     lastUpdateTime = millis();
+    webServerManager.handleClient();
     temperatureSensor.update();
     guiRenderer.render();
     if (SystemState::get().isCooling() && temperatureSensor.getTemperature() < 100)

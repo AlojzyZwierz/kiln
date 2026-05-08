@@ -133,7 +133,7 @@ void ProcessController::nextSegment()
         ResumeManager::clear();
     }
 
-    float previousA = curveManager->isSkip() == false ? segmentLine.a : curveManager->getDeltaTemp() / (millis() - segmentStartTime);
+    float previousA = curveManager->isSkip() == false ? segmentLine.a : curveManager->getDeltaTemp() / (millis() - segmentStartTime); // jeśli był skip, to bierzemy nachylenie z aktualnego wzrostu temperatury, bo może być różne od nominalnego nachylenia segmentu
     // currentSegmentIndex++;
     curveManager->nextSegment(); //
     useSegment();
