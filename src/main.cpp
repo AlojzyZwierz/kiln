@@ -49,7 +49,7 @@ bool wasTouched = false;
 unsigned long lastTouchTime = 0;
 // MeasurementManager measurementManager;
 
-// unsigned long measurementInterval = 150000;//
+//unsigned long measurementInterval = 150000;//
 
 void setup()
 {
@@ -61,16 +61,6 @@ void setup()
   pinMode(BUZZERPIN, OUTPUT);
   Serial.begin(115200);
   delay(1000);
-  esp_reset_reason_t reason = esp_reset_reason();
-  Serial.println("Reset reason: " + String(reason));
-  if (reason == ESP_RST_PANIC)
-    Serial.println("-> crash/exception");
-  else if (reason == ESP_RST_WDT)
-    Serial.println("-> watchdog");
-  else if (reason == ESP_RST_BROWNOUT)
-    Serial.println("-> brownout (voltage drop)");
-  else if (reason == ESP_RST_POWERON)
-    Serial.println("-> all normal");
   while (StorageManager::begin() == false)
   {
     Serial.println("SPIFFS init failed. Retrying...");
@@ -84,19 +74,20 @@ void setup()
 
   // Serial.println("Settings loaded: " + String(SettingsManager::get().getSettings().pid_kp) + ", " + String(SettingsManager::get().getSettings().pid_ki) + ", " + String(SettingsManager::get().getSettings().pid_kd));
   // Serial.println("Settings loaded: " + String(SettingsManager::get().getSettings().heatingCycleMs) + ", " + String(SettingsManager::get().getSettings().kilnPower) + ", " + String(SettingsManager::get().getSettings().unitCost));
-
+  
+  
   tft.init();
   Serial.println("TFT initialized.");
   // buildCustomPalette();
   //  Serial.println("Custom palette built.");
   tft.setRotation(1);
   tft.fillScreen(COLOR_BG);
-
+  
   tft.setTextSize(1);
   tft.setCursor(3, 200);
   tft.print(BUILD_TIME);
   tft.setTextSize(2);
-
+  
   while (!temperatureSensor.begin())
   {
     Serial.println("Failed to initialize temperature sensor!");
@@ -107,7 +98,7 @@ void setup()
   }
   Serial.println("Temperature sensor initialized.");
   tft.setTextColor(COLOR_BLACK);
-  // tft.fillScreen(COLOR_BG);
+  //tft.fillScreen(COLOR_BG);
   tft.setCursor(16, 50);
   tft.print("Initializing.");
   temperatureSensor.begin();
@@ -136,7 +127,7 @@ void setup()
   tft.print(".");
 
   guiRenderer.render();
-  SoundManager::chiptuneIntro();
+  SoundManager::wobbleStartSound();
   Utils::printMemoryInfo();
 }
 
@@ -159,6 +150,7 @@ void loop()
   if (lastUpdateTime + 1001 < millis())
   {
     lastUpdateTime = millis();
+    webServerManager.handleClient();
     temperatureSensor.update();
     guiRenderer.render();
     if (SystemState::get().isCooling() && temperatureSensor.getTemperature() < 100)
@@ -187,11 +179,11 @@ void loop()
     {
 
       TS_Point p = touchscreen.getPoint();
-      int y = map(p.x, 400, 3800, 0, 240); // moj
-      int x = map(p.y, 3600, 350, 0, 320); // moj
-      // int y = map(p.y, 3800, 300, 0, 240);
-      // int x = map(p.x, 3800, 500, 0, 320);
-      // Serial.println("Klik " + String(x) + " " + String(y) + "  raw: " + String(p.x) + " " + String(p.y) );
+      int y = map(p.x, 400, 3800, 0, 240); //moj
+      int x = map(p.y, 3600, 530, 0, 320);// moj
+      //int y = map(p.y, 3800, 300, 0, 240);
+      //int x = map(p.x, 3800, 500, 0, 320);
+      //Serial.println("Klik " + String(x) + " " + String(y) + "  raw: " + String(p.x) + " " + String(p.y) );
 
       guiRenderer.handleTouch(x, y);
       guiRenderer.render();
