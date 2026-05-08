@@ -79,9 +79,9 @@ svg += "<line x1=\"" + String(lastX) +
        "\" y2=\"" + String(1300 - Y) + 
        "\" style=\"stroke:black;stroke-width:4;" + dashStyle + "\"/>";
         if (lastY != Y)
-svg += "<text x=\"" + String(X) + "\" y=\"" + String(1298 - Y) + "\" fill=\"black\" font-size=\"25\" " +
+svg += "<text x=\"" + String(X-6) + "\" y=\"" + String(prevIsDescending ? 1275 - Y : 1310 - Y) + "\" fill=\"black\" font-size=\"25\" " +
        String(!prevIsDescending ? "text-anchor=\"end\" dominant-baseline=\"text-after-edge\" " 
-                               : "text-anchor=\"start\" dominant-baseline=\"text-after-edge\" ") + ">" +
+                               : "text-anchor=\"end\" dominant-baseline=\"text-before-edge\" ") + ">" +
        String(Y) + "</text>";
     // svg += "<text x=\"" + String(X - 50) + "\" y=\"" + String(1295 - Y) + "\" fill=\"black\" font-size=\"30\">" + String(Y) + "</text>";
     lastX = X;

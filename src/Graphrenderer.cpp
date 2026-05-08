@@ -162,13 +162,13 @@ void GraphRenderer::drawCurve(const Curve &curve)
       sprite.setTextColor(color);
       sprite.setFreeFont(FONT_SMALL);
       //sprite.setTextSize(0.4);
-      bool isDescending = (i>0 && curve.elems[i].endTemp < curve.elems[i-1].endTemp);
+      bool isAscending = (i==0 || curve.elems[i].endTemp > curve.elems[i-1].endTemp);
       bool isLabelTooCloseToLast = (abs(y - lastY) < 15 && abs(x - lastX) < 30);
-      if (isDescending )
+      if (!isAscending )
       {
-        sprite.setTextDatum(BL_DATUM);
+        sprite.setTextDatum(TR_DATUM);
         if(isLabelTooCloseToLast){
-          sprite.setTextDatum(TR_DATUM);
+          sprite.setTextDatum(BL_DATUM);
         }
       }
       else{
@@ -179,7 +179,7 @@ void GraphRenderer::drawCurve(const Curve &curve)
       }
       
       
-      sprite.drawString(String(curve.elems[i].endTemp, 0), isDescending ? x + 3 : x - 3, 240 - y + 2);
+      sprite.drawString(String(curve.elems[i].endTemp, 0),  x - 3, 243 - y);
     }
     sprite.setTextColor(COLOR_BLACK);
     lastX = x;
