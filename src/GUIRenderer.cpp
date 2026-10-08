@@ -1,5 +1,5 @@
 #include "GUIRenderer.h"
-#include "FakeFurnace.h"
+//  #include "FakeFurnace.h"
 // extern FakeFurnace furnace;
 GUIRenderer::GUIRenderer(
     TFT_eSPI &display,
@@ -27,10 +27,11 @@ GUIRenderer::GUIRenderer(
                             segmentIndexLabel("Segment Index", 5, 40, COLOR_BLACK, 1), // Dodajemy etykietę dla segmentu
                             editCircle(110, 90, 70, cm),                               // Dodajemy okrąg edycyjny
                             closeButton("X", 290, 13, 17, 20, COLOR_BUTTON, COLOR_BLACK),
-                            saveButton("Save", 265, 200, 50, 25, COLOR_BUTTON, COLOR_BLACK),
-                            endHereButton("Cut", 220, 200, 40, 25, COLOR_BUTTON, COLOR_BLACK),
-                            holdButton("Hold", 175, 200, 40, 25, COLOR_BUTTON, COLOR_BLACK),
-                            skipButton("Skip", 130, 200, 40, 25, COLOR_BUTTON, COLOR_BLACK),
+                            insertButton("Insert", 156, 183, 52, 25, COLOR_BUTTON, COLOR_BLACK),
+                            skipButton("Skip", 211, 183, 52, 25, COLOR_BUTTON, COLOR_BLACK),
+                            holdButton("Hold", 266, 183, 52, 25, COLOR_BUTTON, COLOR_BLACK),
+                            endHereButton("Cut", 156, 212, 52, 25, COLOR_BUTTON, COLOR_BLACK),
+                            saveButton("Save", 211, 212, 107, 25, COLOR_BUTTON, COLOR_BLACK),
                             settingsButton("S", 290, 13, 17, 20, COLOR_BUTTON, COLOR_BLACK),
                             energyMeter(em),
                             costLabel("", 25, 90, COLOR_BLACK, 1),
@@ -46,6 +47,8 @@ GUIRenderer::GUIRenderer(
     ProcessController::get().setErrorCallback([this](const String &reason)
                                               { this->modal.show(ModalMode::Error, reason); });
 
+    ProcessController::get().setMessageCallback([this](const String &message)
+                                                { this->modal.show(ModalMode::Message, message); });
     // Możesz też od razu ustawić początkowy stan GUI
     setupUIFormodes(SystemState::get().getMode());
     startButton.setCallback([&]()
@@ -77,6 +80,7 @@ GUIRenderer::GUIRenderer(
     clickables.push_back(&holdButton);
     clickables.push_back(&skipButton);
     clickables.push_back(&infoButton);
+    clickables.push_back(&insertButton);
     uiElements.push_back(&temperatureLabel);
     uiElements.push_back(&curveIndexLabel);
     uiElements.push_back(&expectedTempLabel);
@@ -159,11 +163,11 @@ void GUIRenderer::drawHeader()
     float temperature = SystemState::get().getMode() != SystemMode::Edit ? temperatureSensor.getTemperature() : curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex()].endTemp; // potrzebujesz takiej metody
     int curveIndex = curveSelector.getSelectedIndex();                                                                                                                                         // potrzebujesz takiej metody
 
-    temperatureLabel.setText(String((int)temperature) );
+    temperatureLabel.setText(String((int)temperature));
     String segInd = (SystemState::get().getMode() == SystemMode::Idle) ? " " : ("/" + String(curveManager.getSegmentIndex() + 1));
     // Serial.println(curveManager.getSegmentIndex());
     curveIndexLabel.setText("prog #" + String(curveIndex) + segInd);
-    expectedTempLabel.setText((!curveManager.isSkip() ? "e:" + String((int)ProcessController::get().getExpectedTemp())  : " ")); // potrzebujesz takiej metody
+    expectedTempLabel.setText((!curveManager.isSkip() ? "e:" + String((int)ProcessController::get().getExpectedTemp()) : " ")); // potrzebujesz takiej metody
     // timeLabel.setText("Time: " + String(curveManager.getTotalTime()) + "s"); // potrzebujesz takiej metody
     segmentIndexLabel.setText(String(curveManager.getSegmentIndex() + 1));
     timeLabel.setText((curveManager.isSkip()) ? "skip" : (Utils::millisToHM(curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex()].hTime) + " (" + String((int)curveManager.getHeatingSpeed()) + ")")); // potrzebujesz takiej metody
@@ -204,23 +208,23 @@ void GUIRenderer::drawHeader()
 
 void GUIRenderer::handleTouch(int x, int y)
 {
-    //Serial.println("Handling touch at: " + String(x) + ", " + String(y));
-    // Serial.println("Clickables on list: " + String(clickables.size()));
+    // Serial.println("Handling touch at: " + String(x) + ", " + String(y));
+    //  Serial.println("Clickables on list: " + String(clickables.size()));
     if (modal.isVisible())
     {
-        
+
         if (modal.handleClick(x, y))
         {
-             //Serial.println("Modal clicked at: " + String(x) + ", " + String(y));
+            // Serial.println("Modal clicked at: " + String(x) + ", " + String(y));
             return; // Kliknięcie obsłużone przez modal
         }
     }
     for (const auto &clickable : clickables)
     {
-         //Serial.println("visible-" + String(clickable->isVisible()) + " active-" + String(clickable->isActive()));
+        // Serial.println("visible-" + String(clickable->isVisible()) + " active-" + String(clickable->isActive()));
         if (clickable->isVisible())
         { // dodać sprawdzenie aktywności
-         // Serial.println("Checking clickable at: " + String(x) + ", " + String(y));
+          // Serial.println("Checking clickable at: " + String(x) + ", " + String(y));
             if (clickable->handleClick(x, y))
                 break;
         }
@@ -281,6 +285,7 @@ void GUIRenderer::setupUIFormodes(SystemMode mode)
         endHereButton.setVisible(true);
         holdButton.setVisible(true);
         skipButton.setVisible(true);
+        insertButton.setVisible(true);
 
         saveButton.setCallback([&]()
                                {
@@ -295,56 +300,19 @@ void GUIRenderer::setupUIFormodes(SystemMode mode)
             setMode(SystemMode::Idle);
         });*/
         leftArrow.setCallback([&]()
-                              {
-              if (curveManager.getSegmentIndex()>0 )curveManager.setSegmentIndex(curveManager.getSegmentIndex() - 1); });
+                              { curveManager.prevSegment(); });
         rightArrow.setCallback([&]()
                                {
-                int segIndex = curveManager.getSegmentIndex();
-                if( segIndex < curveElemsNo-2){
-                    curveManager.setSegmentIndex(segIndex + 1);
-                    if(curveManager.getOriginalCurve().elems[segIndex + 1].hTime == 0) {
-                        //Curve  curve = curveManager.getOriginalCurve();
-                        curveManager.updateTime(segIndex + 1, 3600000);
-                        curveManager.updateTemperature(segIndex + 1, curveManager.getOriginalCurve().elems[segIndex].endTemp);
-                        curveManager.updateTime(segIndex + 2, 0);
-                        /*curve.elems[segIndex +2].hTime = 0;
-                            curve.elems[segIndex +1].hTime = 3600000;
-                            curve.elems[segIndex +1].endTemp = curve.elems[segIndex].endTemp;
-                            curveManager.loadOriginalCurve(curve);*/
-                           // Serial.println("+++ " + String(curve.elems[segIndex +1].hTime) + " " + String(curve.elems[segIndex +1].endTemp) );
-                           // Serial.println("+++++ " + String(curve.elems[segIndex +2].hTime) + " " + String(curve.elems[segIndex +2].endTemp) );
-                        //Serial.println(String(curve.toString()));
-                       // Serial.println("_____"+String(curveManager.getOriginalCurve().toString()));
-                       // Serial.println("___**__"+String(curveManager.getAdjustedCurve().toString()));
-                }    
-            } });
+                                        if (curveManager.hasNextSegment())          curveManager.nextSegment();
+                                        else if (curveManager.canAddSegment())      curveManager.addSegment(); });
         endHereButton.setCallback([&]()
-                                  {
-                                      if (curveManager.getSegmentIndex() + 1 < curveElemsNo)
-                                          curveManager.updateTime(curveManager.getSegmentIndex() + 1, 0);
-                                      //                    Serial.println("End here pressed " + curveManager.getOriginalCurve().toString());
-                                  });
-
+                                  { curveManager.endHere(); });
         holdButton.setCallback([&]()
-                               {
-                                      if(curveManager.getSegmentIndex() >0 && !curveManager.isSkip()) {
-                                          curveManager.setSkip( curveManager.getSegmentIndex(), 0);
-                                        curveManager.updateTemperature(curveManager.getSegmentIndex(), curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex() - 1].endTemp);
-                                      } });
+                               { curveManager.setHold(); });
         skipButton.setCallback([&]()
-                               {
-            if (curveManager.getSegmentIndex() + 1 < curveElemsNo && curveManager.hasPreviousSegment() && curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex() - 1].endTemp != curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex() ].endTemp)
-            {
-                if (curveManager.getSegmentIndex() == 0 || curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex() - 1].endTemp < curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex()].endTemp)
-                {
-                    curveManager.setSkip(curveManager.getSegmentIndex(), 1); 
-                }
-                else
-                    {
-                        curveManager.setSkip(curveManager.getSegmentIndex(), 2); // Skip down
-                    }               
-            } 
-        });
+                               { curveManager.setSkipAuto(); });
+        insertButton.setCallback([&]()
+                                 { curveManager.insertSegment(curveManager.getSegmentIndex()); });
         break;
     case SystemMode::Firing:
         // infoButton.setVisible(true);

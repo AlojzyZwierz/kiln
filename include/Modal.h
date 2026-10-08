@@ -18,7 +18,8 @@ enum class ModalMode
     Settings,
     Error,
     Info, 
-    Confirmation
+    Confirmation,
+    Message
 };
 
 class Modal
@@ -46,7 +47,8 @@ public:
 private:
     void buildSettings();
     void updateFromCurrentEntry();
-    void buildError(const String &errorMessage = "An error occurred. Please try again.");
+    void buildError(const String &errorMessage = "An error occurred.");
+    void buildMessage(const String &message = "Information", const String &titleText = "Info");
     void buildConfirmation(const String& message, std::function<void()> confirmCallback);
     void buildInfo();
 

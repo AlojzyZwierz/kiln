@@ -33,7 +33,7 @@ struct Line
     }
     Line()
     {
-        a = 0;
+        a = 1;
         b = 0;
     }
     // Zwróć y dla podanego x

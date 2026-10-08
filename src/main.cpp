@@ -179,10 +179,10 @@ void loop()
     {
 
       TS_Point p = touchscreen.getPoint();
-      int y = map(p.x, 400, 3800, 0, 240); //moj
-      int x = map(p.y, 3600, 530, 0, 320);// moj
-      //int y = map(p.y, 3800, 300, 0, 240);
-      //int x = map(p.x, 3800, 500, 0, 320);
+      int y = map(p.x, 400, 3800, 0, 240); // sterownik
+      int x = map(p.y, 3600, 530, 0, 320);// sterownik 
+      //int y = map(p.y, 3800, 300, 0, 240); //testowy
+      //int x = map(p.x, 3800, 500, 0, 320); //testowy
       //Serial.println("Klik " + String(x) + " " + String(y) + "  raw: " + String(p.x) + " " + String(p.y) );
 
       guiRenderer.handleTouch(x, y);

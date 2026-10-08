@@ -65,7 +65,9 @@ void Modal::show(ModalMode mode, const String &extra, std::function<void()> conf
     case ModalMode::Info:
         buildInfo();
         break;
-
+    case ModalMode::Message:
+        buildMessage(extra);    
+        break;
     default:
         break;
     }
@@ -194,7 +196,7 @@ void Modal::buildSettings()
     currentTempLabel.setVisible(true);
     expectedTempLabel.setVisible(true);
 }
-
+/*
 void Modal::buildError(const String &errorMessage)
 {
 
@@ -211,7 +213,27 @@ void Modal::buildError(const String &errorMessage)
     entryNameLabel.setText(errorMessage);
     entryNameLabel.setVisible(true);
 }
+*/
+void Modal::buildMessage(const String &message, const String &titleText)
+{
+    okButton.setCallback([this]()
+                         {
+        hide();
+        if (onClose) {
+            onClose();
+        } });
 
+    okButton.setVisible(true);
+    title = titleText;
+    infoMessage = message;
+    entryNameLabel.setText(message);
+    entryNameLabel.setVisible(true);
+}
+
+void Modal::buildError(const String &message)
+{
+    buildMessage(message, "Error");
+}
 void Modal::updateFromCurrentEntry()
 {
     const auto &entry = SettingsManager::get().getCurrentEntry();

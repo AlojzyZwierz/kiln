@@ -52,8 +52,8 @@ public:
     void updateTime(char index, unsigned long newDurationMs);
     void updateTemperature(char index, float newTemperature);
     void updateAdjustedCurve(char index, unsigned long newDurationMs);
-    //void adjustSkipTime(float deltaTemp, float deltaTime);
-    //void adjustSkipTime(float deltaTemp, float deltaTime, int index);
+    // void adjustSkipTime(float deltaTemp, float deltaTime);
+    // void adjustSkipTime(float deltaTemp, float deltaTime, int index);
 
     const Curve &getOriginalCurve() const;
     const Curve &getAdjustedCurve() const;
@@ -91,13 +91,13 @@ public:
         }
     }
 
-    bool isSkip(int index)
+    bool isSkip(int index) const
     {
         if (index < 0 || index >= curveElemsNo)
             return false;
         return originalCurve.elems[index].skip != 0;
     }
-    bool isSkip()
+    bool isSkip() const
     {
         return isSkip(currentSegmentIndex);
     }
@@ -117,14 +117,38 @@ public:
     {
         return isSkipDown(currentSegmentIndex);
     }
-    unsigned long getSegmentStartTemperature() { return getSegmentStartTemperature(currentSegmentIndex); }
-    unsigned long getSegmentStartTemperature(int index) { return index == 0 ? 20 : originalCurve.elems[index - 1].endTemp; }
+    float getSegmentStartTemperature() const { return getSegmentStartTemperature(currentSegmentIndex); }
+    float getSegmentStartTemperature(int index) const { return index == 0 ? 20.0f : originalCurve.elems[index - 1].endTemp; }
     float getHeatingSpeed() const;
     float getDeltaTemp() const
     {
         return originalCurve.elems[currentSegmentIndex].endTemp - (currentSegmentIndex == 0 ? 20.0f : originalCurve.elems[currentSegmentIndex - 1].endTemp);
     }
     int getcurveElemsNo() const { return curveElemsNo; }
+    static constexpr float ROOM_TEMP = 20.0f;
+
+    int activeSegments() const;
+
+    bool canAddSegment() const;
+    bool addSegment(); // dokłada segment za bieżącym i przechodzi na niego
+
+    bool canInsert(int idx) const;
+    bool insertSegment(int idx); // dzieli segment na pół
+
+    bool canEndHere() const;
+    void endHere();
+
+    bool canHold() const;
+    void setHold();
+
+    bool canSkipAuto() const;
+    void setSkipAuto();
+
+    void prevSegment()
+    {
+        if (hasPreviousSegment())
+            currentSegmentIndex--;
+    }
 
 private:
     int currentSegmentIndex = 0;
