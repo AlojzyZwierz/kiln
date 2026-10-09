@@ -20,13 +20,7 @@
 
 TFT_eSPI tft = TFT_eSPI();
 
-// Touchscreen pins
-#define XPT2046_IRQ 36  // T_IRQ    wcześniej 36
-#define XPT2046_MOSI 32 // T_DIN
-#define XPT2046_MISO 39 // T_OUT     wcześniej 39
-#define XPT2046_CLK 25  // T_CLK
-#define XPT2046_CS 33   // T_CS
-// #define BUZZERPIN 22
+
 #define FONT_SIZE 2
 // #define SSR 22 // pin przekaźnika – ustaw wg własnych potrzeb
 
@@ -77,27 +71,24 @@ void setup()
   
   
   tft.init();
+  tft.fillScreen(TFT_WHITE);
   Serial.println("TFT initialized.");
-  // buildCustomPalette();
-  //  Serial.println("Custom palette built.");
-  tft.setRotation(1);
-  tft.fillScreen(COLOR_BG);
-  
+  tft.setRotation(1);  
   tft.setTextSize(1);
   tft.setCursor(3, 200);
   tft.print(BUILD_TIME);
-  tft.setTextSize(2);
+  tft.setTextSize(1);
   
   while (!temperatureSensor.begin())
   {
     Serial.println("Failed to initialize temperature sensor!");
     tft.setCursor(16, 100);
-    tft.setTextColor(COLOR_RED_DOT);
+    tft.setTextColor(TFT_RED);
     tft.print("Temperature sensor error! " + String(millis() / 1000));
     delay(1200);
   }
   Serial.println("Temperature sensor initialized.");
-  tft.setTextColor(COLOR_BLACK);
+  tft.setTextColor(TFT_BLACK);
   //tft.fillScreen(COLOR_BG);
   tft.setCursor(16, 50);
   tft.print("Initializing.");
@@ -179,10 +170,10 @@ void loop()
     {
 
       TS_Point p = touchscreen.getPoint();
-      int y = map(p.x, 400, 3800, 0, 240); // sterownik
-      int x = map(p.y, 3600, 530, 0, 320);// sterownik 
-      //int y = map(p.y, 3800, 300, 0, 240); //testowy
-      //int x = map(p.x, 3800, 500, 0, 320); //testowy
+      //int y = map(p.x, 400, 3700, 0, 240); // sterownik
+      //int x = map(p.y, 3800, 530, 0, 320);// sterownik 
+      int y = map(p.y, 3800, 300, 0, 240); //testowy
+      int x = map(p.x, 3800, 300, 0, 320); //testowy
       //Serial.println("Klik " + String(x) + " " + String(y) + "  raw: " + String(p.x) + " " + String(p.y) );
 
       guiRenderer.handleTouch(x, y);

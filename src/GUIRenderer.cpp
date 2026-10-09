@@ -102,21 +102,16 @@ void GUIRenderer::render()
 {
     // Serial.println("TFT_YELLOW: " + String(TFT_YELLOW)+ " uiPalette[COLOR_BUTTON]: " + String(uiPalette[COLOR_BUTTON]) + " uiPalette[COLOR_MODAL_BG]: " + String(uiPalette[COLOR_MODAL_BG]) + " uiPalette[COLOR_COOLING_LINE]: " + String(uiPalette[COLOR_COOLING_LINE]));
 
-    sprite.deleteSprite(); // Usuwamy poprzedni sprite
-    sprite.setColorDepth(8);
-    sprite.createSprite(TFT_HEIGHT, TFT_WIDTH);
+if (!sprite.created())
+    {
+        initSprite();                 // tylko za pierwszym razem
+        if (!sprite.created()) return; // zamiast rysować po nullptr
+    }
     // sprite.createPalette(255);
     // Serial.printf("Głębia kolorów sprite'a: %d\n", sprite.getColorDepth());
 
     // Serial.println("kolor" + String(COLOR_BG) + " " + String( uiPalette[COLOR_BUTTON]) + " " + String( uiPalette[COLOR_MODAL_BG]) + " " + String( uiPalette[COLOR_COOLING_LINE]));
-    if (!sprite.created())
-    {
-        Serial.println("Sprite creation failed!");
-    }
-    else
-    {
-        // Serial.println("Sprite created successfully!");
-    }
+
     sprite.fillSprite(COLOR_BG);
 
     graphRenderer.render(); // Rysuje wykres
@@ -154,6 +149,19 @@ void GUIRenderer::render()
     // uint16_t test_color = sprite.getPaletteColor(1); // Powinien zwrócić uiPalette[1]
 
     sprite.pushSprite(0, 0); // Wyświetlamy sprite na ekranie
+}
+
+void GUIRenderer::initSprite()
+{
+    sprite.setColorDepth(4);                       // PRZED createSprite
+    sprite.createSprite(TFT_HEIGHT, TFT_WIDTH);    // 320x240 = 38 400 B
+    if (!sprite.created())
+    {
+        Serial.println("Sprite creation failed!");
+        return;
+    }
+    buildCustomPalette();
+    sprite.createPalette(uiPalette, UI_PALETTE_SIZE);   // PO createSprite
 }
 
 void GUIRenderer::drawHeader()

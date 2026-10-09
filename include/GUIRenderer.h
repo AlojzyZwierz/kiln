@@ -77,6 +77,7 @@ private:
     // FakeFurnace& furnace;
     Modal modal;
     bool isModalVisible = false;
+    void initSprite();
 };
 
 #endif

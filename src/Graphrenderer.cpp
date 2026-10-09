@@ -190,38 +190,26 @@ void GraphRenderer::drawCurve(const Curve &curve)
   //if (SystemState::get().getMode()==SystemMode::Firing) sprite.drawFastVLine((ProcessController::get().getStartTimeOffset() ) *timeRatio, 0,TFT_WIDTH,COLOR_RED_DOT );
 }
 
-void GraphRenderer::drawMeasurements( long totalTime)
+void GraphRenderer::drawMeasurements(long totalTime)
 {
-  // const auto& data = MeasurementManager::get().getMeasurements();
-  // Serial.println("Measurements no: " + String(MeasurementManager::get().getMeasurements().size()));
-  if (MeasurementManager::get().getMeasurements().empty())
-    return;
+  const auto &m = MeasurementManager::get().getMeasurements();  // referencja, bez kopii
+  if (m.empty()) return;
 
-  // Przykład uproszczonego rysowania
+  const float xScale = TFT_HEIGHT * activeGraphArea * 1000.0f / totalTime;
+  const float yScale = TFT_WIDTH / 1300.0f;
+  const long offset = max(ProcessController::get().getStartTimeOffset(), 0L) / 1000;
 
-  float xScale = TFT_HEIGHT * activeGraphArea * 1000.0f / (totalTime);
-  float yScale = TFT_WIDTH / 1300.0f;
-
-  // sprite.setFreeFont(FONT_SMALL);
-  int x2 = 0;
-  int y2 = 0;
-  for (size_t i = 1; i < MeasurementManager::get().getMeasurements().size(); ++i)
-  { 
-    long offset = max(ProcessController::get().getStartTimeOffset(),0L)/1000;
-    int x1 = (MeasurementManager::get().getMeasurements()[i - 1].time +offset)* xScale;
-    int y1 = TFT_WIDTH - MeasurementManager::get().getMeasurements()[i - 1].temp * yScale;
-    x2 = (MeasurementManager::get().getMeasurements()[i].time + offset)* xScale;
-    y2 = TFT_WIDTH - MeasurementManager::get().getMeasurements()[i].temp * yScale;
-
+  int x2 = 0, y2 = 0;
+  for (size_t i = 1; i < m.size(); ++i)
+  {
+    int x1 = (m[i - 1].time + offset) * xScale;
+    int y1 = TFT_WIDTH - m[i - 1].temp * yScale;
+    x2 = (m[i].time + offset) * xScale;
+    y2 = TFT_WIDTH - m[i].temp * yScale;
     sprite.drawLine(x1, y1, x2, y2, COLOR_RED_DOT);
-    //Serial.println("x1: " + String(x1) + " y1: " + String(y1) + " x2: " + String(x2) + " y2: " + String(y2) );
-    // sprite.fillCircle(x1, y1, 3, TFT_RED);
-    // sprite.fillCircle(x2, y2, 3, TFT_RED);
   }
   if (x2 != 0 && SystemState::get().getMode() == SystemMode::Firing)
     sprite.drawLine(currentTempPosX, currentTempPosY, x2, y2, COLOR_RED_DOT);
-
-  // Serial.println("_Measurements drawn: " + String(MeasurementManager::get().getMeasurements().size()));
 }
 
 void GraphRenderer::drawCurrentTempDot(float temp, long totalTime)
