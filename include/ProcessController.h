@@ -53,6 +53,10 @@ public:
     {
         onError = cb;
     }
+        void setMessageCallback(std::function<void(const String &)> cb)
+    {
+        onMessage = cb;
+    }
     float getP() { return prop; }
     float getI() { return integ; }
     float getD() { return deriv; }
@@ -70,6 +74,7 @@ public:
 private:
     void stopFiring();
     std::function<void(const String &)> onError;
+    std::function<void(const String &)> onMessage;  
     void useSegment();
     void nextSegment();
     ProcessController() {}

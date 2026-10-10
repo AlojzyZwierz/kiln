@@ -90,7 +90,7 @@ void ProcessController::useSegment()
     {
         maxSkipTime = 0;
         maxSkipTemp = 0;
-        ratio = 1.0f;
+        ratio = curveManager->isSkipUp() ? 1.0f : curveManager->isSkipDown() ? 0.0f : 1.0f;
         segmentLine = Line(segmentStartTime, startTemp, curveManager->getAdjustedCurve().elems[curveManager->getSegmentIndex()].hTime + segmentStartTime, curveManager->getSegmentTemp());
         return;
     }
@@ -235,8 +235,8 @@ void ProcessController::finishFiring()
     stopFiring();
     SoundManager::playFanfare();
     MeasurementManager::get().setMeasurementInterval(400000); // co 5 min podczas chłodzenia
-    if (onError)
-        onError("finished successfully");
+    if (onMessage)
+        onMessage("finished successfully");
 }
 
 void ProcessController::abort(const char *reason)

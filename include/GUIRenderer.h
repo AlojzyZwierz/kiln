@@ -59,7 +59,7 @@ private:
     TextButton holdButton;
     TextButton skipButton;
     TextButton infoButton;
-    // TextButton editButton;
+    TextButton insertButton;
     UILabel temperatureLabel;
     UILabel curveIndexLabel;
     UILabel expectedTempLabel;
@@ -77,6 +77,7 @@ private:
     // FakeFurnace& furnace;
     Modal modal;
     bool isModalVisible = false;
+    void initSprite();
 };
 
 #endif

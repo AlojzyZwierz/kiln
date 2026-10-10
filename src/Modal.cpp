@@ -1,16 +1,16 @@
 #include "Modal.h"
 Modal::Modal()
-    : okButton("OK", 30, 180, 50, 30),
-      closeButton("X", 270, 30, 25, 25),
-      nextButton(">", 230, 110, 40, 40),
-      prevButton("<", 50, 110, 40, 40),
-      plusButton("+", 140, 60, 40, 40),
-      minusButton("-", 140, 170, 40, 40),
+    : okButton("OK", 30, 180, 50, 30, COLOR_BUTTON, COLOR_BLACK),
+      closeButton("X", 270, 30, 25, 25, COLOR_BUTTON, COLOR_BLACK),
+      nextButton(">", 230, 110, 40, 40, COLOR_BUTTON, COLOR_BLACK),
+      prevButton("<", 50, 110, 40, 40, COLOR_BUTTON, COLOR_BLACK),
+      plusButton("+", 140, 60, 40, 40, COLOR_BUTTON, COLOR_BLACK),
+      minusButton("-", 140, 170, 40, 40, COLOR_BUTTON, COLOR_BLACK),
       valueLabel("0", 110, 135, COLOR_BLACK, 2),
       entryNameLabel("XXX", 80, 165, COLOR_BLACK, 1),
       ipLabel("IP:", 180, 210, COLOR_BLACK, 1),
       cjTempLabel("CJ:", 190, 190, COLOR_BLACK, 1),
-      cancelButton("Cancel", 140, 180, 65, 30),
+      cancelButton("Cancel", 140, 180, 65, 30, COLOR_BUTTON, COLOR_BLACK),
       infoLabel1("...", 27, 62, COLOR_BLACK, 1),
       infoLabel2("...", 27, 80, COLOR_BLACK, 1),
       currentTempLabel("", 200, 65, COLOR_BLACK, 1),
@@ -65,7 +65,9 @@ void Modal::show(ModalMode mode, const String &extra, std::function<void()> conf
     case ModalMode::Info:
         buildInfo();
         break;
-
+    case ModalMode::Message:
+        buildMessage(extra);    
+        break;
     default:
         break;
     }
@@ -194,7 +196,7 @@ void Modal::buildSettings()
     currentTempLabel.setVisible(true);
     expectedTempLabel.setVisible(true);
 }
-
+/*
 void Modal::buildError(const String &errorMessage)
 {
 
@@ -211,7 +213,27 @@ void Modal::buildError(const String &errorMessage)
     entryNameLabel.setText(errorMessage);
     entryNameLabel.setVisible(true);
 }
+*/
+void Modal::buildMessage(const String &message, const String &titleText)
+{
+    okButton.setCallback([this]()
+                         {
+        hide();
+        if (onClose) {
+            onClose();
+        } });
 
+    okButton.setVisible(true);
+    title = titleText;
+    infoMessage = message;
+    entryNameLabel.setText(message);
+    entryNameLabel.setVisible(true);
+}
+
+void Modal::buildError(const String &message)
+{
+    buildMessage(message, "Error");
+}
 void Modal::updateFromCurrentEntry()
 {
     const auto &entry = SettingsManager::get().getCurrentEntry();
