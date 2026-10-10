@@ -103,3 +103,96 @@ void SoundManager::chiptuneIntro() {
       beep(melody[i], durations[i]);
     }
   }
+
+  void SoundManager::playInTheHallOfTheMountainKing() {
+  // Częstotliwości nut (Hz)
+  // Motyw zaczyna się od E, potem sekwencja chromatyczna w górę
+  // Oryginalna tonacja: e-moll, motyw od mi
+
+  // Czas trwania (ms)
+  int tempo = 400; // ćwierćnuta ~400ms, dostosuj do gustu
+
+  // Definicja nut: {częstotliwość, czas trwania}
+  // Pierwsza fraza (13 dźwięków):
+  // E4 - F#4 - G4 - A4 - C5 - E5 - D5 - C5 - A4 - C5 - D5 - pauza - D5
+  // (klasyczny układ Griega, pierwsza fraza tematu)
+
+  struct Note {
+    int freq;   // 0 = pauza
+    int dur;    // w ms
+  };
+
+  Note phrase[] = {
+    {330, tempo},    // E4
+    {370, tempo},    // F#4
+    {392, tempo},    // G4
+    {440, tempo},    // A4
+    {523, tempo},    // C5
+    {659, tempo},    // E5
+    {587, tempo},    // D5
+    {523, tempo},    // C5
+    {440, tempo},    // A4
+    {523, tempo},    // C5
+    {587, tempo},    // D5
+    {0,   tempo/2},  // pauza (ósemka)
+    {587, tempo * 3 / 2}, // D5 (ćwierćnuta z kropką)
+  };
+
+  int count = sizeof(phrase) / sizeof(phrase[0]);
+
+  for (int i = 0; i < count; i++) {
+    if (phrase[i].freq == 0) {
+      noTone(BUZZERPIN);
+    } else {
+      tone(BUZZERPIN, phrase[i].freq, phrase[i].dur);
+    }
+    // Krótka przerwa między nutami dla artykulacji
+    delay(phrase[i].dur + 30);
+    noTone(BUZZERPIN);
+  }
+}
+void SoundManager::playMountainKing() {
+
+    const int shortNote = 80;
+    const int longNote  = 180;
+
+    const int melody[] = {
+        247, // B
+        262, // C
+        294, // D
+        330, // E
+        370, // F#
+        294, // D
+        370, // F#  <- dłuższa
+
+        349, // F
+        294, // D
+        349, // F   <- dłuższa
+
+        311, // Eb
+        262, // C
+        311  // Eb  <- dłuższa
+    };
+
+    const int durations[] = {
+        shortNote,
+        shortNote,
+        shortNote,
+        shortNote,
+        shortNote,
+        shortNote,
+        longNote,
+
+        shortNote,
+        shortNote,
+        longNote,
+
+        shortNote,
+        shortNote,
+        longNote
+    };
+
+    for (int i = 0; i < 13; i++) {
+        beep(melody[i], durations[i]);
+    }
+}

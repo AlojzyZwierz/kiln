@@ -85,7 +85,7 @@ void WebServerManager::begin()
         tryConnect();
 
         // Blokujemy maks. 10s tylko po to żeby móc wyświetlić IP na TFT
-        tft.print("Łączenie WiFi");
+        //tft.print("Łączenie WiFi");
         unsigned long t = millis();
         while (!_staConnected && millis() - t < 10000)
         {
