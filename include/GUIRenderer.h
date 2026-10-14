@@ -23,6 +23,7 @@
 #include "Modal.h"
 #include "ColorPalette.h"
 #include "EnergyUsageMeter.h"
+#include "InfoBox.h"
 
 class Clickable;
 
@@ -68,6 +69,7 @@ private:
     UILabel costLabel;
     UILabel errorLabel;
     EditCircle editCircle;
+    InfoBox infoBox;
     GraphRenderer graphRenderer;
     void drawHeader(); // Rysuje temperaturę i nr krzywej
     std::vector<Clickable *> clickables;

@@ -16,27 +16,28 @@ GUIRenderer::GUIRenderer(
                             leftArrow(10, 110, 30, ArrowDirection::Left, COLOR_BLACK),
                             rightArrow(280, 110, 30, ArrowDirection::Right, COLOR_BLACK),
 
-                            startButton("Start", 150, 200, 60, 25, COLOR_BUTTON, COLOR_BLACK),
-                            editButton("Edit", 220, 200, 60, 25, COLOR_BUTTON, COLOR_BLACK),
-                            stopButton("Stop", 170, 200, 90, 25, COLOR_BUTTON, COLOR_BLACK),
+                            startButton("start", 150, 200, 60, 25, COLOR_BUTTON, COLOR_BLACK),
+                            editButton("edit", 220, 200, 60, 25, COLOR_BUTTON, COLOR_BLACK),
+                            stopButton("stop", 170, 200, 90, 25, COLOR_BUTTON, COLOR_BLACK),
                             graphRenderer(sprite, cm, temperatureSensor),
                             temperatureLabel("Temperature", 15, 40, COLOR_BLACK, 2),
                             curveIndexLabel("Curve Index", 16, 56, COLOR_BLACK, 1),
                             expectedTempLabel("Expected Temp", 16, 75, COLOR_BLACK, 1),
                             timeLabel("Time", 16, 70, COLOR_BLACK, 2),
                             segmentIndexLabel("Segment Index", 5, 40, COLOR_BLACK, 1), // Dodajemy etykietę dla segmentu
-                            editCircle(110, 90, 70, cm),                               // Dodajemy okrąg edycyjny
+                            editCircle(160, 90, 70, cm),                               // Dodajemy okrąg edycyjny
                             closeButton("X", 290, 13, 17, 20, COLOR_BUTTON, COLOR_BLACK),
-                            insertButton("Insert", 156, 183, 52, 25, COLOR_BUTTON, COLOR_BLACK),
-                            skipButton("Skip", 211, 183, 52, 25, COLOR_BUTTON, COLOR_BLACK),
-                            holdButton("Hold", 266, 183, 52, 25, COLOR_BUTTON, COLOR_BLACK),
-                            endHereButton("Cut", 156, 212, 52, 25, COLOR_BUTTON, COLOR_BLACK),
-                            saveButton("Save", 211, 212, 107, 25, COLOR_BUTTON, COLOR_BLACK),
+                            insertButton("insert", 156, 192, 52, 21, COLOR_BUTTON, COLOR_BLACK),
+                            skipButton("skip", 211, 192, 52, 21, COLOR_BUTTON, COLOR_BLACK),
+                            holdButton("hold", 266, 192, 52, 21, COLOR_BUTTON, COLOR_BLACK),
+                            endHereButton("cut", 156, 215, 52, 21, COLOR_BUTTON, COLOR_BLACK),
+                            saveButton("save", 211, 215, 107, 21, COLOR_BUTTON, COLOR_BLACK),
                             settingsButton("S", 290, 13, 17, 20, COLOR_BUTTON, COLOR_BLACK),
                             energyMeter(em),
                             costLabel("", 25, 90, COLOR_BLACK, 1),
                             errorLabel("X", 25, 220, COLOR_RED_DOT, 2),
-                            infoButton("I", 270, 13, 17, 20, COLOR_BUTTON, COLOR_BLACK)
+                            infoButton("I", 270, 13, 17, 20, COLOR_BUTTON, COLOR_BLACK),
+                            infoBox(2, 2, COLOR_BLACK, 1, 1, 1, -4)
 
 {
     SystemState::get().onModeChange = [this](SystemMode newMode)
@@ -88,6 +89,7 @@ GUIRenderer::GUIRenderer(
     uiElements.push_back(&segmentIndexLabel);
     uiElements.push_back(&costLabel);
     uiElements.push_back(&errorLabel);
+    uiElements.push_back(&infoBox);
 
     //  Serial.println("Clickables in list in constructor: " + String(clickables.size()));
     sprite.setFreeFont(FONT_SMALL);
@@ -102,10 +104,11 @@ void GUIRenderer::render()
 {
     // Serial.println("TFT_YELLOW: " + String(TFT_YELLOW)+ " uiPalette[COLOR_BUTTON]: " + String(uiPalette[COLOR_BUTTON]) + " uiPalette[COLOR_MODAL_BG]: " + String(uiPalette[COLOR_MODAL_BG]) + " uiPalette[COLOR_COOLING_LINE]: " + String(uiPalette[COLOR_COOLING_LINE]));
 
-if (!sprite.created())
+    if (!sprite.created())
     {
-        initSprite();                 // tylko za pierwszym razem
-        if (!sprite.created()) return; // zamiast rysować po nullptr
+        initSprite(); // tylko za pierwszym razem
+        if (!sprite.created())
+            return; // zamiast rysować po nullptr
     }
     // sprite.createPalette(255);
     // Serial.printf("Głębia kolorów sprite'a: %d\n", sprite.getColorDepth());
@@ -120,6 +123,22 @@ if (!sprite.created())
         sprite.drawRect(0, 0, TFT_HEIGHT, TFT_WIDTH, COLOR_RED_DOT); // Rysujemy czerwoną ramkę
         sprite.drawRect(1, 1, TFT_HEIGHT - 2, TFT_WIDTH - 2, COLOR_RED_DOT);
         sprite.drawRect(2, 2, TFT_HEIGHT - 4, TFT_WIDTH - 4, COLOR_RED_DOT);
+    }
+    else if (SystemState::get().getMode() == SystemMode::Edit)
+    {
+        infoBox.setLine(0, "%.0f C", curveManager.getSegmentTemp());
+        int h = curveManager.getSegmentTime() / 3600000;
+        int m = (curveManager.getSegmentTime() % 3600000) / 60000;
+        if (curveManager.isSkip())
+        {
+            infoBox.setLine(1, "skip");
+            infoBox.setLine(2, "");
+        }
+        else
+        {
+            infoBox.setLine(1, "%d:%02d", h, m);
+            infoBox.setLine(2, "%+.0f C/h", curveManager.getHeatingSpeed());
+        }
     }
     drawHeader();
     for (auto &uIElement : uiElements)
@@ -138,6 +157,7 @@ if (!sprite.created())
     }
     // sprite.drawCircle(110, 90, 70, TFT_YELLOW); // Rysujemy okrąg
     // Serial.println("modal visible: " + String(modal.isVisible()));
+
     if (modal.isVisible())
     {
         modal.setCJTemp(temperatureSensor.getCJTemperature()); // Ustawiamy temperaturę cold junction w modalu
@@ -153,29 +173,29 @@ if (!sprite.created())
 
 void GUIRenderer::initSprite()
 {
-    sprite.setColorDepth(4);                       // PRZED createSprite
-    sprite.createSprite(TFT_HEIGHT, TFT_WIDTH);    // 320x240 = 38 400 B
+    sprite.setColorDepth(4);                    // PRZED createSprite
+    sprite.createSprite(TFT_HEIGHT, TFT_WIDTH); // 320x240 = 38 400 B
     if (!sprite.created())
     {
         Serial.println("Sprite creation failed!");
         return;
     }
     buildCustomPalette();
-    sprite.createPalette(uiPalette, UI_PALETTE_SIZE);   // PO createSprite
+    sprite.createPalette(uiPalette, UI_PALETTE_SIZE); // PO createSprite
 }
 
 void GUIRenderer::drawHeader()
 {
     // float temperature = tempSensor.getTemperature();
 
-    float temperature = SystemState::get().getMode() != SystemMode::Edit ? (temperatureSensor.getTemperature()+0.5f) : curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex()].endTemp; // potrzebujesz takiej metody
-    int curveIndex = curveSelector.getSelectedIndex();                                                                                                                                         // potrzebujesz takiej metody
+    float temperature = SystemState::get().getMode() != SystemMode::Edit ? (temperatureSensor.getTemperature() + 0.5f) : curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex()].endTemp; // potrzebujesz takiej metody
+    int curveIndex = curveSelector.getSelectedIndex();                                                                                                                                                  // potrzebujesz takiej metody
 
     temperatureLabel.setText(String((int)temperature));
     String segInd = (SystemState::get().getMode() == SystemMode::Idle) ? " " : ("/" + String(curveManager.getSegmentIndex() + 1));
     // Serial.println(curveManager.getSegmentIndex());
     curveIndexLabel.setText("prog #" + String(curveIndex) + segInd);
-    expectedTempLabel.setText((!curveManager.isSkip() ? "e:" + String((int)ProcessController::get().getExpectedTemp()+0.5f) : " ")); // potrzebujesz takiej metody
+    expectedTempLabel.setText((!curveManager.isSkip() ? "e:" + String((int)ProcessController::get().getExpectedTemp() + 0.5f) : " ")); // potrzebujesz takiej metody
     // timeLabel.setText("Time: " + String(curveManager.getTotalTime()) + "s"); // potrzebujesz takiej metody
     segmentIndexLabel.setText(String(curveManager.getSegmentIndex() + 1));
     timeLabel.setText((curveManager.isSkip()) ? "skip" : (Utils::millisToHM(curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex()].hTime) + " (" + String((int)curveManager.getHeatingSpeed()) + ")")); // potrzebujesz takiej metody
@@ -283,17 +303,15 @@ void GUIRenderer::setupUIFormodes(SystemMode mode)
         curveManager.setSegmentIndex(0);
         leftArrow.setVisible(true);
         rightArrow.setVisible(true);
-        timeLabel.setVisible(true);
-        segmentIndexLabel.setVisible(true);
+        // timeLabel.setVisible(true);
         editCircle.setVisible(true);
-        segmentIndexLabel.setVisible(true);
-        temperatureLabel.setVisible(true);
         closeButton.setVisible(true);
         saveButton.setVisible(true);
         endHereButton.setVisible(true);
         holdButton.setVisible(true);
         skipButton.setVisible(true);
         insertButton.setVisible(true);
+        infoBox.setVisible(true);
 
         saveButton.setCallback([&]()
                                {
