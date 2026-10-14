@@ -16,5 +16,7 @@ public:
     static void wobbleStartSound();
     //static void SoundManager::beep(int note, int duration);
     static void chiptuneIntro() ;
+    static void playInTheHallOfTheMountainKing();
+    static void playMountainKing();
 private:
 };
