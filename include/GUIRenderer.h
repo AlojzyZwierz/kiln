@@ -64,7 +64,7 @@ private:
     UILabel temperatureLabel;
     UILabel curveIndexLabel;
     UILabel expectedTempLabel;
-    UILabel timeLabel;
+    //UILabel timeLabel;
     UILabel segmentIndexLabel;
     UILabel costLabel;
     UILabel errorLabel;

@@ -17,6 +17,7 @@ enum PaletteColorIndex : uint8_t
   COLOR_EDIT_CIRCLE,
   COLOR_WHITE,
   COLOR_SKIP,
+  COLOR_RED,
   // 9..15 wolne - dopisuj kolejne tutaj i w buildCustomPalette()
 };
 

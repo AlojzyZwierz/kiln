@@ -21,4 +21,5 @@ void buildCustomPalette()
   uiPalette[COLOR_EDIT_CIRCLE]  = rgb(224, 142, 112);
   uiPalette[COLOR_WHITE]        = rgb(241, 250, 244);
   uiPalette[COLOR_SKIP]         = rgb(121, 70, 101);
+  uiPalette[COLOR_RED]          = rgb(226, 16, 16);
 }

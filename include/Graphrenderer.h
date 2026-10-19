@@ -41,6 +41,7 @@ private:
   void drawTempLabels();
   void drawCurrentTempDot(float temp,  long totalTime);
   void drawThickLine(TFT_eSprite &tft, int x0, int y0, int x1, int y1, uint16_t color, int thickness);
+  void drawDottedLine(TFT_eSprite &tft, int x0, int y0, int x1, int y1, uint16_t color, int dotDiameter, int spacing);
 };
 
 #endif

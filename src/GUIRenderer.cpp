@@ -23,7 +23,7 @@ GUIRenderer::GUIRenderer(
                             temperatureLabel("Temperature", 15, 40, COLOR_BLACK, 2),
                             curveIndexLabel("Curve Index", 16, 56, COLOR_BLACK, 1),
                             expectedTempLabel("Expected Temp", 16, 75, COLOR_BLACK, 1),
-                            timeLabel("Time", 16, 70, COLOR_BLACK, 2),
+                            //timeLabel("Time", 16, 70, COLOR_BLACK, 2),
                             segmentIndexLabel("Segment Index", 5, 40, COLOR_BLACK, 1), // Dodajemy etykietę dla segmentu
                             editCircle(160, 90, 70, cm),                               // Dodajemy okrąg edycyjny
                             closeButton("X", 290, 13, 17, 20, COLOR_BUTTON, COLOR_BLACK),
@@ -85,7 +85,7 @@ GUIRenderer::GUIRenderer(
     uiElements.push_back(&temperatureLabel);
     uiElements.push_back(&curveIndexLabel);
     uiElements.push_back(&expectedTempLabel);
-    uiElements.push_back(&timeLabel);
+    //uiElements.push_back(&timeLabel);
     uiElements.push_back(&segmentIndexLabel);
     uiElements.push_back(&costLabel);
     uiElements.push_back(&errorLabel);
@@ -120,9 +120,9 @@ void GUIRenderer::render()
     graphRenderer.render(); // Rysuje wykres
     if (SystemState::get().getMode() == SystemMode::Firing)
     {
-        sprite.drawRect(0, 0, TFT_HEIGHT, TFT_WIDTH, COLOR_RED_DOT); // Rysujemy czerwoną ramkę
-        sprite.drawRect(1, 1, TFT_HEIGHT - 2, TFT_WIDTH - 2, COLOR_RED_DOT);
-        sprite.drawRect(2, 2, TFT_HEIGHT - 4, TFT_WIDTH - 4, COLOR_RED_DOT);
+        sprite.drawRect(0, 0, TFT_HEIGHT, TFT_WIDTH, COLOR_RED); // Rysujemy czerwoną ramkę
+        sprite.drawRect(1, 1, TFT_HEIGHT - 2, TFT_WIDTH - 2, COLOR_RED);
+        sprite.drawRect(2, 2, TFT_HEIGHT - 4, TFT_WIDTH - 4, COLOR_RED);
     }
     else if (SystemState::get().getMode() == SystemMode::Edit)
     {
@@ -198,7 +198,7 @@ void GUIRenderer::drawHeader()
     expectedTempLabel.setText((!curveManager.isSkip() ? "e:" + String((int)ProcessController::get().getExpectedTemp() + 0.5f) : " ")); // potrzebujesz takiej metody
     // timeLabel.setText("Time: " + String(curveManager.getTotalTime()) + "s"); // potrzebujesz takiej metody
     segmentIndexLabel.setText(String(curveManager.getSegmentIndex() + 1));
-    timeLabel.setText((curveManager.isSkip()) ? "skip" : (Utils::millisToHM(curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex()].hTime) + " (" + String((int)curveManager.getHeatingSpeed()) + ")")); // potrzebujesz takiej metody
+    //timeLabel.setText((curveManager.isSkip()) ? "skip" : (Utils::millisToHM(curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex()].hTime) + " (" + String((int)curveManager.getHeatingSpeed()) + ")")); // potrzebujesz takiej metody
     float cost = energyMeter.getCost();                                                                                                                                                                                // potrzebujesz takiej metody
     if (cost > 0.01f)
         costLabel.setText(String(cost, 2) + " zl"); // potrzebujesz takiej metody

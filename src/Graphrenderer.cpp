@@ -42,6 +42,60 @@ void GraphRenderer::render()
   }
 }
 
+void GraphRenderer::drawDottedLine(TFT_eSprite &tft, int x0, int y0, int x1, int y1,
+                                    uint16_t color, int dotDiameter, int spacing)
+{
+  // spacing == 0 -> automatycznie 3 * średnica (zgodnie z życzeniem)
+  if (spacing <= 0)
+    spacing = dotDiameter * 3;
+
+  float dx = x1 - x0;
+  float dy = y1 - y0;
+  float length = sqrt(dx * dx + dy * dy);
+
+  if (length == 0)
+  {
+    // pojedynczy punkt – narysuj jedną kropkę
+    if (dotDiameter <= 1)
+      tft.drawPixel(x0, y0, color);
+    else
+      tft.fillCircle(x0, y0, dotDiameter / 2, color);
+    return;
+  }
+
+  float ux = dx / length;
+  float uy = dy / length;
+
+  int radius = dotDiameter / 2;
+
+  // rysujemy kropki co "spacing" pikseli, począwszy od (x0,y0)
+  // ostatnia kropka zawsze na końcu linii
+  for (float pos = 0; pos <= length; pos += spacing)
+  {
+    int cx = (int)roundf(x0 + ux * pos);
+    int cy = (int)roundf(y0 + uy * pos);
+
+    if (dotDiameter <= 1)
+      tft.drawPixel(cx, cy, color);
+    else
+      tft.fillCircle(cx, cy, radius, color);
+  }
+
+  // upewnij się, że koniec linii ma kropkę (jeśli ostatnia iteracja go nie trafiła)
+  int endX = (int)roundf(x0 + ux * length);
+  int endY = (int)roundf(y0 + uy * length);
+  int lastX = (int)roundf(x0 + ux * (spacing * floorf(length / spacing)));
+  int lastY = (int)roundf(y0 + uy * (spacing * floorf(length / spacing)));
+
+  if (lastX != endX || lastY != endY)
+  {
+    if (dotDiameter <= 1)
+      tft.drawPixel(endX, endY, color);
+    else
+      tft.fillCircle(endX, endY, radius, color);
+  }
+}
+
 void GraphRenderer::drawThickLine(TFT_eSprite &tft, int x0, int y0, int x1, int y1, uint16_t color, int thickness)
 {
   float dx = x1 - x0;
@@ -147,13 +201,24 @@ void GraphRenderer::drawCurve(const Curve &curve)
     if (mode == SystemMode::Edit && curveManager.getSegmentIndex() == i)
     {
       // sprite.drawLine((int)lastX, 240 - (int)lastY, (int)x, 240 - (int)y, TFT_MAGENTA);
-      drawThickLine(sprite, (int)lastX, 240 - (int)lastY, (int)x, 240 - (int)y, color, 3);
+      if(!curveManager.isSkip(i)){        
+      
+        drawThickLine(sprite, (int)lastX, 240 - (int)lastY, (int)x, 240 - (int)y, color, 3);}
+      else{        
+        drawDottedLine(sprite, (int)lastX, 240 - (int)lastY, (int)x, 240 - (int)y, color, 3, 6);
+      }
       sprite.fillCircle((int)x, 240 - (int)y, 3, color);
     }
     else
     {
       // sprite.drawLine((int)lastX, 240 - (int)lastY, (int)x, 240 - (int)y, TFT_BLACK);}
-      drawThickLine(sprite, (int)lastX, 240 - (int)lastY, (int)x, 240 - (int)y, curveManager.isSkip(i)?COLOR_GRID : COLOR_BLACK, 2);
+      if(!curveManager.isSkip(i)){
+        drawThickLine(sprite, (int)lastX, 240 - (int)lastY, (int)x, 240 - (int)y,  COLOR_BLACK, 2);
+      }
+      else{
+        drawDottedLine(sprite, (int)lastX, 240 - (int)lastY, (int)x, 240 - (int)y, COLOR_BLACK, 2, 6);
+      }
+
       sprite.fillCircle((int)x, 240 - (int)y, 3, COLOR_BLACK);
     }
     if (lastY != y)
