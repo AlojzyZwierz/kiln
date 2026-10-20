@@ -216,7 +216,7 @@ void GraphRenderer::drawCurve(const Curve &curve)
         drawThickLine(sprite, (int)lastX, 240 - (int)lastY, (int)x, 240 - (int)y,  COLOR_BLACK, 2);
       }
       else{
-        drawDottedLine(sprite, (int)lastX, 240 - (int)lastY, (int)x, 240 - (int)y, COLOR_BLACK, 2, 6);
+        drawDottedLine(sprite, (int)lastX, 240 - (int)lastY, (int)x, 240 - (int)y, COLOR_BLACK, 3, 6);
       }
 
       sprite.fillCircle((int)x, 240 - (int)y, 3, COLOR_BLACK);
