@@ -195,7 +195,7 @@ void GUIRenderer::drawHeader()
     String segInd = (SystemState::get().getMode() == SystemMode::Idle) ? " " : ("/" + String(curveManager.getSegmentIndex() + 1));
     // Serial.println(curveManager.getSegmentIndex());
     curveIndexLabel.setText("prog #" + String(curveIndex) + segInd);
-    expectedTempLabel.setText((!curveManager.isSkip() ? "e:" + String((int)ProcessController::get().getExpectedTemp() + 0.5f) : " ")); // potrzebujesz takiej metody
+    expectedTempLabel.setText((!curveManager.isSkip() ? "e:" + String((int)(ProcessController::get().getExpectedTemp() + 0.5f)) : " ")); // potrzebujesz takiej metody
     // timeLabel.setText("Time: " + String(curveManager.getTotalTime()) + "s"); // potrzebujesz takiej metody
     segmentIndexLabel.setText(String(curveManager.getSegmentIndex() + 1));
     //timeLabel.setText((curveManager.isSkip()) ? "skip" : (Utils::millisToHM(curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex()].hTime) + " (" + String((int)curveManager.getHeatingSpeed()) + ")")); // potrzebujesz takiej metody
