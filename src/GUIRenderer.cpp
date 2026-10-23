@@ -18,25 +18,23 @@ GUIRenderer::GUIRenderer(
 
                             startButton("start", 150, 200, 60, 25, COLOR_BUTTON, COLOR_BLACK),
                             editButton("edit", 220, 200, 60, 25, COLOR_BUTTON, COLOR_BLACK),
-                            stopButton("stop", 170, 200, 90, 25, COLOR_BUTTON, COLOR_BLACK),
-                            graphRenderer(sprite, cm, temperatureSensor),
-                            temperatureLabel("Temperature", 15, 40, COLOR_BLACK, 2),
-                            curveIndexLabel("Curve Index", 16, 56, COLOR_BLACK, 1),
-                            expectedTempLabel("Expected Temp", 16, 75, COLOR_BLACK, 1),
-                            //timeLabel("Time", 16, 70, COLOR_BLACK, 2),
-                            segmentIndexLabel("Segment Index", 5, 40, COLOR_BLACK, 1), // Dodajemy etykietę dla segmentu
-                            editCircle(160, 90, 70, cm),                               // Dodajemy okrąg edycyjny
-                            closeButton("X", 290, 13, 17, 20, COLOR_BUTTON, COLOR_BLACK),
+                            stopButton("stop", 170, 200, 90, 25, COLOR_BUTTON, COLOR_BLACK), closeButton("X", 290, 13, 17, 20, COLOR_BUTTON, COLOR_BLACK),
                             insertButton("insert", 156, 192, 52, 21, COLOR_BUTTON, COLOR_BLACK),
                             skipButton("skip", 211, 192, 52, 21, COLOR_BUTTON, COLOR_BLACK),
                             holdButton("hold", 266, 192, 52, 21, COLOR_BUTTON, COLOR_BLACK),
                             endHereButton("cut", 156, 215, 52, 21, COLOR_BUTTON, COLOR_BLACK),
                             saveButton("save", 211, 215, 107, 21, COLOR_BUTTON, COLOR_BLACK),
                             settingsButton("S", 290, 13, 17, 20, COLOR_BUTTON, COLOR_BLACK),
-                            energyMeter(em),
-                            costLabel("", 25, 90, COLOR_BLACK, 1),
-                            errorLabel("X", 25, 220, COLOR_RED_DOT, 2),
                             infoButton("I", 270, 13, 17, 20, COLOR_BUTTON, COLOR_BLACK),
+                            graphRenderer(sprite, cm, temperatureSensor),
+                            editCircle(160, 90, 70, cm),
+                            energyMeter(em),
+                            temperatureLabel("Temperature", 15, 36, COLOR_BLACK, 2),
+                            curveIndexLabel("Curve Index", 16, 52, COLOR_BLACK, 1),
+                            expectedTempLabel("Expected Temp", 16, 71, COLOR_BLACK, 1),
+                            costLabel("", 16, 86, COLOR_BLACK, 1),
+                            segmentIndexLabel("Segment Index", 5, 40, COLOR_BLACK, 1),
+                            errorLabel("X", 25, 220, COLOR_RED_DOT, 2),
                             infoBox(2, 2, COLOR_BLACK, 1, 1, 1, -4)
 
 {
@@ -85,7 +83,7 @@ GUIRenderer::GUIRenderer(
     uiElements.push_back(&temperatureLabel);
     uiElements.push_back(&curveIndexLabel);
     uiElements.push_back(&expectedTempLabel);
-    //uiElements.push_back(&timeLabel);
+    // uiElements.push_back(&timeLabel);
     uiElements.push_back(&segmentIndexLabel);
     uiElements.push_back(&costLabel);
     uiElements.push_back(&errorLabel);
@@ -188,18 +186,21 @@ void GUIRenderer::drawHeader()
 {
     // float temperature = tempSensor.getTemperature();
 
-    float temperature = SystemState::get().getMode() != SystemMode::Edit ? (temperatureSensor.getTemperature() + 0.5f) : curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex()].endTemp; // potrzebujesz takiej metody
-    int curveIndex = curveSelector.getSelectedIndex();                                                                                                                                                  // potrzebujesz takiej metody
+    float temperature = (temperatureSensor.getTemperature() + 0.5f);
+    int curveIndex = curveSelector.getSelectedIndex();
 
     temperatureLabel.setText(String((int)temperature));
-    String segInd = (SystemState::get().getMode() == SystemMode::Idle) ? " " : ("/" + String(curveManager.getSegmentIndex() + 1));
     // Serial.println(curveManager.getSegmentIndex());
-    curveIndexLabel.setText("prog #" + String(curveIndex) + segInd);
-    expectedTempLabel.setText((!curveManager.isSkip() ? "e:" + String((int)(ProcessController::get().getExpectedTemp() + 0.5f)) : " ")); // potrzebujesz takiej metody
+    curveIndexLabel.setText(
+        "prog #" + String(curveIndex) +
+        ((SystemState::get().getMode() != SystemMode::Firing)
+             ? String(" ")
+             : ("/" + String(curveManager.getSegmentIndex() + 1))));
+    expectedTempLabel.setText((!curveManager.isSkip() ? "e:" + String((int)(ProcessController::get().getExpectedTemp() + 0.5f)) : " "));
     // timeLabel.setText("Time: " + String(curveManager.getTotalTime()) + "s"); // potrzebujesz takiej metody
-    segmentIndexLabel.setText(String(curveManager.getSegmentIndex() + 1));
-    //timeLabel.setText((curveManager.isSkip()) ? "skip" : (Utils::millisToHM(curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex()].hTime) + " (" + String((int)curveManager.getHeatingSpeed()) + ")")); // potrzebujesz takiej metody
-    float cost = energyMeter.getCost();                                                                                                                                                                                // potrzebujesz takiej metody
+    // segmentIndexLabel.setText(String(curveManager.getSegmentIndex() + 1));
+    // timeLabel.setText((curveManager.isSkip()) ? "skip" : (Utils::millisToHM(curveManager.getOriginalCurve().elems[curveManager.getSegmentIndex()].hTime) + " (" + String((int)curveManager.getHeatingSpeed()) + ")")); // potrzebujesz takiej metody
+    float cost = energyMeter.getCost(); // potrzebujesz takiej metody
     if (cost > 0.01f)
         costLabel.setText(String(cost, 2) + " zl"); // potrzebujesz takiej metody
     else

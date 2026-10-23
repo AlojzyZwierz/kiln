@@ -35,6 +35,8 @@ void CurveSelector::selectByIndex(int index)
 {
     if (index < 1)
         index = 1;
+        //selectedIndex = index;
     //(StorageManager::loadCurve(curveManager, index));
+    selectedIndex = index;
     loadCurve(index);
 }
