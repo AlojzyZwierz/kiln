@@ -92,11 +92,18 @@ Curve CurveManager::genCurveWithFakeSkips(Curve &curve)
             float temperatureSpan = curve.elems[i].endTemp - (i == 0 ? 20.0f : curve.elems[i - 1].endTemp);
             if (curve.elems[i].skip == 1)
             {
-                // y=0.045977x
-                modified.elems[i].hTime = (unsigned long)abs((0.075f * temperatureSpan  ) * 60000);
+                float temp1 = i == 0 ? 20.0f : curve.elems[i - 1].endTemp;
+                float temp2 = curve.elems[i].endTemp;
+                // long t1 = 720L * temp1 / (1440 - temp1);
+                // long t2 = 720L * temp2 / (1440 - temp2);
+                //  y = (((-3.992) + 0.8649 * x)/(1 - 4.97e-7 * x^2))
+                long t1 = (unsigned long)(((-3.992f) + 0.8649f * temp1) / (1 - 4.97e-7f * temp1 * temp1));
+                long t2 = (unsigned long)(((-3.992f) + 0.8649f * temp2) / (1 - 4.97e-7f * temp2 * temp2));
+                modified.elems[i].hTime = (unsigned long)abs(t2 - t1);
             }
             else if (curve.elems[i].skip == 2)
             {
+
                 // y=(716*x -423)/(1.4x + 250)
                 /*float t1 = (850.0f * temperatureSpan * curve.elems[i - 1].endTemp ) /
                            (1.3f * temperatureSpan * curve.elems[i - 1].endTemp + 500.0f);
@@ -192,17 +199,18 @@ void CurveManager::adjustSkipTime(float deltaTemp, float deltaTime)
     */
 float CurveManager::getHeatingSpeed() const
 {
-    //float deltaTemp = originalCurve.elems[currentSegmentIndex].endTemp - (currentSegmentIndex == 0 ? 20.0f : originalCurve.elems[currentSegmentIndex - 1].endTemp);
+    // float deltaTemp = originalCurve.elems[currentSegmentIndex].endTemp - (currentSegmentIndex == 0 ? 20.0f : originalCurve.elems[currentSegmentIndex - 1].endTemp);
 
-    unsigned long deltaTime = originalCurve.elems[currentSegmentIndex].hTime;// - originalCurve.elems[currentSegmentIndex - 1].hTime;
+    unsigned long deltaTime = originalCurve.elems[currentSegmentIndex].hTime; // - originalCurve.elems[currentSegmentIndex - 1].hTime;
     if (deltaTime == 0)
-        return 0.0f;                             // Avoid division by zero
+        return 0.0f;                                  // Avoid division by zero
     return getDeltaTemp() / (deltaTime / 3600000.0f); // Convert milliseconds to hours
 }
 int CurveManager::activeSegments() const
 {
     int n = 0;
-    while (n < curveElemsNo && originalCurve.elems[n].hTime != 0) n++;
+    while (n < curveElemsNo && originalCurve.elems[n].hTime != 0)
+        n++;
     return n;
 }
 
@@ -215,18 +223,19 @@ bool CurveManager::canAddSegment() const
 
 bool CurveManager::addSegment()
 {
-    if (SystemState::get().isLocked() || !canAddSegment()) return false;
+    if (SystemState::get().isLocked() || !canAddSegment())
+        return false;
 
     int idx = currentSegmentIndex + 1;
     Seg &s = originalCurve.elems[idx];
-    s.hTime   = 3600000;
+    s.hTime = 3600000;
     s.endTemp = originalCurve.elems[idx - 1].endTemp;
-    s.skip    = 0;
+    s.skip = 0;
 
     Seg &term = originalCurve.elems[idx + 1];
-    term.hTime   = 0;                 // czas 0 oznacza koniec krzywej
-    term.endTemp = 100.0f;            // jak w loadOriginalCurve
-    term.skip    = 0;
+    term.hTime = 0;        // czas 0 oznacza koniec krzywej
+    term.endTemp = 100.0f; // jak w loadOriginalCurve
+    term.skip = 0;
 
     currentSegmentIndex = idx;
     adjustedCurve = genCurveWithFakeSkips(originalCurve);
@@ -237,12 +246,13 @@ bool CurveManager::addSegment()
 bool CurveManager::canInsert(int idx) const
 {
     int n = activeSegments();
-    return idx >= 0 && idx < n && n + 2 <= curveElemsNo;   // musi się zmieścić terminator
+    return idx >= 0 && idx < n && n + 2 <= curveElemsNo; // musi się zmieścić terminator
 }
 
 bool CurveManager::insertSegment(int idx)
 {
-    if (SystemState::get().isLocked() || !canInsert(idx)) return false;
+    if (SystemState::get().isLocked() || !canInsert(idx))
+        return false;
 
     int n = activeSegments();
     // przesuwamy w prawo razem z terminatorem (jeśli się mieści);
@@ -250,13 +260,14 @@ bool CurveManager::insertSegment(int idx)
     for (int i = min(n + 1, curveElemsNo - 1); i > idx; i--)
         originalCurve.elems[i] = originalCurve.elems[i - 1];
 
-    float prevTemp  = getSegmentStartTemperature(idx);
-    float endTemp   = originalCurve.elems[idx].endTemp;
+    float prevTemp = getSegmentStartTemperature(idx);
+    float endTemp = originalCurve.elems[idx].endTemp;
     unsigned long h = originalCurve.elems[idx].hTime;
-    if (h < 2) h = 2;
+    if (h < 2)
+        h = 2;
 
-    originalCurve.elems[idx].hTime     = h / 2;
-    originalCurve.elems[idx].endTemp   = (prevTemp + endTemp) / 2.0f;
+    originalCurve.elems[idx].hTime = h / 2;
+    originalCurve.elems[idx].endTemp = (prevTemp + endTemp) / 2.0f;
     originalCurve.elems[idx + 1].hTime = h - h / 2;
     // elems[idx+1].endTemp i .skip pochodzą teraz z kopii oryginału
 
@@ -272,12 +283,13 @@ bool CurveManager::canEndHere() const
 
 void CurveManager::endHere()
 {
-    if (SystemState::get().isLocked() || !canEndHere()) return;
-    for (int i = currentSegmentIndex + 1; i < curveElemsNo; i++)   // czyścimy też ogon
+    if (SystemState::get().isLocked() || !canEndHere())
+        return;
+    for (int i = currentSegmentIndex + 1; i < curveElemsNo; i++) // czyścimy też ogon
     {
-        originalCurve.elems[i].hTime   = 0;
+        originalCurve.elems[i].hTime = 0;
         originalCurve.elems[i].endTemp = 100.0f;
-        originalCurve.elems[i].skip    = 0;
+        originalCurve.elems[i].skip = 0;
     }
     adjustedCurve = genCurveWithFakeSkips(originalCurve);
 }
@@ -287,7 +299,8 @@ bool CurveManager::canHold() const { return currentSegmentIndex > 0; }
 
 void CurveManager::setHold()
 {
-    if (!canHold()) return;
+    if (!canHold())
+        return;
     setSkip(currentSegmentIndex, 0);
     updateTemperature(currentSegmentIndex, getSegmentStartTemperature(currentSegmentIndex));
 }
@@ -298,8 +311,8 @@ bool CurveManager::canSkipAuto() const
 }
 void CurveManager::setSkipAuto()
 {
-    if (!canSkipAuto()) return;
-    bool up = currentSegmentIndex == 0
-           || getSegmentStartTemperature(currentSegmentIndex) < originalCurve.elems[currentSegmentIndex].endTemp;
+    if (!canSkipAuto())
+        return;
+    bool up = currentSegmentIndex == 0 || getSegmentStartTemperature(currentSegmentIndex) < originalCurve.elems[currentSegmentIndex].endTemp;
     setSkip(currentSegmentIndex, up ? 1 : 2);
 }
