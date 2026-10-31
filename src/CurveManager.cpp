@@ -97,9 +97,11 @@ Curve CurveManager::genCurveWithFakeSkips(Curve &curve)
                 // long t1 = 720L * temp1 / (1440 - temp1);
                 // long t2 = 720L * temp2 / (1440 - temp2);
                 //  y = (((-3.992) + 0.8649 * x)/(1 - 4.97e-7 * x^2))
-                long t1 = (unsigned long)(((-3.992f) + 0.8649f * temp1) / (1 - 4.97e-7f * temp1 * temp1));
-                long t2 = (unsigned long)(((-3.992f) + 0.8649f * temp2) / (1 - 4.97e-7f * temp2 * temp2));
-                modified.elems[i].hTime = (unsigned long)abs(t2 - t1);
+                long t1 = (unsigned long)(((-3.992) + 0.8649 * temp1) / (1 - 4.97e-7 * temp1 * temp1));
+               // Serial.println("t1: " + String(t1) + " temp1: " + String(temp1));
+               // Serial.println(": " + String(((-3.992) + 0.8649 * temp1)) + " .. : " + String((1 - 4.97e-7 * temp1 * temp1)));
+                long t2 = (unsigned long)(((-3.992) + 0.8649 * temp2) / (1 - 4.97e-7 * temp2 * temp2));
+                modified.elems[i].hTime = (unsigned long)abs(t2 - t1)*1000;
             }
             else if (curve.elems[i].skip == 2)
             {
