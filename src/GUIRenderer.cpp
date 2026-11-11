@@ -72,6 +72,11 @@ GUIRenderer::GUIRenderer(
     infoButton.setCallback([&]()
                            { modal.show(ModalMode::Info); });
 
+    //armedButton.setCallback([&]()
+            //                { SystemState::get().setArmed(false, 0, 0); });
+    armedButton.setCallback([&]()
+                            { modal.show(ModalMode::Confirmation, "Cancel delayed start?", []()
+                                         { SystemState::get().setArmed(false, 0, 0); }); });
     clickables.push_back(&startButton);
     clickables.push_back(&leftArrow);
     clickables.push_back(&rightArrow);
@@ -109,7 +114,7 @@ GUIRenderer::GUIRenderer(
         if (h == 0)
             ProcessController::get().startFiring();
         else
-            SystemState::get().setArmed(true, (uint32_t)h * 3600000UL,
+            SystemState::get().setArmed(true, (uint32_t)h,
                                         curveSelector.getSelectedIndex());
     };
 }
@@ -136,7 +141,8 @@ void GUIRenderer::render()
         drawFrame(COLOR_RED);
     else if (SystemState::get().isArmed())
         drawFrame(COLOR_COOLING_LINE);
-    else if (SystemState::get().getMode() == SystemMode::Edit)
+
+    if (SystemState::get().getMode() == SystemMode::Edit)
     {
         infoBox.setLine(0, "%.0f C", curveManager.getSegmentTemp());
         int h = curveManager.getSegmentTime() / 3600000;
@@ -153,7 +159,7 @@ void GUIRenderer::render()
         }
     }
     drawHeader();
-
+    armedButton.setText("A" + Utils::millisToHM(SystemState::get().getArmedRemainingMs() + 59999)); // +500ms dla zaokrąglenia do góry
     for (auto &uIElement : uiElements)
     { // Używamy referencji (auto&), aby uniknąć kopiowania
         if (uIElement->isVisible())
@@ -292,9 +298,10 @@ void GUIRenderer::setupUIFormodes(SystemMode mode)
     case SystemMode::Idle:
         // infoButton.setVisible(true);
         errorLabel.setVisible(true);
-        bool armed = SystemState::get().isArmed();
-        startButton.setVisible(!armed);
-        armedButton.setVisible(armed);
+        // bool armed = SystemState::get().isArmed();
+        startButton.setVisible(!SystemState::get().isArmed());
+        armedButton.setVisible(SystemState::get().isArmed());
+        // armedButton.setText("armed " + Utils::millisToHM(SystemState::get().getArmedRemainingMs()));
 
         editButton.setVisible(true);
         leftArrow.setVisible(true);
@@ -313,10 +320,10 @@ void GUIRenderer::setupUIFormodes(SystemMode mode)
         // curveManager.setSegmentIndex(-1); // Resetowanie indeksu segmentu
         settingsButton.setVisible(true);
         costLabel.setVisible(true);
-        modal.onConfirm = [this]()
+        /*modal.onConfirm = [this]()
         {
             SystemState::get().setDelayedCurveIndex(curveManager.getcurrentCurveIndex());
-        };
+        };*/
         settingsButton.setCallback([&]()
                                    { modal.show(ModalMode::Settings); });
         infoButton.setCallback([&]()

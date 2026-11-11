@@ -1,70 +1,66 @@
-    #include "ResumeManager.h"
-    const char *resumePath = "/resume.dat";
+#include "ResumeManager.h"
+const char *resumePath = "/resume.dat";
+static bool readData(ResumeData &d)
+{
+    if (!SPIFFS.exists(resumePath))
+        return false;
+    File f = SPIFFS.open(resumePath, "r");
+    if (!f)
+        return false;
+    bool ok = f.size() == sizeof(ResumeData) &&
+              f.readBytes((char *)&d, sizeof(d)) == sizeof(d) &&
+              d.magic == 0xA5 && d.curve >= 0 &&
+              (d.type == ResumeType::Firing || d.type == ResumeType::Armed);
+    f.close();
+    return ok;
+}
 
-    bool ResumeManager::hasResumeData() {
-        bool exists = SPIFFS.exists(resumePath);
-        Serial.printf("Resume data exists: %s\n", exists ? "YES" : "NO");
-        return exists;
-    }
+static void writeData(const ResumeData &d)
+{
+    File f = SPIFFS.open(resumePath, "w"); // "w" sam obcina plik, remove() niepotrzebne
+    if (!f)
+        return;
+    f.write((const uint8_t *)&d, sizeof(d));
+    f.close();
+}
 
-    int ResumeManager::loadCurveIndex()
+bool ResumeManager::hasResumeData()
+{
+    ResumeData d;
+    return readData(d) && d.type == ResumeType::Firing;
+}
+int ResumeManager::loadCurveIndex()
+{
+    ResumeData d;
+    return (readData(d) && d.type == ResumeType::Firing) ? d.curve : -1;
+}
+void ResumeManager::saveCurveIndex(int i) { writeData({0xA5, ResumeType::Firing, (int16_t)i, 0}); }
+
+void ResumeManager::saveArmed(int curve, uint32_t remainingMs) { writeData({0xA5, ResumeType::Armed, (int16_t)curve, remainingMs}); }
+bool ResumeManager::loadArmed(int &curve, uint32_t &remainingMs)
+{
+    ResumeData d;
+    if (!readData(d) || d.type != ResumeType::Armed)
+        return false;
+    curve = d.curve;
+    remainingMs = d.remainingMs;
+    return true;
+}
+void ResumeManager::clearArmed()
+{
+    ResumeData d;
+    if (readData(d) && d.type == ResumeType::Armed)
+        clear();
+}
+
+void ResumeManager::clear()
+{
+    if (SPIFFS.remove(resumePath))
     {
-        if (!hasResumeData())
-        {
-            return -1;
-        }
-
-        File file = SPIFFS.open(resumePath, "r");
-        if (!file || file.size() < sizeof(int))
-        {
-            if (file)
-                file.close();
-            return -1;
-        }
-
-        int index = -1;
-        if (file.readBytes((char *)&index, sizeof(index)) != sizeof(index))
-        {
-            file.close();
-            return -1;
-        }
-
-        file.close();
-        Serial.println("Loaded curve index: " + String(index));
-        return index;
+        Serial.println("Resume data cleared");
     }
-
-    void ResumeManager::saveCurveIndex(int index)
+    else
     {
-        if (SPIFFS.exists(resumePath))
-        {
-            SPIFFS.remove(resumePath);
-        }
-
-        File file = SPIFFS.open(resumePath, "w");
-        if (!file)
-        {
-            Serial.println("Failed to open file for writing");
-            return;
-        }
-
-        if (file.write((uint8_t *)&index, sizeof(index)) != sizeof(index))
-        {
-            Serial.println("Failed to write data");
-        }
-        file.flush();
-        file.close();
-        Serial.println("Saved curve index: " + String(index));
+        Serial.println("Failed to clear resume data");
     }
-
-    void ResumeManager::clear()
-    {
-        if (SPIFFS.remove(resumePath))
-        {
-            Serial.println("Resume data cleared");
-        }
-        else
-        {
-            Serial.println("Failed to clear resume data");
-        }
-    }
+}

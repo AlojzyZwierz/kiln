@@ -20,8 +20,8 @@
 
 TFT_eSPI tft = TFT_eSPI();
 
-
 #define FONT_SIZE 2
+#define CHECKPOINT_MS 1800000
 // #define SSR 22 // pin przekaźnika – ustaw wg własnych potrzeb
 
 SPIClass touchscreenSPI = SPIClass(VSPI);
@@ -43,7 +43,7 @@ bool wasTouched = false;
 unsigned long lastTouchTime = 0;
 // MeasurementManager measurementManager;
 
-//unsigned long measurementInterval = 150000;//
+// unsigned long measurementInterval = 150000;//
 
 void setup()
 {
@@ -61,24 +61,23 @@ void setup()
     delay(1000);
   }
   curveSelector.selectByIndex(1);
-  curveSelector.selectNext();
+  //curveSelector.selectNext();
   ProcessController::get().begin(curveManager, temperatureSensor, heatingController, energyMeter);
   // StorageManager::saveSettings();
   StorageManager::loadSettings();
 
   // Serial.println("Settings loaded: " + String(SettingsManager::get().getSettings().pid_kp) + ", " + String(SettingsManager::get().getSettings().pid_ki) + ", " + String(SettingsManager::get().getSettings().pid_kd));
   // Serial.println("Settings loaded: " + String(SettingsManager::get().getSettings().heatingCycleMs) + ", " + String(SettingsManager::get().getSettings().kilnPower) + ", " + String(SettingsManager::get().getSettings().unitCost));
-  
-  
+
   tft.init();
   tft.fillScreen(TFT_WHITE);
   Serial.println("TFT initialized.");
-  tft.setRotation(1);  
+  tft.setRotation(1);
   tft.setTextSize(1);
   tft.setCursor(3, 200);
   tft.print(BUILD_TIME);
   tft.setTextSize(1);
-  
+
   while (!temperatureSensor.begin())
   {
     Serial.println("Failed to initialize temperature sensor!");
@@ -89,7 +88,7 @@ void setup()
   }
   Serial.println("Temperature sensor initialized.");
   tft.setTextColor(TFT_BLACK);
-  //tft.fillScreen(COLOR_BG);
+  // tft.fillScreen(COLOR_BG);
   tft.setCursor(16, 50);
   tft.print("Initializing.");
   temperatureSensor.begin();
@@ -114,6 +113,13 @@ void setup()
     Serial.println(cIndex);
     curveSelector.selectByIndex(cIndex);
     ProcessController::get().startFiring();
+  }
+  else
+  {
+    int curve;
+    uint32_t remaining;
+    if (ResumeManager::loadArmed(curve, remaining))
+      SystemState::get().armFromMs(true, remaining, curve);
   }
   tft.print(".");
 
@@ -155,15 +161,33 @@ void loop()
       ProcessController::get().checkSegmentAdvance();
       ProcessController::get().checkForErrors();
       // ProcessController::get().adjustSkipTime();
-    }else{
-      if(SystemState::get().isDelayElapsed() ){        
+    }
+    else
+    {
+      if (SystemState::get().isDelayElapsed())
+      {
         curveSelector.selectByIndex(SystemState::get().getDelayedCurveIndex());
-        SystemState::get().setArmed(false, 0,  0);
+        SystemState::get().setArmed(false, 0, 0);
         ProcessController::get().startFiring();
-      } 
+      }
+    }
+    if (SystemState::get().isArmed())
+    {
+      Serial.print("e: " + String(SystemState::get().getDelayedTime() - millis()) + ">" + String(SystemState::get().getDelayedCurveIndex()) + "  ");
     }
     // printMemoryInfo();
   }
+
+  else if (SystemState::get().isArmed())
+  {
+    static uint32_t lastCheckpoint = 0;
+    if (millis() - lastCheckpoint >= CHECKPOINT_MS)
+    {
+      lastCheckpoint = millis();
+      ResumeManager::saveArmed(SystemState::get().getDelayedCurveIndex(), SystemState::get().getArmedRemainingMs());
+    }
+  }
+
   bool isTouched = touchscreen.tirqTouched() && touchscreen.touched();
   if (isTouched)
   {
@@ -176,11 +200,11 @@ void loop()
     {
 
       TS_Point p = touchscreen.getPoint();
-      int y = map(p.x, 400, 3800, 0, 240); //moj
-      int x = map(p.y, 3600, 450, 0, 320);// moj
-      //int y = map(p.y, 3800, 300, 0, 240);
-      //int x = map(p.x, 3800, 500, 0, 320);
-      //Serial.println("Klik " + String(x) + " " + String(y) + "  raw: " + String(p.x) + " " + String(p.y) );
+      int y = map(p.x, 400, 3800, 0, 240); // moj
+      int x = map(p.y, 3600, 450, 0, 320); // moj
+      // int y = map(p.y, 3800, 300, 0, 240);
+      // int x = map(p.x, 3800, 500, 0, 320);
+      // Serial.println("Klik " + String(x) + " " + String(y) + "  raw: " + String(p.x) + " " + String(p.y) );
 
       guiRenderer.handleTouch(x, y);
       guiRenderer.render();

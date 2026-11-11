@@ -1,6 +1,10 @@
 #pragma once
 #include <functional>
 #include <Arduino.h>
+#include <ResumeManager.h>
+
+#define MS_PER_DELAY_HOUR 3600000
+
 enum class SystemMode
 {
     Idle,
@@ -46,12 +50,21 @@ public:
     }
     void setArmed(bool isArmed, int delayTimeH, int curveIndex)
     {
+        armFromMs(isArmed, (uint32_t)delayTimeH * MS_PER_DELAY_HOUR, curveIndex);
+    }
+    void armFromMs(bool isArmed, uint32_t ms, int curveIndex)
+    {
         delayed = isArmed;
         delayedCurveIndex = curveIndex;
         if (delayed)
         {
-            delayedTime = millis() + delayTimeH * 3600000; // przeliczamy godziny na milisekundy
+            delayedTime = millis() + ms;
+            ResumeManager::saveArmed(curveIndex, ms);
         }
+        else
+            ResumeManager::clearArmed();
+        if (onArmedChange)
+            onArmedChange(delayed);
     }
     bool isArmed() const
     {
@@ -71,13 +84,15 @@ public:
     }
     bool isDelayElapsed() const
     {
-        return delayed && (uint32_t)(millis()> delayedTime) ;
+        return delayed && (int32_t)(millis() - delayedTime) >= 0;
     }
-    uint32_t getArmedRemainingMs() const {
-    if (!delayed) return 0;
-    uint32_t elapsed =   delayedTime - millis() ;
-    return elapsed < 0 ? 0 :  elapsed;
-}
+    uint32_t getArmedRemainingMs() const
+    {
+        if (!delayed)
+            return 0;
+        int32_t rem = (int32_t)(delayedTime - millis());
+        return rem > 0 ? (uint32_t)rem : 0;
+    }
 
 private:
     SystemState() = default;
