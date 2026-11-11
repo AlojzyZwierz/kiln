@@ -48,6 +48,11 @@ bool TextButton::isHighlighted() const
 {
     return highlighted;
 }
+
+void TextButton::setText(const String &newText)
+{
+    text = newText;
+}
 /*
 void TextButton::onClick(){
     if (callback) callback();

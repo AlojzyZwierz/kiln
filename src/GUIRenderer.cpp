@@ -18,7 +18,8 @@ GUIRenderer::GUIRenderer(
 
                             startButton("start", 150, 200, 60, 25, COLOR_BUTTON, COLOR_BLACK),
                             editButton("edit", 220, 200, 60, 25, COLOR_BUTTON, COLOR_BLACK),
-                            stopButton("stop", 170, 200, 90, 25, COLOR_BUTTON, COLOR_BLACK), closeButton("X", 290, 13, 17, 20, COLOR_BUTTON, COLOR_BLACK),
+                            stopButton("stop", 170, 200, 90, 25, COLOR_BUTTON, COLOR_BLACK),
+                            closeButton("X", 290, 13, 17, 20, COLOR_BUTTON, COLOR_BLACK),
                             insertButton("insert", 156, 192, 52, 21, COLOR_BUTTON, COLOR_BLACK),
                             skipButton("skip", 211, 192, 52, 21, COLOR_BUTTON, COLOR_BLACK),
                             holdButton("hold", 266, 192, 52, 21, COLOR_BUTTON, COLOR_BLACK),
@@ -26,6 +27,7 @@ GUIRenderer::GUIRenderer(
                             saveButton("save", 211, 215, 107, 21, COLOR_BUTTON, COLOR_BLACK),
                             settingsButton("S", 290, 13, 17, 20, COLOR_BUTTON, COLOR_BLACK),
                             infoButton("I", 270, 13, 17, 20, COLOR_BUTTON, COLOR_BLACK),
+                            armedButton("armed", 150, 200, 60, 25, COLOR_BUTTON, COLOR_BLACK),
                             graphRenderer(sprite, cm, temperatureSensor),
                             editCircle(160, 90, 70, cm),
                             energyMeter(em),
@@ -43,6 +45,13 @@ GUIRenderer::GUIRenderer(
         this->setupUIFormodes(newMode);
         render(); // Odśwież GUI po zmianie trybu
     };
+
+    SystemState::get().onArmedChange = [this](bool)
+    {
+        if (SystemState::get().getMode() == SystemMode::Idle)
+            this->setupUIFormodes(SystemMode::Idle);
+        render();
+    };
     ProcessController::get().setErrorCallback([this](const String &reason)
                                               { this->modal.show(ModalMode::Error, reason); });
 
@@ -51,10 +60,7 @@ GUIRenderer::GUIRenderer(
     // Możesz też od razu ustawić początkowy stan GUI
     setupUIFormodes(SystemState::get().getMode());
     startButton.setCallback([&]()
-                            {
-                                ProcessController::get().startFiring();
-                                // setMode(SystemMode::Firing);
-                            });
+                            { modal.show(ModalMode::DelayedStart); });
     editButton.setCallback([&]()
                            {
             //curveSelector.selectNext();
@@ -80,6 +86,7 @@ GUIRenderer::GUIRenderer(
     clickables.push_back(&skipButton);
     clickables.push_back(&infoButton);
     clickables.push_back(&insertButton);
+    clickables.push_back(&armedButton);
     uiElements.push_back(&temperatureLabel);
     uiElements.push_back(&curveIndexLabel);
     uiElements.push_back(&expectedTempLabel);
@@ -95,6 +102,15 @@ GUIRenderer::GUIRenderer(
     modal.onClose = [this]()
     {
         this->render(); // albo render(), co tam masz
+    };
+
+    modal.onDelayConfirmed = [this](int h)
+    {
+        if (h == 0)
+            ProcessController::get().startFiring();
+        else
+            SystemState::get().setArmed(true, (uint32_t)h * 3600000UL,
+                                        curveSelector.getSelectedIndex());
     };
 }
 
@@ -117,11 +133,9 @@ void GUIRenderer::render()
 
     graphRenderer.render(); // Rysuje wykres
     if (SystemState::get().getMode() == SystemMode::Firing)
-    {
-        sprite.drawRect(0, 0, TFT_HEIGHT, TFT_WIDTH, COLOR_RED); // Rysujemy czerwoną ramkę
-        sprite.drawRect(1, 1, TFT_HEIGHT - 2, TFT_WIDTH - 2, COLOR_RED);
-        sprite.drawRect(2, 2, TFT_HEIGHT - 4, TFT_WIDTH - 4, COLOR_RED);
-    }
+        drawFrame(COLOR_RED);
+    else if (SystemState::get().isArmed())
+        drawFrame(COLOR_COOLING_LINE);
     else if (SystemState::get().getMode() == SystemMode::Edit)
     {
         infoBox.setLine(0, "%.0f C", curveManager.getSegmentTemp());
@@ -139,6 +153,7 @@ void GUIRenderer::render()
         }
     }
     drawHeader();
+
     for (auto &uIElement : uiElements)
     { // Używamy referencji (auto&), aby uniknąć kopiowania
         if (uIElement->isVisible())
@@ -277,7 +292,10 @@ void GUIRenderer::setupUIFormodes(SystemMode mode)
     case SystemMode::Idle:
         // infoButton.setVisible(true);
         errorLabel.setVisible(true);
-        startButton.setVisible(true);
+        bool armed = SystemState::get().isArmed();
+        startButton.setVisible(!armed);
+        armedButton.setVisible(armed);
+
         editButton.setVisible(true);
         leftArrow.setVisible(true);
         rightArrow.setVisible(true);
@@ -295,10 +313,15 @@ void GUIRenderer::setupUIFormodes(SystemMode mode)
         // curveManager.setSegmentIndex(-1); // Resetowanie indeksu segmentu
         settingsButton.setVisible(true);
         costLabel.setVisible(true);
+        modal.onConfirm = [this]()
+        {
+            SystemState::get().setDelayedCurveIndex(curveManager.getcurrentCurveIndex());
+        };
         settingsButton.setCallback([&]()
                                    { modal.show(ModalMode::Settings); });
         infoButton.setCallback([&]()
                                { modal.show(ModalMode::Info); });
+
         break;
     case SystemMode::Edit:
         curveManager.setSegmentIndex(0);
@@ -307,6 +330,10 @@ void GUIRenderer::setupUIFormodes(SystemMode mode)
         // timeLabel.setVisible(true);
         editCircle.setVisible(true);
         closeButton.setVisible(true);
+        saveButton.setText(SystemState::get().isArmed() &&
+                                   SystemState::get().getDelayedCurveIndex() == curveSelector.getSelectedIndex()
+                               ? "save armed"
+                               : "save");
         saveButton.setVisible(true);
         endHereButton.setVisible(true);
         holdButton.setVisible(true);
@@ -316,9 +343,6 @@ void GUIRenderer::setupUIFormodes(SystemMode mode)
 
         saveButton.setCallback([&]()
                                {
-                if(curveManager.getSegmentIndex() < curveElemsNo-1) {
-                 //   curveManager.getOriginalCurve().elems[0].hTime = 0;
-                }
                 StorageManager::saveCurve(curveManager, curveSelector.getSelectedIndex());
                 Serial.println(curveManager.getOriginalCurve().toString());
                 SystemState::get().setMode(SystemMode::Idle); });
@@ -352,13 +376,16 @@ void GUIRenderer::setupUIFormodes(SystemMode mode)
         stopButton.setCallback([&]()
                                { modal.show(ModalMode::Confirmation, "Stop firing?", []()
                                             { ProcessController::get().abort("Aborted by user"); }); });
-
-        //     ProcessController::get().abort("Aborted by user");
-        //       SystemState::get().setMode(SystemMode::Idle); });
         settingsButton.setVisible(true);
         settingsButton.setCallback([&]()
                                    { modal.show(ModalMode::Settings); });
 
         break;
     }
+}
+
+void GUIRenderer::drawFrame(uint8_t color)
+{
+    for (int i = 0; i < 3; i++)
+        sprite.drawRect(i, i, TFT_HEIGHT - 2 * i, TFT_WIDTH - 2 * i, color);
 }

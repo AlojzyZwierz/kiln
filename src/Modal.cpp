@@ -36,7 +36,7 @@ Modal::Modal()
 }
 void Modal::show(ModalMode mode, const String &extra, std::function<void()> confirmCallback)
 {
- //   Serial.println("Modal::show() called with mode: " + String(static_cast<int>(mode)) + " extra: " + extra);
+    //   Serial.println("Modal::show() called with mode: " + String(static_cast<int>(mode)) + " extra: " + extra);
 
     visible = true;
     currentMode = mode;
@@ -66,8 +66,11 @@ void Modal::show(ModalMode mode, const String &extra, std::function<void()> conf
         buildInfo();
         break;
     case ModalMode::Message:
-        buildMessage(extra);    
+        buildMessage(extra);
         break;
+    case ModalMode::DelayedStart:
+        buildDelayedStart();    
+        break;  
     default:
         break;
     }
@@ -96,9 +99,9 @@ void Modal::render(TFT_eSprite &sprite)
     expectedTempLabel.setText(String(ProcessController::get().getExpectedTemp()));
     // currentTempLabel.setText(String(ProcessController::get().getCurrentTemp()));
     currentTempLabel.setText(String(ProcessController::get().getCurrentTemp()));
-    entryNameLabel.setPosition(sprite.width()/2 - entryNameLabel.getWidth(sprite)/2, 165);
-    
-    //Serial.println(String(ProcessController::get().getCurrentTemp()) + " " + String(tcVoltage));
+    entryNameLabel.setPosition(sprite.width() / 2 - entryNameLabel.getWidth(sprite) / 2, 165);
+
+    // Serial.println(String(ProcessController::get().getCurrentTemp()) + " " + String(tcVoltage));
 
     for (auto *el : uiElements)
     {
@@ -141,7 +144,7 @@ void Modal::buildSettings()
 {
     title = "Settings";
 
-  //  Serial.println("Building settings modal with " + String(cjTemp));
+    //  Serial.println("Building settings modal with " + String(cjTemp));
     updateFromCurrentEntry(); // Ustawia aktualną wartość i nazwę wpisu
     // Przyciski np. do zwiększania/zmniejszania wartości
     // lub np. delegacja do `SettingsManager`
@@ -289,6 +292,51 @@ void Modal::buildInfo()
         } });
 }
 
+void Modal::buildDelayedStart()
+{
+    title = "Start firing";
+    entryNameLabel.setText("start in");
+    delayHours = 0; // zawsze od zera
+
+    auto refresh = [this]()
+    {
+        valueLabel.setText(delayHours == 0 ? String("now") : String(delayHours) + " h");
+    };
+    refresh();
+
+    plusButton.setCallback([this, refresh]()
+                           {
+        if (delayHours < MAX_DELAY_H)
+            delayHours++;
+        refresh(); });
+
+    minusButton.setCallback([this, refresh]()
+                            {
+        if (delayHours > MIN_DELAY_H)
+            delayHours--;
+        refresh(); });
+    okButton.setCallback([this]()
+                         {
+    hide();
+    if (onDelayConfirmed)
+        onDelayConfirmed(delayHours);
+    if (onClose)
+        onClose(); });
+
+    closeButton.setCallback([this]()
+                            {
+        hide();
+        if (onClose) {
+            onClose();
+        } });
+
+    okButton.setVisible(true);
+    closeButton.setVisible(true);
+    plusButton.setVisible(true);
+    minusButton.setVisible(true);
+    valueLabel.setVisible(true);
+    entryNameLabel.setVisible(true);
+}
 void Modal::setTCVoltage(float voltage)
 {
     tcVoltage = voltage;

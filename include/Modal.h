@@ -11,15 +11,18 @@
 #include "ColorPalette.h"
 #include "TemperatureSensor.h"
 #include <ProcessController.h>
+#include "SystemState.h"
+#include "CurveManager.h"
 
 enum class ModalMode
 {
     None,
     Settings,
     Error,
-    Info, 
+    Info,
     Confirmation,
-    Message
+    Message,
+    DelayedStart
 };
 
 class Modal
@@ -27,8 +30,9 @@ class Modal
 public:
     Modal();
     std::function<void()> onConfirm;
+    std::function<void(int hours)> onDelayConfirmed;
 
-    void show(ModalMode mode, const String& extra = "", std::function<void()> confirmCallback = nullptr);
+    void show(ModalMode mode, const String &extra = "", std::function<void()> confirmCallback = nullptr);
     void hide();
 
     void render(TFT_eSprite &sprite);
@@ -36,20 +40,26 @@ public:
 
     bool isVisible() const { return visible; }
     std::function<void()> onClose;
-    void setCJTemp(float temp) { 
+    void setCJTemp(float temp)
+    {
         cjTemp = temp;
-        //Serial.println("setCJTemp: " + String(cjTemp));
+        // Serial.println("setCJTemp: " + String(cjTemp));
     }
     void setInfoMessage(String info);
     void setTCVoltage(float volatage);
     void setTCTemp(float temp);
+    void buildDelayedStart();
+
+    static constexpr int MIN_DELAY_H = 1;
+    static constexpr int MAX_DELAY_H = 72;
+    int delayHours = 0;
 
 private:
     void buildSettings();
     void updateFromCurrentEntry();
     void buildError(const String &errorMessage = "An error occurred.");
     void buildMessage(const String &message = "Information", const String &titleText = "Info");
-    void buildConfirmation(const String& message, std::function<void()> confirmCallback);
+    void buildConfirmation(const String &message, std::function<void()> confirmCallback);
     void buildInfo();
 
     bool visible = false;
@@ -77,7 +87,6 @@ private:
     UILabel infoLabel1;
     UILabel currentTempLabel;
     UILabel expectedTempLabel;
-    
 
     // (opcjonalnie: komunikat dla okna info)
     String infoMessage;
@@ -85,4 +94,5 @@ private:
     float cjTemp = 0.0f; // temperatura cold junction
     float tcVoltage;
     float TCtemp;
+    CurveManager curveManager; // Dodajemy obiekt CurveManager do klasy Modal
 };

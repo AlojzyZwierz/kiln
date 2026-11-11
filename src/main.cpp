@@ -155,6 +155,12 @@ void loop()
       ProcessController::get().checkSegmentAdvance();
       ProcessController::get().checkForErrors();
       // ProcessController::get().adjustSkipTime();
+    }else{
+      if(SystemState::get().isDelayElapsed() ){        
+        curveSelector.selectByIndex(SystemState::get().getDelayedCurveIndex());
+        SystemState::get().setArmed(false, 0,  0);
+        ProcessController::get().startFiring();
+      } 
     }
     // printMemoryInfo();
   }

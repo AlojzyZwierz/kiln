@@ -42,6 +42,7 @@ public:
     //}// Ustawia tryb GUI*/
 
 private:
+
     EnergyUsageMeter &energyMeter;
     TFT_eSPI &tft;
     TFT_eSprite sprite;
@@ -61,6 +62,7 @@ private:
     TextButton skipButton;
     TextButton infoButton;
     TextButton insertButton;
+    TextButton armedButton;
     UILabel temperatureLabel;
     UILabel curveIndexLabel;
     UILabel expectedTempLabel;
@@ -72,6 +74,7 @@ private:
     InfoBox infoBox;
     GraphRenderer graphRenderer;
     void drawHeader(); // Rysuje temperaturę i nr krzywej
+    void drawFrame(uint8_t color);
     std::vector<Clickable *> clickables;
     std::vector<UIElement *> uiElements; // Wektor elementów UI
     // SystemMode CurrentMode = SystemMode::Idle;

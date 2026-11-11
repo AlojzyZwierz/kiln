@@ -24,6 +24,7 @@ public:
 
     void setHighlighted(bool state);
     bool isHighlighted() const;
+    void setText(const String &newText);
 
 private:
     // TFT_eSprite& tft;
