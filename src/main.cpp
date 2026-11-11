@@ -53,6 +53,8 @@ void setup()
 #endif
   pinMode(SSR_PIN, OUTPUT);
   pinMode(BUZZERPIN, OUTPUT);
+  pinMode(BOXCOOLINGPIN, OUTPUT);
+  digitalWrite(BOXCOOLINGPIN, LOW); // Wyłącz wentylator na start
   Serial.begin(115200);
   delay(1000);
   while (StorageManager::begin() == false)
@@ -61,7 +63,7 @@ void setup()
     delay(1000);
   }
   curveSelector.selectByIndex(1);
-  //curveSelector.selectNext();
+  // curveSelector.selectNext();
   ProcessController::get().begin(curveManager, temperatureSensor, heatingController, energyMeter);
   // StorageManager::saveSettings();
   StorageManager::loadSettings();
@@ -149,6 +151,7 @@ void loop()
     lastUpdateTime = millis();
     webServerManager.handleClient();
     temperatureSensor.update();
+    temperatureSensor.controlBoxCoolingFan();
     guiRenderer.render();
     if (SystemState::get().isCooling() && temperatureSensor.getTemperature() < 100)
     {
@@ -162,29 +165,21 @@ void loop()
       ProcessController::get().checkForErrors();
       // ProcessController::get().adjustSkipTime();
     }
-    else
+    else if (SystemState::get().isDelayElapsed())
     {
-      if (SystemState::get().isDelayElapsed())
+      curveSelector.selectByIndex(SystemState::get().getDelayedCurveIndex());
+      SystemState::get().setArmed(false, 0, 0);
+      ProcessController::get().startFiring();
+    }
+    else if (SystemState::get().isArmed())
+    {
+      // Serial.print("e: " + String(SystemState::get().getDelayedTime() - millis()) + ">" + String(SystemState::get().getDelayedCurveIndex()) + "  ");
+      static uint32_t lastCheckpoint = 0;
+      if (millis() - lastCheckpoint >= CHECKPOINT_MS)
       {
-        curveSelector.selectByIndex(SystemState::get().getDelayedCurveIndex());
-        SystemState::get().setArmed(false, 0, 0);
-        ProcessController::get().startFiring();
+        lastCheckpoint = millis();
+        ResumeManager::saveArmed(SystemState::get().getDelayedCurveIndex(), SystemState::get().getArmedRemainingMs());
       }
-    }
-    if (SystemState::get().isArmed())
-    {
-      Serial.print("e: " + String(SystemState::get().getDelayedTime() - millis()) + ">" + String(SystemState::get().getDelayedCurveIndex()) + "  ");
-    }
-    // printMemoryInfo();
-  }
-
-  else if (SystemState::get().isArmed())
-  {
-    static uint32_t lastCheckpoint = 0;
-    if (millis() - lastCheckpoint >= CHECKPOINT_MS)
-    {
-      lastCheckpoint = millis();
-      ResumeManager::saveArmed(SystemState::get().getDelayedCurveIndex(), SystemState::get().getArmedRemainingMs());
     }
   }
 

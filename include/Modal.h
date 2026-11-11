@@ -79,6 +79,10 @@ private:
     TextButton minusButton;
     TextButton cancelButton;
 
+    TextButton startOkButton;
+    TextButton delayMinusButton;
+    TextButton delayPlusButton;
+
     UILabel valueLabel;     // (opcjonalnie: etykieta do wyświetlania informacji)
     UILabel entryNameLabel; // (opcjonalnie: etykieta tytułu)
     UILabel ipLabel;

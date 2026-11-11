@@ -21,6 +21,7 @@ public:
     // float getTemperatureFromRawVoltage(float rawVoltage);
     float readThermocoupleTemperature() { return thermocouple.readThermocoupleTemperature(); };
     float calcCorrectedTemp(float wrongTemp);
+    void controlBoxCoolingFan(); 
 
 private:
     Adafruit_MAX31856 thermocouple;
@@ -29,4 +30,5 @@ private:
     int errorCount = 0;
     uint8_t lastErrorCode = 0; // kod ostatniego błędu, np. z MAX31856
     void handleError();
+    // sterowanie wentylatorem chłodzącym obudowę sterownika w zależności od temperatury zimnego złącza (CJ)
 };

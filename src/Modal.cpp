@@ -2,15 +2,18 @@
 Modal::Modal()
     : okButton("OK", 30, 180, 50, 30, COLOR_BUTTON, COLOR_BLACK),
       closeButton("X", 270, 30, 25, 25, COLOR_BUTTON, COLOR_BLACK),
-      nextButton(">", 230, 110, 40, 40, COLOR_BUTTON, COLOR_BLACK),
-      prevButton("<", 50, 110, 40, 40, COLOR_BUTTON, COLOR_BLACK),
-      plusButton("+", 140, 60, 40, 40, COLOR_BUTTON, COLOR_BLACK),
-      minusButton("-", 140, 170, 40, 40, COLOR_BUTTON, COLOR_BLACK),
+      nextButton(">", 230, 110, 40, 40, COLOR_BUTTON, COLOR_BLACK, 2),
+      prevButton("<", 50, 110, 40, 40, COLOR_BUTTON, COLOR_BLACK, 2),
+      plusButton("+", 140, 60, 40, 40, COLOR_BUTTON, COLOR_BLACK, 2),
+      minusButton("-", 140, 170, 40, 40, COLOR_BUTTON, COLOR_BLACK, 2),
+      startOkButton("START", 100, 160, 120, 40, COLOR_BUTTON, COLOR_BLACK, 2),
+      delayMinusButton("-", 40, 75, 60, 60, COLOR_BUTTON, COLOR_BLACK, 3),
+      delayPlusButton("+", 220, 75, 60, 60, COLOR_BUTTON, COLOR_BLACK, 3),
+      cancelButton("Cancel", 140, 180, 65, 30, COLOR_BUTTON, COLOR_BLACK),
       valueLabel("0", 110, 135, COLOR_BLACK, 2),
       entryNameLabel("XXX", 80, 165, COLOR_BLACK, 1),
       ipLabel("IP:", 180, 210, COLOR_BLACK, 1),
       cjTempLabel("CJ:", 190, 190, COLOR_BLACK, 1),
-      cancelButton("Cancel", 140, 180, 65, 30, COLOR_BUTTON, COLOR_BLACK),
       infoLabel1("...", 27, 62, COLOR_BLACK, 1),
       infoLabel2("...", 27, 80, COLOR_BLACK, 1),
       currentTempLabel("", 200, 65, COLOR_BLACK, 1),
@@ -24,6 +27,9 @@ Modal::Modal()
     clickables.push_back(&plusButton);
     clickables.push_back(&minusButton);
     clickables.push_back(&cancelButton);
+    clickables.push_back(&startOkButton);
+    clickables.push_back(&delayMinusButton);
+    clickables.push_back(&delayPlusButton);
     uiElements.push_back(&valueLabel);
     uiElements.push_back(&entryNameLabel);
     uiElements.push_back(&ipLabel);
@@ -69,8 +75,8 @@ void Modal::show(ModalMode mode, const String &extra, std::function<void()> conf
         buildMessage(extra);
         break;
     case ModalMode::DelayedStart:
-        buildDelayedStart();    
-        break;  
+        buildDelayedStart();
+        break;
     default:
         break;
     }
@@ -88,6 +94,8 @@ void Modal::render(TFT_eSprite &sprite)
     if (!visible)
         return;
 
+    if (currentMode == ModalMode::DelayedStart)
+        valueLabel.setPosition(sprite.width() / 2 - valueLabel.getWidth(sprite) / 2, 110);
     sprite.fillRect(20, 20, 280, 200, COLOR_MODAL_BG);
     sprite.drawRect(20, 20, 280, 200, COLOR_BLACK); // outline
     sprite.setTextDatum(MC_DATUM);
@@ -99,7 +107,9 @@ void Modal::render(TFT_eSprite &sprite)
     expectedTempLabel.setText(String(ProcessController::get().getExpectedTemp()));
     // currentTempLabel.setText(String(ProcessController::get().getCurrentTemp()));
     currentTempLabel.setText(String(ProcessController::get().getCurrentTemp()));
-    entryNameLabel.setPosition(sprite.width() / 2 - entryNameLabel.getWidth(sprite) / 2, 165);
+    // entryNameLabel.setPosition(sprite.width() / 2 - entryNameLabel.getWidth(sprite) / 2, 165);
+    int captionY = (currentMode == ModalMode::DelayedStart) ? 62 : 165;
+    entryNameLabel.setPosition(sprite.width() / 2 - entryNameLabel.getWidth(sprite) / 2, captionY);
 
     // Serial.println(String(ProcessController::get().getCurrentTemp()) + " " + String(tcVoltage));
 
@@ -304,19 +314,19 @@ void Modal::buildDelayedStart()
     };
     refresh();
 
-    plusButton.setCallback([this, refresh]()
-                           {
+    delayPlusButton.setCallback([this, refresh]()
+                                {
         if (delayHours < MAX_DELAY_H)
             delayHours++;
         refresh(); });
 
-    minusButton.setCallback([this, refresh]()
-                            {
+    delayMinusButton.setCallback([this, refresh]()
+                                 {
         if (delayHours > MIN_DELAY_H)
             delayHours--;
         refresh(); });
-    okButton.setCallback([this]()
-                         {
+    startOkButton.setCallback([this]()
+                              {
     hide();
     if (onDelayConfirmed)
         onDelayConfirmed(delayHours);
@@ -332,8 +342,8 @@ void Modal::buildDelayedStart()
 
     okButton.setVisible(true);
     closeButton.setVisible(true);
-    plusButton.setVisible(true);
-    minusButton.setVisible(true);
+    delayPlusButton.setVisible(true);
+    delayMinusButton.setVisible(true);
     valueLabel.setVisible(true);
     entryNameLabel.setVisible(true);
 }

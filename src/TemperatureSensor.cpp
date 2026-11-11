@@ -97,6 +97,15 @@ bool TemperatureSensor::hasError() const
 {
     return errorCount > 0;
 }
+
+void TemperatureSensor::controlBoxCoolingFan() {
+    float cjTemp = getCJTemperature();
+    if (cjTemp > 50.0f) {
+        digitalWrite(BOXCOOLINGPIN, HIGH); // Włącz wentylator
+    } else if (cjTemp < 32.0f) {
+        digitalWrite(BOXCOOLINGPIN, LOW); // Wyłącz wentylator
+    }
+}
 /*
 float TemperatureSensor::getRawVoltage(){
     uint8_t highByte = thermocouple.readRegister8(0x0C); // LTCBH

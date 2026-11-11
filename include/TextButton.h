@@ -10,11 +10,11 @@
 class TextButton : public Clickable
 {
 public:
-    TextButton(
-        const String &label,
-        int x, int y, int w, int h,
-        uint16_t bgColor = COLOR_BG,
-        uint16_t textColor = COLOR_BLACK);
+    TextButton(const String &label, int x, int y, int w, int h,
+               uint16_t bgColor, uint16_t textColor, int size = 1);
+    void setTextSize(int size);
+    // w sekcji private, po fontColor:
+    int textSize;
 
     void render(TFT_eSprite &tft);
     bool wasClicked(int tx, int ty) override;
