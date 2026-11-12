@@ -14,23 +14,24 @@ GUIRenderer::GUIRenderer(
                             curveManager(cm),
                             leftArrow(10, 110, 30, ArrowDirection::Left, COLOR_BLACK),
                             rightArrow(280, 110, 30, ArrowDirection::Right, COLOR_BLACK),
-                            startButton("start", 150, 200, 60, 25, COLOR_BUTTON, COLOR_BLACK, NamedFont::GFXFF_MEDIUM),
-                            editButton("edit", 220, 200, 60, 25, COLOR_BUTTON, COLOR_BLACK, NamedFont::GFXFF_MEDIUM),
-                            stopButton("stop", 170, 200, 90, 25, COLOR_BUTTON, COLOR_BLACK, NamedFont::GFXFF_MEDIUM),
-                            closeButton("X", 290, 13, 17, 20, COLOR_BUTTON, COLOR_BLACK, NamedFont::GFXFF_MEDIUM),
-                            insertButton("insert", 156, 192, 52, 21, COLOR_BUTTON, COLOR_BLACK, NamedFont::GFXFF_MEDIUM),
-                            skipButton("skip", 211, 192, 52, 21, COLOR_BUTTON, COLOR_BLACK, NamedFont::GFXFF_MEDIUM),
-                            holdButton("hold", 266, 192, 52, 21, COLOR_BUTTON, COLOR_BLACK, NamedFont::GFXFF_MEDIUM),
-                            endHereButton("cut", 156, 215, 52, 21, COLOR_BUTTON, COLOR_BLACK, NamedFont::GFXFF_MEDIUM),
-                            saveButton("save", 211, 215, 107, 21, COLOR_BUTTON, COLOR_BLACK, NamedFont::GFXFF_MEDIUM),
-                            settingsButton("S", 290, 13, 17, 20, COLOR_BUTTON, COLOR_BLACK, NamedFont::GFXFF_MEDIUM),
-                            infoButton("I", 270, 13, 17, 20, COLOR_BUTTON, COLOR_BLACK, NamedFont::GFXFF_MEDIUM),
-                            armedButton("armed", 150, 200, 60, 25, COLOR_BUTTON, COLOR_BLACK, NamedFont::GFXFF_MEDIUM),
+                            startButton("start", 150, 200, 60, 25, COLOR_BUTTON, COLOR_BLACK),
+                            editButton("edit", 220, 200, 60, 25, COLOR_BUTTON, COLOR_BLACK),
+                            stopButton("stop", 170, 200, 90, 25, COLOR_BUTTON, COLOR_BLACK),
+                            closeButton("X", 290, 13, 17, 20, COLOR_BUTTON, COLOR_BLACK),
+                            insertButton("insert", 156, 192, 52, 21, COLOR_BUTTON, COLOR_BLACK),
+                            skipButton("skip", 211, 192, 52, 21, COLOR_BUTTON, COLOR_BLACK),
+                            holdButton("hold", 266, 192, 52, 21, COLOR_BUTTON, COLOR_BLACK),
+                            endHereButton("cut", 156, 215, 52, 21, COLOR_BUTTON, COLOR_BLACK),
+                            saveButton("save", 211, 215, 107, 21, COLOR_BUTTON, COLOR_BLACK),
+                            settingsButton("S", 290, 13, 17, 20, COLOR_BUTTON, COLOR_BLACK),
+                            infoButton("I", 270, 13, 17, 20, COLOR_BUTTON, COLOR_BLACK),
+                            armedButton("cancel", 150, 200, 60, 25, COLOR_BUTTON, COLOR_BLACK),
+                            delayLabel(" ", 135, 227, COLOR_BLACK, NamedFont::BITMAP1),
                             graphRenderer(sprite, cm, temperatureSensor),
                             editCircle(160, 90, 70, cm),
                             energyMeter(em),
-                            temperatureLabel("Temperature", 15, 36, COLOR_BLACK, NamedFont::GFXFF_MEDIUM),
-                            curveIndexLabel("Curve Index", 16, 52, COLOR_BLACK, NamedFont::GFXFF_MEDIUM),
+                            temperatureLabel("Temperature", 15, 13, COLOR_BLACK, NamedFont::BITMAP3),
+                            curveIndexLabel("Curve Index", 16, 49, COLOR_BLACK, NamedFont::GFXFF_MEDIUM),
                             expectedTempLabel("Expected Temp", 16, 71, COLOR_BLACK, NamedFont::GFXFF_MEDIUM),
                             costLabel("", 16, 86, COLOR_BLACK, NamedFont::GFXFF_MEDIUM),
                             segmentIndexLabel("Segment Index", 5, 40, COLOR_BLACK, NamedFont::GFXFF_MEDIUM),
@@ -98,6 +99,7 @@ GUIRenderer::GUIRenderer(
     uiElements.push_back(&costLabel);
     uiElements.push_back(&errorLabel);
     uiElements.push_back(&infoBox);
+    uiElements.push_back(&delayLabel);
 
     //  Serial.println("Clickables in list in constructor: " + String(clickables.size()));
     sprite.setFreeFont(FONT_SMALL);
@@ -157,8 +159,8 @@ void GUIRenderer::render()
         }
     }
     drawHeader();
-    
-    armedButton.setText("A" + Utils::millisToHM(SystemState::get().getArmedRemainingMs() + 59999)); // +500ms dla zaokrąglenia do góry
+     delayLabel.setText("pr." + String(SystemState::get().getDelayedCurveIndex()) + " starts " + Utils::millisToHM(SystemState::get().getArmedRemainingMs() + 59999));
+    //armedButton.setText("p" +String(SystemState::get().getDelayedCurveIndex() )+ " " + Utils::millisToHM(SystemState::get().getArmedRemainingMs() + 59999)); // +500ms dla zaokrąglenia do góry
     for (auto &uIElement : uiElements)
     { // Używamy referencji (auto&), aby uniknąć kopiowania
         if (uIElement->isVisible())
@@ -303,7 +305,8 @@ void GUIRenderer::setupUIFormodes(SystemMode mode)
         startButton.setVisible(!SystemState::get().isArmed());
         armedButton.setVisible(SystemState::get().isArmed());
         // armedButton.setText("armed " + Utils::millisToHM(SystemState::get().getArmedRemainingMs()));
-
+        //delayLabel.setText("pr." + String(SystemState::get().getDelayedCurveIndex()) + " starts " + Utils::millisToHM(SystemState::get().getArmedRemainingMs() + 59999));
+        delayLabel.setVisible(SystemState::get().isArmed());
         editButton.setVisible(true);
         leftArrow.setVisible(true);
         rightArrow.setVisible(true);

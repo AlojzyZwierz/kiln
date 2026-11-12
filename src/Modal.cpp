@@ -1,16 +1,16 @@
 #include "Modal.h"
 Modal::Modal()
-    : okButton("OK", 30, 180, 50, 30, COLOR_BUTTON, COLOR_BLACK, NamedFont::GFXFF_MEDIUM),
-      closeButton("X", 270, 30, 25, 25, COLOR_BUTTON, COLOR_BLACK, NamedFont::GFXFF_MEDIUM),
-      nextButton(">", 230, 110, 40, 40, COLOR_BUTTON, COLOR_BLACK, NamedFont::GFXFF_MEDIUM),
-      prevButton("<", 50, 110, 40, 40, COLOR_BUTTON, COLOR_BLACK, NamedFont::GFXFF_MEDIUM),
-      plusButton("+", 140, 60, 40, 40, COLOR_BUTTON, COLOR_BLACK, NamedFont::GFXFF_MEDIUM),
-      minusButton("-", 140, 170, 40, 40, COLOR_BUTTON, COLOR_BLACK, NamedFont::GFXFF_MEDIUM),
-      startOkButton("start", 100, 160, 120, 40, COLOR_BUTTON, COLOR_BLACK, NamedFont::GFXFF_MEDIUM),
+    : okButton("OK", 30, 180, 50, 30, COLOR_BUTTON, COLOR_BLACK),
+      closeButton("X", 270, 30, 25, 25, COLOR_BUTTON, COLOR_BLACK),
+      nextButton(">", 230, 110, 40, 40, COLOR_BUTTON, COLOR_BLACK),
+      prevButton("<", 50, 110, 40, 40, COLOR_BUTTON, COLOR_BLACK),
+      plusButton("+", 140, 60, 40, 40, COLOR_BUTTON, COLOR_BLACK),
+      minusButton("-", 140, 170, 40, 40, COLOR_BUTTON, COLOR_BLACK),
+      startOkButton("start", 100, 160, 120, 40, COLOR_BUTTON, COLOR_BLACK),
       delayMinusButton("-", 50, 75, 45,45, COLOR_BUTTON, COLOR_BLACK, NamedFont::GFXFF_LARGE_BOLD),
       delayPlusButton("+", 230, 75, 45, 45, COLOR_BUTTON, COLOR_BLACK, NamedFont::GFXFF_LARGE_BOLD),
-      cancelButton("Cancel", 140, 180, 65, 30, COLOR_BUTTON, COLOR_BLACK, NamedFont::GFXFF_MEDIUM),
-      valueLabel("0", 110, 135, COLOR_BLACK,NamedFont::GFXFF_LARGE_BOLD ),
+      cancelButton("Cancel", 140, 180, 65, 30, COLOR_BUTTON, COLOR_BLACK),
+      valueLabel("0", 110, 135, COLOR_BLACK,NamedFont::BITMAP3),
       entryNameLabel("XXX", 80, 165, COLOR_BLACK, NamedFont::GFXFF_SMALL),
       ipLabel("IP:", 180, 210, COLOR_BLACK, NamedFont::GFXFF_SMALL),
       cjTempLabel("CJ:", 190, 190, COLOR_BLACK, NamedFont::GFXFF_SMALL),
@@ -110,7 +110,7 @@ void Modal::render(TFT_eSprite &sprite)
     // currentTempLabel.setText(String(ProcessController::get().getCurrentTemp()));
     currentTempLabel.setText(String(ProcessController::get().getCurrentTemp()));
     // entryNameLabel.setPosition(sprite.width() / 2 - entryNameLabel.getWidth(sprite) / 2, 165);
-    int captionY = (currentMode == ModalMode::DelayedStart) ? 62 : 165;
+    int captionY = (currentMode == ModalMode::DelayedStart) ? 74 : 165;
     entryNameLabel.setPosition(sprite.width() / 2 - entryNameLabel.getWidth(sprite) / 2, captionY);
 
     // Serial.println(String(ProcessController::get().getCurrentTemp()) + " " + String(tcVoltage));

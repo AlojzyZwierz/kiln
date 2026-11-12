@@ -70,6 +70,7 @@ private:
     UILabel segmentIndexLabel;
     UILabel costLabel;
     UILabel errorLabel;
+    UILabel delayLabel;
     EditCircle editCircle;
     InfoBox infoBox;
     GraphRenderer graphRenderer;
