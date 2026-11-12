@@ -7,8 +7,8 @@ Modal::Modal()
       plusButton("+", 140, 60, 40, 40, COLOR_BUTTON, COLOR_BLACK, 2),
       minusButton("-", 140, 170, 40, 40, COLOR_BUTTON, COLOR_BLACK, 2),
       startOkButton("START", 100, 160, 120, 40, COLOR_BUTTON, COLOR_BLACK, 2),
-      delayMinusButton("-", 40, 75, 60, 60, COLOR_BUTTON, COLOR_BLACK, 3),
-      delayPlusButton("+", 220, 75, 60, 60, COLOR_BUTTON, COLOR_BLACK, 3),
+      delayMinusButton("-", 40, 75, 60, 60, COLOR_BUTTON, COLOR_BLACK, 2),
+      delayPlusButton("+", 220, 75, 60, 60, COLOR_BUTTON, COLOR_BLACK, 2),
       cancelButton("Cancel", 140, 180, 65, 30, COLOR_BUTTON, COLOR_BLACK),
       valueLabel("0", 110, 135, COLOR_BLACK, 2),
       entryNameLabel("XXX", 80, 165, COLOR_BLACK, 1),
@@ -98,6 +98,8 @@ void Modal::render(TFT_eSprite &sprite)
         valueLabel.setPosition(sprite.width() / 2 - valueLabel.getWidth(sprite) / 2, 110);
     sprite.fillRect(20, 20, 280, 200, COLOR_MODAL_BG);
     sprite.drawRect(20, 20, 280, 200, COLOR_BLACK); // outline
+    sprite.setTextSize(1);
+    sprite.setTextColor(COLOR_BLACK);
     sprite.setTextDatum(MC_DATUM);
     sprite.drawString(title, 160, 40);
     infoLabel1.setText(String(ProcessController::get().getP(), 3) + " " + String(ProcessController::get().getI(), 3));
@@ -137,17 +139,14 @@ bool Modal::handleClick(int x, int y)
 {
     if (!visible)
         return false;
-    // Serial.println("Modal::handleClick() called at: " + String(clickables.size()) + " " + String(x) + " " + String(y));
     for (auto *el : clickables)
     {
+        if (!el->isVisible())
+            continue;
         if (el->handleClick(x, y))
-        {
-            // Serial.println("Clickable element clicked: " + String(el->isVisible()) + " " +  String(x) + " " + String(y));
-            return true; // kliknięcie obsłużone
-        }
+            return true;
     }
-
-    return false; // żaden przycisk nie został kliknięty
+    return false;
 }
 
 void Modal::buildSettings()
@@ -306,25 +305,17 @@ void Modal::buildDelayedStart()
 {
     title = "Start firing";
     entryNameLabel.setText("start in");
-    delayHours = 0; // zawsze od zera
+    delayHours = 0;
+    updateDelayLabel();
 
-    auto refresh = [this]()
-    {
-        valueLabel.setText(delayHours == 0 ? String("now") : String(delayHours) + " h");
-    };
-    refresh();
-
-    delayPlusButton.setCallback([this, refresh]()
+    delayPlusButton.setCallback([this]()
                                 {
-        if (delayHours < MAX_DELAY_H)
-            delayHours++;
-        refresh(); });
-
-    delayMinusButton.setCallback([this, refresh]()
+    if (delayHours < MAX_DELAY_H) delayHours++;
+    updateDelayLabel(); });
+    delayMinusButton.setCallback([this]()
                                  {
-        if (delayHours > MIN_DELAY_H)
-            delayHours--;
-        refresh(); });
+    if (delayHours > MIN_DELAY_H) delayHours--;
+    updateDelayLabel(); });
     startOkButton.setCallback([this]()
                               {
     hide();
@@ -340,7 +331,9 @@ void Modal::buildDelayedStart()
             onClose();
         } });
 
-    okButton.setVisible(true);
+    delayMinusButton.setTextOffset(-6, -8);
+    delayPlusButton.setTextOffset(-6, -8);
+    startOkButton.setVisible(true);
     closeButton.setVisible(true);
     delayPlusButton.setVisible(true);
     delayMinusButton.setVisible(true);
@@ -355,4 +348,9 @@ void Modal::setTCVoltage(float voltage)
 void Modal::setTCTemp(float temp)
 {
     TCtemp = temp;
+}
+
+void Modal::updateDelayLabel()
+{
+    valueLabel.setText(delayHours == 0 ? String("now") : String(delayHours) + " h");
 }

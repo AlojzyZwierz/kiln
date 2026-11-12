@@ -151,7 +151,6 @@ void loop()
     lastUpdateTime = millis();
     webServerManager.handleClient();
     temperatureSensor.update();
-    temperatureSensor.controlBoxCoolingFan();
     guiRenderer.render();
     if (SystemState::get().isCooling() && temperatureSensor.getTemperature() < 100)
     {

@@ -26,6 +26,12 @@ public:
     bool isHighlighted() const;
     void setText(const String &newText);
 
+    void setTextOffset(int dx, int dy)
+    {
+        textDX = dx;
+        textDY = dy;
+    }
+
 private:
     // TFT_eSprite& tft;
     String text;
@@ -34,6 +40,8 @@ private:
     uint16_t fontColor;
     bool highlighted;
     // std::function<void()> onClick;
+
+    int textDX = 0, textDY = 0;
 };
 
 #endif

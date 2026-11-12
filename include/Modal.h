@@ -50,6 +50,13 @@ public:
     void setTCTemp(float temp);
     void buildDelayedStart();
 
+    void updateDelayLabel();
+
+    bool needsSensorData() const
+    {
+        return currentMode == ModalMode::Settings || currentMode == ModalMode::Info;
+    }
+
     static constexpr int MIN_DELAY_H = 1;
     static constexpr int MAX_DELAY_H = 72;
     int delayHours = 0;

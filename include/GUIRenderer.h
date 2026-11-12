@@ -83,6 +83,7 @@ private:
     Modal modal;
     bool isModalVisible = false;
     void initSprite();
+    uint32_t lastSensorRead = 0;
 };
 
 #endif

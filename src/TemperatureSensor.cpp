@@ -6,9 +6,9 @@ TemperatureSensor::TemperatureSensor()
 }
 float TemperatureSensor::getCJTemperature()
 {
-    float cjTemp = thermocouple.readCJTemperature();
+    //float cjTemp = thermocouple.readCJTemperature();
     // Serial.println("cjtemp: " + String(cjTemp));
-    return cjTemp;
+    return lastCJTemperature;
 }
 bool TemperatureSensor::begin()
 {   
@@ -39,15 +39,17 @@ bool TemperatureSensor::begin()
 
 void TemperatureSensor::update()
 {
-    float temp = thermocouple.readThermocoupleTemperature();
+    lastDirectTemperature = thermocouple.readThermocoupleTemperature();
+    lastCJTemperature = thermocouple.readCJTemperature();
+    //float temp = thermocouple.readThermocoupleTemperature();
     // Serial.print(">> tempProstoZMaxa: " + String(temp));
     lastErrorCode = thermocouple.readFault();
 
-    if (lastErrorCode == 0 && !isnan(temp) )//&& 
+    if (lastErrorCode == 0 && !isnan(lastDirectTemperature) )//&& 
    // ( abs(lastValidTemperature - temp) < 30.0f || lastValidTemperature == 0))
     {
         //lastValidTemperature = getTemperatureFromRawVoltage(getRawVoltage());
-        lastValidTemperature=calcCorrectedTemp(temp);
+        lastValidTemperature=calcCorrectedTemp(lastDirectTemperature);
         //lastValidTemperature = temp;
         errorCount = 0;
     }
@@ -56,16 +58,19 @@ void TemperatureSensor::update()
         if (SystemState::get().getMode() == SystemMode::Firing)
             handleError();
         SoundManager::playTone(300, 100); // Dźwięk błędu
-        Serial.print("Temperature read error: " + String(lastErrorCode) + " Temp: " + String(temp));
+        Serial.print("Temperature read error: " + String(lastErrorCode) + " Temp: " + String(lastDirectTemperature));
     }
+    controlBoxCoolingFan(); // Sterowanie wentylatorem chłodzącym obudowę sterownika w zależności od temperatury zimnego złącza (CJ)
+    
+    
 }
 float TemperatureSensor::calcCorrectedTemp(float wrongTemp){
     //y=0.00004237x^{3}-0.0217994x^{2}+7.40482x-0.043407
     
-    float temp = wrongTemp - thermocouple.readCJTemperature();
+    float temp = wrongTemp - lastCJTemperature; // Otrzymujemy temperaturę termopary bez wpływu temperatury zimnego złącza
     //return  0.00004237 * pow(temp,3) -0.0217994*temp*temp+7.40482*temp-0.043407 + thermocouple.readCJTemperature();
     // y=-0.00034378x^{2}+1.40946x+0.989002
-    return -0.00034378 * pow(temp, 2) + 1.40946 * temp + 0.989002 + thermocouple.readCJTemperature();
+    return -0.00034378 * pow(temp, 2) + 1.40946 * temp + 0.989002 + lastCJTemperature;
 
 }
 

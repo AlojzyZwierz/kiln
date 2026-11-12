@@ -178,13 +178,15 @@ void GUIRenderer::render()
     // Serial.println("modal visible: " + String(modal.isVisible()));
 
     if (modal.isVisible())
+{
+    if (modal.needsSensorData() && millis() - lastSensorRead >= 1000)
     {
-        modal.setCJTemp(temperatureSensor.getCJTemperature()); // Ustawiamy temperaturę cold junction w modalu
-        // modal.setTCVoltage(temperatureSensor.getRawVoltage());
+        lastSensorRead = millis();
+        modal.setCJTemp(temperatureSensor.getCJTemperature());
         modal.setTCTemp(temperatureSensor.readThermocoupleTemperature());
-        //  Serial.println("Rendering modal");
-        modal.render(sprite); // Rysujemy modal, jeśli jest widoczny
     }
+    modal.render(sprite);
+}
     // uint16_t test_color = sprite.getPaletteColor(1); // Powinien zwrócić uiPalette[1]
 
     sprite.pushSprite(0, 0); // Wyświetlamy sprite na ekranie

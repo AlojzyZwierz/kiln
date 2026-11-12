@@ -17,16 +17,16 @@ void TextButton::render(TFT_eSprite &tft)
     tft.setTextColor(fontColor);
     tft.setTextSize(textSize);
     tft.setTextDatum(MC_DATUM);
-    tft.drawString(text, posX + width / 2, posY + height / 2);
-    tft.setTextSize(1);   // sprite to stan globalny, nie zostawiaj dużego rozmiaru następnym elementom
+    tft.drawString(text, posX + width / 2 + textDX, posY + height / 2 + textDY);
+    tft.setTextSize(1); // sprite to stan globalny, nie zostawiaj dużego rozmiaru następnym elementom
 }
 
 bool TextButton::wasClicked(int tx, int ty)
 {
-    //Serial.println("Button clicked: " + text + "  " + String (posX) + " " + String(posY) + " " + String(width + posX) + " " + String(height + posY));
+    // Serial.println("Button clicked: " + text + "  " + String (posX) + " " + String(posY) + " " + String(width + posX) + " " + String(height + posY));
     if (tx >= posX && tx <= (posX + width) && ty >= posY && ty <= (posY + height))
     {
-        //Serial.println("Button down: " + text);
+        // Serial.println("Button down: " + text);
         return true;
     }
     return false;
