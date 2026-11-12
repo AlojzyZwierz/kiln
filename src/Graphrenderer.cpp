@@ -174,8 +174,7 @@ void GraphRenderer::drawTimeLabels( long totalTime)
     int x = i * 3600000 * timeRatio;
     if (x > 320)
       break;
-    //sprite.setFreeFont(FONT_SMALL);
-    sprite.setTextSize(0.3);
+    //sprite.setFreeFont(FONT_SMALL);    
     
     sprite.drawString(String(i), x, 235);
   }
