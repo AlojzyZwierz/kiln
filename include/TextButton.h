@@ -6,16 +6,20 @@
 #include "Clickable.h"
 #include "ColorPalette.h"
 #include "fonts.h"
+#include "FontHelper.h"
 
 class TextButton : public Clickable
 {
 public:
-    TextButton(const String &label, int x, int y, int w, int h,
-               uint16_t bgColor, uint16_t textColor, const GFXfont *font = nullptr);
-    const GFXfont *font; // po fontColor
-    void setTextSize(int size);
-    // w sekcji private, po fontColor:
-    int textSize;
+    TextButton(const String &label,
+               int x, int y, int w, int h,
+               uint16_t bgColor,
+               uint16_t textColor,
+               NamedFont font = NamedFont::GFXFF_SMALL);
+    //const GFXfont *font; // po fontColor
+    //void setTextSize(int size);
+    //  w sekcji private, po fontColor:
+    //
 
     void render(TFT_eSprite &tft);
     bool wasClicked(int tx, int ty) override;
@@ -32,9 +36,11 @@ public:
         textDX = dx;
         textDY = dy;
     }
+    //int textSize = 1;
 
 private:
     // TFT_eSprite& tft;
+    NamedFont font;
     String text;
     int posX, posY, width, height;
     uint16_t backgroundColor;

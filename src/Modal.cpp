@@ -1,23 +1,23 @@
 #include "Modal.h"
 Modal::Modal()
-    : okButton("OK", 30, 180, 50, 30, COLOR_BUTTON, COLOR_BLACK),
-      closeButton("X", 270, 30, 25, 25, COLOR_BUTTON, COLOR_BLACK),
-      nextButton(">", 230, 110, 40, 40, COLOR_BUTTON, COLOR_BLACK, FONT_MEDIUM),
-      prevButton("<", 50, 110, 40, 40, COLOR_BUTTON, COLOR_BLACK, FONT_MEDIUM),
-      plusButton("+", 140, 60, 40, 40, COLOR_BUTTON, COLOR_BLACK, FONT_MEDIUM),
-      minusButton("-", 140, 170, 40, 40, COLOR_BUTTON, COLOR_BLACK, FONT_MEDIUM),
-      startOkButton("start", 100, 160, 120, 40, COLOR_BUTTON, COLOR_BLACK, FONT_MEDIUM),
-      delayMinusButton("-", 50, 75, 45,45, COLOR_BUTTON, COLOR_BLACK, FONT_LARGE_BOLD),
-      delayPlusButton("+", 230, 75, 45, 45, COLOR_BUTTON, COLOR_BLACK, FONT_LARGE_BOLD),
-      cancelButton("Cancel", 140, 180, 65, 30, COLOR_BUTTON, COLOR_BLACK),
-      valueLabel("0", 110, 135, COLOR_BLACK,1,FONT_LARGE_BOLD ),
-      entryNameLabel("XXX", 80, 165, COLOR_BLACK, 1),
-      ipLabel("IP:", 180, 210, COLOR_BLACK, 1),
-      cjTempLabel("CJ:", 190, 190, COLOR_BLACK, 1),
-      infoLabel1("...", 27, 62, COLOR_BLACK, 1),
-      infoLabel2("...", 27, 80, COLOR_BLACK, 1),
-      currentTempLabel("", 200, 65, COLOR_BLACK, 1),
-      expectedTempLabel("", 200, 80, COLOR_BLACK, 1)
+    : okButton("OK", 30, 180, 50, 30, COLOR_BUTTON, COLOR_BLACK, NamedFont::GFXFF_MEDIUM),
+      closeButton("X", 270, 30, 25, 25, COLOR_BUTTON, COLOR_BLACK, NamedFont::GFXFF_MEDIUM),
+      nextButton(">", 230, 110, 40, 40, COLOR_BUTTON, COLOR_BLACK, NamedFont::GFXFF_MEDIUM),
+      prevButton("<", 50, 110, 40, 40, COLOR_BUTTON, COLOR_BLACK, NamedFont::GFXFF_MEDIUM),
+      plusButton("+", 140, 60, 40, 40, COLOR_BUTTON, COLOR_BLACK, NamedFont::GFXFF_MEDIUM),
+      minusButton("-", 140, 170, 40, 40, COLOR_BUTTON, COLOR_BLACK, NamedFont::GFXFF_MEDIUM),
+      startOkButton("start", 100, 160, 120, 40, COLOR_BUTTON, COLOR_BLACK, NamedFont::GFXFF_MEDIUM),
+      delayMinusButton("-", 50, 75, 45,45, COLOR_BUTTON, COLOR_BLACK, NamedFont::GFXFF_LARGE_BOLD),
+      delayPlusButton("+", 230, 75, 45, 45, COLOR_BUTTON, COLOR_BLACK, NamedFont::GFXFF_LARGE_BOLD),
+      cancelButton("Cancel", 140, 180, 65, 30, COLOR_BUTTON, COLOR_BLACK, NamedFont::GFXFF_MEDIUM),
+      valueLabel("0", 110, 135, COLOR_BLACK,NamedFont::GFXFF_LARGE_BOLD ),
+      entryNameLabel("XXX", 80, 165, COLOR_BLACK, NamedFont::GFXFF_SMALL),
+      ipLabel("IP:", 180, 210, COLOR_BLACK, NamedFont::GFXFF_SMALL),
+      cjTempLabel("CJ:", 190, 190, COLOR_BLACK, NamedFont::GFXFF_SMALL),
+      infoLabel1("...", 27, 62, COLOR_BLACK, NamedFont::GFXFF_SMALL),
+      infoLabel2("...", 27, 80, COLOR_BLACK, NamedFont::GFXFF_SMALL),
+      currentTempLabel("", 200, 65, COLOR_BLACK, NamedFont::GFXFF_SMALL),
+      expectedTempLabel("", 200, 80, COLOR_BLACK, NamedFont::GFXFF_SMALL)
 
 {
     clickables.push_back(&okButton);

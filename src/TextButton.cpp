@@ -4,23 +4,25 @@ TextButton::TextButton(
     const String &label,
     int x, int y, int w, int h,
     uint16_t bgColor,
-    uint16_t textColor, const GFXfont *font ) : text(label), posX(x), posY(y), width(w), height(h),
-                backgroundColor(bgColor), fontColor(textColor), font(font),
-                highlighted(false), Clickable(active) {}
+    uint16_t textColor, NamedFont fontSpec )
+    : text(label), posX(x), posY(y), width(w), height(h),
+      backgroundColor(bgColor), fontColor(textColor), font(fontSpec),
+      highlighted(false), Clickable(active) {}
 
 void TextButton::render(TFT_eSprite &tft)
 {
     uint16_t drawColor = highlighted ? COLOR_GRID : backgroundColor;
     tft.fillRect(posX, posY, width, height, drawColor);
     tft.drawRect(posX, posY, width, height, COLOR_BLACK);
+
     tft.setTextColor(fontColor);
-    tft.setTextSize(1);
-    if (font)
-        tft.setFreeFont(font);
+    applyFont(tft, font);
+
     tft.setTextDatum(MC_DATUM);
-    tft.drawString(text, posX + width / 2 + textDX, posY + height / 2 + textDY);
-    if (font)
-        tft.setFreeFont(FONT_SMALL); // przywróć domyślną
+    tft.drawString(text, posX + width/2 + textDX, posY + height/2 + textDY);
+
+    // przywróć domyślną czcionkę
+    applyFont(tft, NamedFont::GFXFF_SMALL);
 }
 
 bool TextButton::wasClicked(int tx, int ty)
@@ -62,7 +64,3 @@ void TextButton::setText(const String &newText)
 void TextButton::onClick(){
     if (callback) callback();
 }*/
-void TextButton::setTextSize(int size)
-{
-    textSize = size;
-}
