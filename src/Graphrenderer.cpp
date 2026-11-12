@@ -26,6 +26,8 @@ void GraphRenderer::render()
   case SystemMode::Firing:
     drawCurve(curveManager.getAdjustedCurve());
     // drawMeasurements(curveManager.getMeasurementManager());
+    sprite.setTextFont(1);
+    //sprite.setFreeFont(FONT_SMALL);
     drawTempLabels();
     drawTimeLabels(totalTime);
     sprite.setFreeFont(FONT_SMALL);

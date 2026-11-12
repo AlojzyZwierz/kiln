@@ -4,7 +4,7 @@ TextButton::TextButton(
     const String &label,
     int x, int y, int w, int h,
     uint16_t bgColor,
-    uint16_t textColor, const GFXfont *font = nullptr) : text(label), posX(x), posY(y), width(w), height(h),
+    uint16_t textColor, const GFXfont *font ) : text(label), posX(x), posY(y), width(w), height(h),
                 backgroundColor(bgColor), fontColor(textColor), font(font),
                 highlighted(false), Clickable(active) {}
 

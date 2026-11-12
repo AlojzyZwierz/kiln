@@ -12,10 +12,8 @@ GUIRenderer::GUIRenderer(
                             temperatureSensor(sensor),
                             curveSelector(cs),
                             curveManager(cm),
-
                             leftArrow(10, 110, 30, ArrowDirection::Left, COLOR_BLACK),
                             rightArrow(280, 110, 30, ArrowDirection::Right, COLOR_BLACK),
-
                             startButton("start", 150, 200, 60, 25, COLOR_BUTTON, COLOR_BLACK),
                             editButton("edit", 220, 200, 60, 25, COLOR_BUTTON, COLOR_BLACK),
                             stopButton("stop", 170, 200, 90, 25, COLOR_BUTTON, COLOR_BLACK),
@@ -27,7 +25,7 @@ GUIRenderer::GUIRenderer(
                             saveButton("save", 211, 215, 107, 21, COLOR_BUTTON, COLOR_BLACK),
                             settingsButton("S", 290, 13, 17, 20, COLOR_BUTTON, COLOR_BLACK),
                             infoButton("I", 270, 13, 17, 20, COLOR_BUTTON, COLOR_BLACK),
-                            armedButton("armed", 150, 200, 60, 25, COLOR_BUTTON, COLOR_BLACK),
+                            armedButton("armed", 150, 200, 60, 25, COLOR_BUTTON, COLOR_BLACK, 1),
                             graphRenderer(sprite, cm, temperatureSensor),
                             editCircle(160, 90, 70, cm),
                             energyMeter(em),
@@ -159,6 +157,7 @@ void GUIRenderer::render()
         }
     }
     drawHeader();
+    
     armedButton.setText("A" + Utils::millisToHM(SystemState::get().getArmedRemainingMs() + 59999)); // +500ms dla zaokrąglenia do góry
     for (auto &uIElement : uiElements)
     { // Używamy referencji (auto&), aby uniknąć kopiowania

@@ -1,16 +1,24 @@
 #pragma once
-#include <ColorPalette.h> // Include the color palette header
-#include <TFT_eSPI.h>     // Include the TFT_eSPI library
-#include <UIElement.h>    // Include the base class header
+#include <ColorPalette.h>
+#include <TFT_eSPI.h>
+#include <UIElement.h>
+#include "fonts.h"
+
 class UILabel : public UIElement
 {
 public:
-    UILabel(const String &txt, int x, int y, uint16_t color = COLOR_BLACK, int size = 2)
-        : text(txt), posX(x), posY(y), textColor(color), textSize(size) {}
+    UILabel(const String &txt, int x, int y, uint16_t color = COLOR_BLACK,
+            int size = 1, const GFXfont *f = nullptr)
+        : text(txt), posX(x), posY(y), textColor(color), textSize(size), font(f) {}
 
     void setText(const String &newText) { text = newText; }
     void setColor(uint16_t color) { textColor = color; }
     void setSize(int size) { textSize = size; }
+    void setFont(const GFXfont *f, int size = 1)
+    {
+        font = f;
+        textSize = size;
+    }
     void setPosition(int x, int y)
     {
         posX = x;
@@ -19,22 +27,38 @@ public:
 
     void render(TFT_eSprite &tft) override
     {
+        applyFont(tft);
         tft.setTextColor(textColor, COLOR_BG); // z tłem
-        tft.setTextSize(textSize);
         tft.setCursor(posX, posY);
         tft.print(text);
+        restoreFont(tft);
     }
+
     int getWidth(TFT_eSprite &tft)
     {
-        tft.setTextSize(textSize);
+        applyFont(tft);
         int width = tft.textWidth(text);
-        //Serial.println("UILabel::getWidth() called: " + String(width));
+        restoreFont(tft);
         return width;
     }
 
 private:
+    void applyFont(TFT_eSprite &tft)
+    {
+        if (font)
+            tft.setFreeFont(font);
+        tft.setTextSize(textSize);
+    }
+    void restoreFont(TFT_eSprite &tft)
+    {
+        if (font)
+            tft.setFreeFont(FONT_SMALL); // domyślna czcionka całego GUI
+        tft.setTextSize(1);
+    }
+
     String text;
     int posX, posY;
     uint16_t textColor;
     int textSize;
+    const GFXfont *font;   // nullptr = zostaw czcionkę globalną, jak dotąd
 };
