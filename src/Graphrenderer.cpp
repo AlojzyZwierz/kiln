@@ -28,6 +28,7 @@ void GraphRenderer::render()
     // drawMeasurements(curveManager.getMeasurementManager());
     drawTempLabels();
     drawTimeLabels(totalTime);
+    sprite.setFreeFont(FONT_SMALL);
     drawCurrentTempDot(temperatureSensor.getTemperature(), totalTime);
     drawMeasurements(totalTime);
     break;
@@ -161,7 +162,7 @@ void GraphRenderer::drawTempLabels()
   for (int i = 1; i < 13; i++)
   {
     int y = (int)(i * 100 * tempRatio);
-    sprite.setTextFont(0);
+    //sprite.setTextFont(0);
     //sprite.setTextSize(0.2);
     sprite.drawString(String(13 - i * 1), 3, y + 2);
   }
@@ -178,7 +179,7 @@ void GraphRenderer::drawTimeLabels( long totalTime)
     
     sprite.drawString(String(i), x, 235);
   }
-  sprite.setFreeFont(FONT_SMALL);
+  
 }
 
 void GraphRenderer::drawCurve(const Curve &curve)

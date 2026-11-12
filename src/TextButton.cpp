@@ -4,9 +4,8 @@ TextButton::TextButton(
     const String &label,
     int x, int y, int w, int h,
     uint16_t bgColor,
-    uint16_t textColor,
-    int size) : text(label), posX(x), posY(y), width(w), height(h),
-                backgroundColor(bgColor), fontColor(textColor), textSize(size),
+    uint16_t textColor, const GFXfont *font = nullptr) : text(label), posX(x), posY(y), width(w), height(h),
+                backgroundColor(bgColor), fontColor(textColor), font(font),
                 highlighted(false), Clickable(active) {}
 
 void TextButton::render(TFT_eSprite &tft)
@@ -15,10 +14,13 @@ void TextButton::render(TFT_eSprite &tft)
     tft.fillRect(posX, posY, width, height, drawColor);
     tft.drawRect(posX, posY, width, height, COLOR_BLACK);
     tft.setTextColor(fontColor);
-    tft.setTextSize(textSize);
+    tft.setTextSize(1);
+    if (font)
+        tft.setFreeFont(font);
     tft.setTextDatum(MC_DATUM);
     tft.drawString(text, posX + width / 2 + textDX, posY + height / 2 + textDY);
-    tft.setTextSize(1); // sprite to stan globalny, nie zostawiaj dużego rozmiaru następnym elementom
+    if (font)
+        tft.setFreeFont(FONT_SMALL); // przywróć domyślną
 }
 
 bool TextButton::wasClicked(int tx, int ty)
